@@ -1,0 +1,87 @@
+name: wewall-cluster
+
+services:
+  # ==========================================
+  # 节点 A (主/备节点 1)
+  # ==========================================
+  app_a:
+    image: wewall-app:latest
+    container_name: app_a
+    build:
+      context: ..
+    volumes:
+      - ../:/opt/www
+      - /opt/www/vendor
+      - /opt/www/runtime # 💡 隔离 runtime 缓存，防止 A/B 节点文件锁死
+    ports:
+      - "9501:9501"
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    environment:
+      - APP_ENV=dev
+      - SCAN_CACHEABLE=false
+      - APP_PORT=9501
+    networks:
+      - app_network
+    restart: always
+    # 👇【核心配置】Swoole/Hyperf 优雅停机信号 (通常是 SIGINT 或 SIGTERM，根据框架调整)
+    stop_signal: SIGINT
+    stop_grace_period: 20s # 给容器 20 秒时间处理完手中剩下的请求
+    # 👇【核心配置】健康检查：确保端口通了、代码加载完了才算就绪
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9501"] # 如果没有 nc 也可以换成 curl 检查你的健康路由
+      interval: 3s      # 每 3 秒检查一次
+      timeout: 2s       # 超时时间
+      retries: 3        # 连续失败 3 次才算不健康
+      start_period: 5s  # 容器启动后的前 5 秒不计入失败，给暖机留时间
+
+  # ==========================================
+  # 节点 B (主/备节点 2)
+  # ==========================================
+  app_b:
+    image: wewall-app:latest
+    container_name: app_b
+    build:
+      context: ..
+    volumes:
+      - ../:/opt/www
+      - /opt/www/vendor
+      - /opt/www/runtime # 💡 隔离 runtime 缓存
+    ports:
+      - "9502:9501" # 宿主机暴露 9502，容器内部依然是 9501
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    environment:
+      - APP_ENV=dev
+      - SCAN_CACHEABLE=false
+      - APP_PORT=9501
+    networks:
+      - app_network
+    restart: always
+    stop_signal: SIGINT
+    stop_grace_period: 20s
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9501"]
+      interval: 3s
+      timeout: 2s
+      retries: 3
+      start_period: 5s
+
+  # ==========================================
+  # 负载均衡 Nginx
+  # ==========================================
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ../:/var/www
+      - ./nginx.conf:/etc/nginx/conf.d/nginx.conf:ro # 以只读形式挂载配置
+    ports:
+      - "18080:18080"
+    networks:
+      - app_network
+    restart: always
+
+networks:
+  app_network:
+    driver: bridge

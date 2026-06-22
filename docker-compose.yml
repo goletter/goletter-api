@@ -1,0 +1,22 @@
+services:
+  app:
+    image: wewall-app
+    container_name: app
+    build:
+      context: .
+    volumes:
+      - ./:/opt/www
+    ports:
+      - 9501:9501
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    environment:
+      - APP_ENV=dev
+      - SCAN_CACHEABLE=false
+    networks:
+      - app_network
+    restart: always
+
+networks:
+  app_network:
+    driver: bridge
