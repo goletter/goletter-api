@@ -9,8 +9,15 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
-return [
-    'http' => [
-        App\Middleware\TraceGatewayMiddleware::class,
-    ],
-];
+
+namespace App\Service;
+
+use Goletter\Server\Service\Service;
+
+class TestService extends Service
+{
+    public function index()
+    {
+        //
+    }
+}
