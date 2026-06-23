@@ -12,5 +12,6 @@ vendor/
 .phpunit*
 *.cache
 .vscode/
+public/
 /phpstan.neon
 /phpunit.xml
