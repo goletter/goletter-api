@@ -12,5 +12,6 @@ declare(strict_types=1);
 return [
     'http' => [
         App\Middleware\TraceGatewayMiddleware::class,
+        App\Middleware\IdempotencyMiddleware::class,
     ],
 ];

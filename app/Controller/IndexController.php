@@ -16,14 +16,14 @@ class IndexController extends AbstractController
 {
     public function index()
     {
-        $user = $this->request->input('user', 'Hyperf');
         $method = $this->request->getMethod();
         $traceId = $this->request->input('trace_id');
+        $data = $this->request->all();
 
         return $this->success([
             'method' => $method,
-            'message' => "Hello {$user}.",
             'trace_id' => $traceId,
+            ...$data,
         ]);
     }
 }
