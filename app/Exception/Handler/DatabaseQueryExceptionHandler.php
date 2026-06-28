@@ -13,40 +13,38 @@ declare(strict_types=1);
 namespace App\Exception\Handler;
 
 use App\Constants\LogTypeConstant;
-use Goletter\Resource\Exception\BusinessException;
+use Hyperf\Database\Exception\QueryException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\Logger\Logger;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
-class AppExceptionHandler extends ExceptionHandler
+class DatabaseQueryExceptionHandler extends ExceptionHandler
 {
     use Exception;
-
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        $res = [
-            'code' => $throwable->getCode(),
-            'message' => $throwable->getMessage(),
-        ];
-        // 格式化输出
-        $data = json_encode($res, JSON_UNESCAPED_UNICODE);
-        // 记录错误日志
+        // 这里可以记录日志，发送报警等
         logging([
             $throwable->getMessage(),
             $throwable->getFile(),
             $throwable->getLine(),
             $throwable->getTraceAsString(),
-        ], 'AppException', LogTypeConstant::Daily, Logger::ERROR);
+        ], '服务器错误', LogTypeConstant::Daily, Logger::ERROR);
 
         // 阻止异常冒泡
         $this->stopPropagation();
+        $data = json_encode([
+            'code' => $throwable->getCode(),
+            'message' => '服务端开小差了！',
+        ], JSON_UNESCAPED_UNICODE);
+
         return $this->response(422, $data, $response);
     }
 
-    // 判断该异常类是否要对该异常进行处理
     public function isValid(Throwable $throwable): bool
     {
-        return $throwable instanceof BusinessException;
+        // 判断异常是否是 QueryException 实例
+        return $throwable instanceof QueryException;
     }
 }

@@ -13,13 +13,12 @@ declare(strict_types=1);
 namespace App\Exception\Handler;
 
 use App\Constants\LogTypeConstant;
-use Goletter\Resource\Exception\BusinessException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\Logger\Logger;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
-class AppExceptionHandler extends ExceptionHandler
+class DefaultExceptionHandler extends ExceptionHandler
 {
     use Exception;
 
@@ -37,7 +36,7 @@ class AppExceptionHandler extends ExceptionHandler
             $throwable->getFile(),
             $throwable->getLine(),
             $throwable->getTraceAsString(),
-        ], 'AppException', LogTypeConstant::Daily, Logger::ERROR);
+        ], 'DefaultException', LogTypeConstant::Daily, Logger::ERROR);
 
         // 阻止异常冒泡
         $this->stopPropagation();
@@ -47,6 +46,6 @@ class AppExceptionHandler extends ExceptionHandler
     // 判断该异常类是否要对该异常进行处理
     public function isValid(Throwable $throwable): bool
     {
-        return $throwable instanceof BusinessException;
+        return true;
     }
 }

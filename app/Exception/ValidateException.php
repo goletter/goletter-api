@@ -9,6 +9,13 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
-return [
-    // App\Aspect\TraceAspect::class,
-];
+namespace App\Exception;
+
+use Hyperf\Server\Exception\ServerException;
+
+/**
+ * 验证器异常类.
+ */
+class ValidateException extends ServerException
+{
+}

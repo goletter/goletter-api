@@ -12,6 +12,6 @@ class TestJob extends Job
 
     public function handle()
     {
-        //
+        logging([], '444', 'test');
     }
 }

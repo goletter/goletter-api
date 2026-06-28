@@ -12,18 +12,31 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Event\TestEvent;
+use App\Job\TestJob;
+use App\Service\TestService;
+use Goletter\Server\Service\QueueService;
+use Hyperf\Di\Annotation\Inject;
+use function Goletter\Utils\event;
+
 class IndexController extends AbstractController
 {
+    #[Inject]
+    private TestService $service;
+
+    #[Inject]
+    private QueueService $queueService;
+
     public function index()
     {
-        $method = $this->request->getMethod();
-        $traceId = $this->request->input('trace_id');
-        $data = $this->request->all();
+        logging([], '111', 'test');
 
-        return $this->success([
-            'method' => $method,
-            'trace_id' => $traceId,
-            ...$data,
-        ]);
+        $this->service->index();
+
+        event()->dispatch(new TestEvent());
+
+        $this->queueService->push(new TestJob());
+
+        return $this->success();
     }
 }
