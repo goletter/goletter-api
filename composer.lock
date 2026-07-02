@@ -698,16 +698,16 @@
         },
         {
             "name": "goletter/hyperf-server",
-            "version": "v2.0.2",
+            "version": "v2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goletter/hyperf-server.git",
-                "reference": "d1f40956344fc605756aeb86292b1cd7fc342859"
+                "reference": "4f7326884e266911ea2222c745d757d7c516f253"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goletter/hyperf-server/zipball/d1f40956344fc605756aeb86292b1cd7fc342859",
-                "reference": "d1f40956344fc605756aeb86292b1cd7fc342859",
+                "url": "https://api.github.com/repos/goletter/hyperf-server/zipball/4f7326884e266911ea2222c745d757d7c516f253",
+                "reference": "4f7326884e266911ea2222c745d757d7c516f253",
                 "shasum": ""
             },
             "require": {
@@ -751,9 +751,9 @@
             ],
             "support": {
                 "issues": "https://github.com/goletter/hyperf-server/issues",
-                "source": "https://github.com/goletter/hyperf-server/tree/v2.0.2"
+                "source": "https://github.com/goletter/hyperf-server/tree/v2.0.3"
             },
-            "time": "2026-06-25T19:16:00+00:00"
+            "time": "2026-06-29T16:16:15+00:00"
         },
         {
             "name": "goletter/hyperf-sls-log",
@@ -1008,16 +1008,16 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.13.0",
+            "version": "7.13.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "a4decaa9745dc567467970e43f183e260cfa51fd"
+                "reference": "55901a76dfd2006a0cc012b9e3c5b487f796478d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/a4decaa9745dc567467970e43f183e260cfa51fd",
-                "reference": "a4decaa9745dc567467970e43f183e260cfa51fd",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/55901a76dfd2006a0cc012b9e3c5b487f796478d",
+                "reference": "55901a76dfd2006a0cc012b9e3c5b487f796478d",
                 "shasum": ""
             },
             "require": {
@@ -1116,7 +1116,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.13.0"
+                "source": "https://github.com/guzzle/guzzle/tree/7.13.1"
             },
             "funding": [
                 {
@@ -1132,7 +1132,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-29T13:31:06+00:00"
+            "time": "2026-06-29T20:14:18+00:00"
         },
         {
             "name": "guzzlehttp/promises",
