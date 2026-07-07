@@ -10,6 +10,7 @@ use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Di\Annotation\Inject;
 use Psr\Container\ContainerInterface;
+use function Hyperf\Support\env;
 
 #[Command]
 class TestCommand extends HyperfCommand
@@ -34,11 +35,19 @@ class TestCommand extends HyperfCommand
     public function handle()
     {
         try {
-            $accessToken = '';
+            $accessToken = env('GOOGLE_TOKEN');
 
             // 1. 创建电子表格
             $spreadsheet = $this->sheetsService->createSpreadsheet($accessToken, '我的数据报表');
             $sheetId = $spreadsheet->getSpreadsheetId();
+            if (! is_string($sheetId) || $sheetId === '') {
+                $this->output->writeln(json_encode([
+                    'error' => 'Google Sheets created response did not include spreadsheetId.',
+                    'spreadsheet' => $spreadsheet->toSimpleObject(),
+                ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+                return self::FAILURE;
+            }
 
             // 2. 写入表头
             $this->sheetsService->writeCells($accessToken, $sheetId, 'Sheet1!A1:D1', [
@@ -52,16 +61,57 @@ class TestCommand extends HyperfCommand
                 ['王五', '设计部', 'UI设计师', '2024-03-10'],
             ]);
 
+            // 4. 按日期归档到 Drive 文件夹
+            $folder = $this->sheetsService->moveSpreadsheetToDateFolder(
+                $accessToken,
+                $sheetId,
+                env('GOOGLE_DRIVE_ROOT_FOLDER_NAME', 'Goletter')
+            );
+
+            // 5. 设置为知道链接的人可读
+            $permission = $this->sheetsService->shareSpreadsheetForAnyoneReader($accessToken, $sheetId);
+            $spreadsheetUrl = $spreadsheet->getSpreadsheetUrl() ?: "https://docs.google.com/spreadsheets/d/{$sheetId}/edit";
+
             $data = [
                 'spreadsheet_id' => $sheetId,
-                'spreadsheet_url' => "https://docs.google.com/spreadsheets/d/{$sheetId}/edit",
+                'folder' => $folder,
+                'spreadsheet_url' => $spreadsheetUrl,
+                'share_url' => "https://docs.google.com/spreadsheets/d/{$sheetId}/edit?usp=sharing",
+                'permission' => 'anyone_with_link_reader',
+                'share_permission' => $permission->toSimpleObject(),
             ];
             dd($data);
         } catch (\Google\Service\Exception $e) {
-            // 打印完整的错误详情
-            var_dump($e->getMessage());
-            var_dump($e->getErrors()); // 这里会包含详细的错误原因
+            $this->output->writeln(json_encode(
+                $this->formatGoogleException($e),
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+            ));
+
+            return self::FAILURE;
         }
 
+    }
+
+    private function formatGoogleException(\Google\Service\Exception $e): array
+    {
+        $message = $this->decodeGoogleErrorMessage($e->getMessage());
+        $decodedMessage = json_decode($message, true);
+
+        return [
+            'code' => $e->getCode(),
+            'message' => json_last_error() === JSON_ERROR_NONE ? $decodedMessage : $message,
+            'errors' => $e->getErrors(),
+        ];
+    }
+
+    private function decodeGoogleErrorMessage(string $message): string
+    {
+        if (! str_starts_with($message, "\x1f\x8b")) {
+            return $message;
+        }
+
+        $decoded = gzdecode($message);
+
+        return $decoded === false ? $message : $decoded;
     }
 }

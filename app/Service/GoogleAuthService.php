@@ -14,6 +14,7 @@ namespace App\Service;
 
 use Goletter\Server\Service\Service;
 use Google\Client;
+use GuzzleHttp\Client as GuzzleClient;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Di\Annotation\Inject;
 
@@ -25,6 +26,11 @@ class GoogleAuthService extends Service
     public function getClient(): Client
     {
         $client = new Client();
+        $client->setHttpClient(new GuzzleClient([
+            'headers' => [
+                'Accept-Encoding' => 'identity',
+            ],
+        ]));
 
         // 从配置中读取认证信息
         $client->setClientId($this->config->get('google.client_id'));
@@ -32,6 +38,7 @@ class GoogleAuthService extends Service
         $client->setRedirectUri($this->config->get('google.redirect_uri'));
         $client->addScope(\Google_Service_Docs::DOCUMENTS);
         $client->addScope(\Google_Service_Drive::DRIVE_FILE);
+        $client->addScope('https://www.googleapis.com/auth/spreadsheets');
         $client->setAccessType('offline');
         $client->setPrompt('consent');
 

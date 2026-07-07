@@ -14,23 +14,41 @@ namespace App\Service;
 
 use Goletter\Server\Service\Service;
 use Google\Client;
+use Google\Service\Drive;
+use Google\Service\Drive\DriveFile;
+use Google\Service\Drive\Permission;
 use Google\Service\Sheets;
 use Google\Service\Sheets\ValueRange;
-use Hyperf\Di\Annotation\Inject;
+use GuzzleHttp\Client as GuzzleClient;
 
 class GoogleSheetsService extends Service
 {
-    #[Inject]
-    protected GoogleAuthService $authService;
-
-    protected Sheets $service;
+    private const DEFAULT_SHEET_TITLE = 'Sheet1';
+    private const DEFAULT_ROOT_FOLDER = 'Goletter';
+    private const DRIVE_FOLDER_MIME_TYPE = 'application/vnd.google-apps.folder';
+    private const VALUE_INPUT_OPTION = 'USER_ENTERED';
 
     protected function getSheetsService(string $accessToken): Sheets
     {
+        return new Sheets($this->getGoogleClient($accessToken));
+    }
+
+    protected function getDriveService(string $accessToken): Drive
+    {
+        return new Drive($this->getGoogleClient($accessToken));
+    }
+
+    protected function getGoogleClient(string $accessToken): Client
+    {
         $client = new Client();
+        $client->setHttpClient(new GuzzleClient([
+            'headers' => [
+                'Accept-Encoding' => 'identity',
+            ],
+        ]));
         $client->setAccessToken($accessToken);
 
-        return new Sheets($client);
+        return $client;
     }
 
     /**
@@ -38,13 +56,9 @@ class GoogleSheetsService extends Service
      */
     public function createSpreadsheet(string $accessToken, string $title): \Google\Service\Sheets\Spreadsheet
     {
-        $service = $this->getSheetsService($accessToken);
-
-        $spreadsheet = new \Google\Service\Sheets\Spreadsheet([
-            'properties' => ['title' => $title],
-        ]);
-
-        return $service->spreadsheets->create($spreadsheet);
+        return $this->getSheetsService($accessToken)
+            ->spreadsheets
+            ->create($this->buildSpreadsheet($title));
     }
 
     /**
@@ -80,8 +94,149 @@ class GoogleSheetsService extends Service
             $spreadsheetId,
             $range,
             $body,
-            ['valueInputOption' => 'USER_ENTERED']
+            ['valueInputOption' => self::VALUE_INPUT_OPTION]
         );
+    }
+
+    /**
+     * 将表格设置为知道链接的人可读。
+     */
+    public function shareSpreadsheetForAnyoneReader(string $accessToken, string $spreadsheetId): Permission
+    {
+        $service = $this->getDriveService($accessToken);
+
+        $permission = new Permission([
+            'type' => 'anyone',
+            'role' => 'reader',
+            'allowFileDiscovery' => false,
+        ]);
+
+        return $service->permissions->create($spreadsheetId, $permission, [
+            'sendNotificationEmail' => false,
+            'supportsAllDrives' => true,
+        ]);
+    }
+
+    /**
+     * 将表格移动到“根目录 / 日期”结构中。
+     */
+    public function moveSpreadsheetToDateFolder(
+        string $accessToken,
+        string $spreadsheetId,
+        ?string $rootFolderName = null,
+        ?string $date = null
+    ): array
+    {
+        $service = $this->getDriveService($accessToken);
+        $rootName = $rootFolderName ?: self::DEFAULT_ROOT_FOLDER;
+        $dateName = $date ?? date('Y-m-d');
+        $rootFolder = $this->getOrCreateFolder($service, $rootName);
+        $dateFolder = $this->getOrCreateFolder($service, $dateName, $rootFolder->getId());
+        $dateFolderId = $dateFolder->getId();
+
+        $this->moveFileToFolder($service, $spreadsheetId, $dateFolderId);
+
+        return $this->formatArchiveFolder($rootName, $rootFolder->getId(), $dateName, $dateFolderId);
+    }
+
+    private function getOrCreateFolder(Drive $service, string $folderName, ?string $parentId = null): DriveFile
+    {
+        $folder = $this->findFolder($service, $folderName, $parentId);
+        if ($folder instanceof DriveFile) {
+            return $folder;
+        }
+
+        $folderData = [
+            'name' => $folderName,
+            'mimeType' => self::DRIVE_FOLDER_MIME_TYPE,
+        ];
+        if (is_string($parentId) && $parentId !== '') {
+            $folderData['parents'] = [$parentId];
+        }
+
+        return $service->files->create(new DriveFile($folderData), [
+            'fields' => 'id, name',
+            'supportsAllDrives' => true,
+        ]);
+    }
+
+    private function findFolder(Drive $service, string $folderName, ?string $parentId = null): ?DriveFile
+    {
+        $query = sprintf(
+            "mimeType='%s' and name='%s' and trashed=false",
+            self::DRIVE_FOLDER_MIME_TYPE,
+            $this->escapeDriveQueryValue($folderName)
+        );
+        if (is_string($parentId) && $parentId !== '') {
+            $query .= sprintf(" and '%s' in parents", $this->escapeDriveQueryValue($parentId));
+        }
+
+        $response = $service->files->listFiles([
+            'q' => $query,
+            'fields' => 'files(id, name)',
+            'pageSize' => 1,
+            'supportsAllDrives' => true,
+        ]);
+
+        $folders = $response->getFiles() ?? [];
+
+        return $folders[0] ?? null;
+    }
+
+    private function escapeDriveQueryValue(string $value): string
+    {
+        return str_replace(['\\', "'"], ['\\\\', "\\'"], $value);
+    }
+
+    private function buildSpreadsheet(string $title): \Google\Service\Sheets\Spreadsheet
+    {
+        return new \Google\Service\Sheets\Spreadsheet([
+            'properties' => ['title' => $title],
+            'sheets' => [
+                [
+                    'properties' => [
+                        'title' => self::DEFAULT_SHEET_TITLE,
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    private function moveFileToFolder(Drive $service, string $fileId, string $folderId): void
+    {
+        $file = $service->files->get($fileId, [
+            'fields' => 'parents',
+            'supportsAllDrives' => true,
+        ]);
+
+        $service->files->update($fileId, new DriveFile(), [
+            'addParents' => $folderId,
+            'removeParents' => implode(',', $file->parents ?? []),
+            'fields' => 'id, parents',
+            'supportsAllDrives' => true,
+        ]);
+    }
+
+    private function formatArchiveFolder(
+        string $rootName,
+        string $rootFolderId,
+        string $dateName,
+        string $dateFolderId
+    ): array {
+        return [
+            'path' => "{$rootName}/{$dateName}",
+            'root_folder' => $this->formatFolder($rootName, $rootFolderId),
+            'date_folder' => $this->formatFolder($dateName, $dateFolderId),
+        ];
+    }
+
+    private function formatFolder(string $name, string $id): array
+    {
+        return [
+            'folder_id' => $id,
+            'folder_name' => $name,
+            'folder_url' => "https://drive.google.com/drive/folders/{$id}",
+        ];
     }
 
     /**
@@ -103,7 +258,7 @@ class GoogleSheetsService extends Service
         }
 
         $body = new \Google\Service\Sheets\BatchUpdateValuesRequest([
-            'valueInputOption' => 'USER_ENTERED',
+            'valueInputOption' => self::VALUE_INPUT_OPTION,
             'data' => $batchData,
         ]);
 
