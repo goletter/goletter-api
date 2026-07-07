@@ -77,7 +77,7 @@ services:
       - ../:/var/www
       - ./nginx.conf:/etc/nginx/conf.d/nginx.conf:ro # 以只读形式挂载配置
     ports:
-      - "18080:18080"
+      - "80:80"
     networks:
       - app_network
     restart: always
