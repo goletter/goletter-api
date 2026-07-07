@@ -19,14 +19,14 @@ class GoogleController extends AbstractController
         ]);
     }
 
-    public function callback(GoogleAuthService $authService)
+    public function callback()
     {
         $code = $this->request->query('code');
 
         if (empty($code)) {
             return $this->fail(422, 'Missing authorization code');
         }
-        $token = $authService->fetchToken($code);
+        $token = $this->authService->fetchToken($code);
 
         return $this->success(['token' => $token]);
     }
