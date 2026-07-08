@@ -195,6 +195,7 @@ class GoogleSheetsService extends Service
             'sheets' => [
                 [
                     'properties' => [
+                        'sheetId' => 0,
                         'title' => self::DEFAULT_SHEET_TITLE,
                     ],
                 ],
@@ -268,14 +269,18 @@ class GoogleSheetsService extends Service
     /**
      * 添加新的工作表
      */
-    public function addSheet(string $accessToken, string $spreadsheetId, string $title): void
+    public function addSheet(string $accessToken, string $spreadsheetId, string $title, ?int $sheetId = null): void
     {
         $service = $this->getSheetsService($accessToken);
+        $properties = ['title' => $title];
+        if (is_int($sheetId)) {
+            $properties['sheetId'] = $sheetId;
+        }
 
         $requests = [
             new \Google\Service\Sheets\Request([
                 'addSheet' => new \Google\Service\Sheets\AddSheetRequest([
-                    'properties' => ['title' => $title],
+                    'properties' => $properties,
                 ]),
             ]),
         ];
