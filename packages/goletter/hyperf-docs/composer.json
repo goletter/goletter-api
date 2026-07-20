@@ -1,0 +1,50 @@
+{
+  "name": "goletter/hyperf-docs",
+  "description": "hyperf docs",
+  "license": "MIT",
+  "type": "library",
+  "authors": [
+    {
+      "name": "goletter",
+      "email": "goletter@outlook.com"
+    }
+  ],
+  "keywords": [
+    "php",
+    "hyperf"
+  ],
+  "require": {
+    "php": ">=8.1",
+    "hyperf/di": "~3.1.0",
+    "google/apiclient": "^2.19"
+  },
+  "autoload": {
+    "psr-4": {
+      "Goletter\\Docs\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Goletter\\Ai\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "php-http/discovery": true
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "3.1-dev"
+    },
+    "hyperf": {
+      "config": "Hyperf\\Ai\\ConfigProvider"
+    }
+  },
+  "scripts": {
+    "analyse": "phpstan analyse --memory-limit 300M -l 0 ./src",
+    "cs-fix": "php-cs-fixer fix $1",
+    "test": "co-phpunit -c phpunit.xml --colors=always"
+  }
+}
