@@ -2,93 +2,73 @@
 
 declare(strict_types=1);
 
-namespace App\Command;
+namespace Goletter\Docs\Command;
 
 use Goletter\Docs\Google\Exceptions\GoogleApiException;
+use Goletter\Docs\Google\GoogleAuth;
 use Goletter\Docs\Google\GoogleSheets;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
+use Symfony\Component\Console\Input\InputOption;
 
 use function Hyperf\Support\env;
 
 #[Command]
 class TestCommand extends HyperfCommand
 {
-    private const SPREADSHEET_TITLE = '我的数据报表';
+    private const COMMAND_NAME = 'docs:test';
+
+    private const DEFAULT_SPREADSHEET_TITLE = 'Goletter Docs 测试表格';
 
     private const DEFAULT_SHEET = 'Sheet1';
 
     private const DEFAULT_DRIVE_ROOT_FOLDER = 'Goletter';
 
     #[Inject]
+    protected GoogleAuth $auth;
+
+    #[Inject]
     protected GoogleSheets $sheets;
 
     public function __construct()
     {
-        parent::__construct('test:to');
+        parent::__construct(self::COMMAND_NAME);
     }
 
     public function configure(): void
     {
         parent::configure();
-        $this->setDescription('测试 Google Sheets 创建、写入、归档与分享');
+
+        $this
+            ->setDescription('测试 Google OAuth、Sheets、Drive 集成')
+            ->addOption('auth-url', null, InputOption::VALUE_NONE, '只输出 Google OAuth 授权地址')
+            ->addOption('token', null, InputOption::VALUE_OPTIONAL, 'Google OAuth access token')
+            ->addOption('title', null, InputOption::VALUE_OPTIONAL, '测试表格标题')
+            ->addOption('folder', null, InputOption::VALUE_OPTIONAL, 'Drive 根目录名称');
     }
 
     public function handle(): int
     {
-        $accessToken = $this->accessToken();
-        if ($accessToken === '') {
-            $this->error('缺少环境变量 GOOGLE_TOKEN');
-
-            return self::FAILURE;
-        }
-
         try {
-            $sheetGids = $this->sheetGids();
-            $sheets = $this->sampleSheets($sheetGids);
+            if ((bool) $this->input->getOption('auth-url')) {
+                $this->line($this->auth->getAuthUrl());
 
-            $spreadsheet = $this->sheets->createSpreadsheet(
-                $accessToken,
-                self::SPREADSHEET_TITLE
-            );
-            $spreadsheetId = $spreadsheet->getSpreadsheetId();
-            if (! is_string($spreadsheetId) || $spreadsheetId === '') {
-                $this->error('创建电子表格失败：响应中缺少 spreadsheetId');
-                $this->line($this->toJson($spreadsheet->toSimpleObject()));
+                return self::SUCCESS;
+            }
+
+            $accessToken = $this->accessToken();
+            if ($accessToken === '') {
+                $this->error('缺少 Google access token，请通过 --token 或 GOOGLE_TOKEN 传入。');
+                $this->line('授权地址：' . $this->auth->getAuthUrl());
 
                 return self::FAILURE;
             }
 
-            $this->ensureSheets($accessToken, $spreadsheetId, $sheetGids);
-            $this->sheets->batchWrite(
-                $accessToken,
-                $spreadsheetId,
-                $this->buildBatchData($sheets)
-            );
+            $result = $this->runSheetsDemo($accessToken);
 
-            $folder = $this->sheets->moveSpreadsheetToDateFolder(
-                $accessToken,
-                $spreadsheetId,
-                $this->driveRootFolder()
-            );
-            $permission = $this->sheets->shareSpreadsheetForAnyoneReader(
-                $accessToken,
-                $spreadsheetId
-            );
-            $spreadsheetUrl = $this->spreadsheetUrl($spreadsheetId, $spreadsheet->getSpreadsheetUrl());
-
-            $this->info('Google Sheets 测试完成');
-            $this->line($this->toJson([
-                'spreadsheet_id' => $spreadsheetId,
-                'sheet_titles' => array_keys($sheets),
-                'sheet_gids' => $sheetGids,
-                'folder' => $folder,
-                'spreadsheet_url' => $spreadsheetUrl,
-                'share_url' => "{$spreadsheetUrl}?usp=sharing",
-                'permission' => 'anyone_with_link_reader',
-                'share_permission' => $permission->toSimpleObject(),
-            ]));
+            $this->info('Google Docs 测试完成');
+            $this->line($this->toJson($result));
 
             return self::SUCCESS;
         } catch (GoogleApiException $e) {
@@ -101,6 +81,54 @@ class TestCommand extends HyperfCommand
 
             return self::FAILURE;
         }
+    }
+
+    /**
+     * @return array{
+     *     spreadsheet_id: string,
+     *     sheet_titles: list<string>,
+     *     sheet_gids: array<string, int>,
+     *     folder: array,
+     *     spreadsheet_url: string,
+     *     share_url: string,
+     *     permission: string,
+     *     share_permission: object|array
+     * }
+     */
+    private function runSheetsDemo(string $accessToken): array
+    {
+        $sheetGids = $this->sheetGids();
+        $sheets = $this->sampleSheets($sheetGids);
+        $spreadsheet = $this->sheets->createSpreadsheet($accessToken, $this->spreadsheetTitle());
+        $spreadsheetId = $spreadsheet->getSpreadsheetId();
+
+        if (! is_string($spreadsheetId) || $spreadsheetId === '') {
+            throw new GoogleApiException('创建电子表格失败：响应中缺少 spreadsheetId', 500, [
+                'spreadsheet' => $spreadsheet->toSimpleObject(),
+            ]);
+        }
+
+        $this->ensureSheets($accessToken, $spreadsheetId, $sheetGids);
+        $this->sheets->batchWrite($accessToken, $spreadsheetId, $this->buildBatchData($sheets));
+
+        $folder = $this->sheets->moveSpreadsheetToDateFolder(
+            $accessToken,
+            $spreadsheetId,
+            $this->driveRootFolder()
+        );
+        $permission = $this->sheets->shareSpreadsheetForAnyoneReader($accessToken, $spreadsheetId);
+        $spreadsheetUrl = $this->spreadsheetUrl($spreadsheetId, $spreadsheet->getSpreadsheetUrl());
+
+        return [
+            'spreadsheet_id' => $spreadsheetId,
+            'sheet_titles' => array_keys($sheets),
+            'sheet_gids' => $sheetGids,
+            'folder' => $folder,
+            'spreadsheet_url' => $spreadsheetUrl,
+            'share_url' => "{$spreadsheetUrl}?usp=sharing",
+            'permission' => 'anyone_with_link_reader',
+            'share_permission' => $permission->toSimpleObject(),
+        ];
     }
 
     /**
@@ -188,14 +216,23 @@ class TestCommand extends HyperfCommand
 
     private function accessToken(): string
     {
-        return trim((string) env('GOOGLE_TOKEN', ''));
+        $token = (string) ($this->input->getOption('token') ?: env('GOOGLE_TOKEN', ''));
+
+        return trim($token);
+    }
+
+    private function spreadsheetTitle(): string
+    {
+        $title = trim((string) ($this->input->getOption('title') ?: self::DEFAULT_SPREADSHEET_TITLE));
+
+        return $title === '' ? self::DEFAULT_SPREADSHEET_TITLE : $title;
     }
 
     private function driveRootFolder(): string
     {
-        $folder = trim((string) env(
-            'GOOGLE_DRIVE_ROOT_FOLDER_NAME',
-            self::DEFAULT_DRIVE_ROOT_FOLDER
+        $folder = trim((string) (
+            $this->input->getOption('folder')
+            ?: env('GOOGLE_DRIVE_ROOT_FOLDER_NAME', self::DEFAULT_DRIVE_ROOT_FOLDER)
         ));
 
         return $folder === '' ? self::DEFAULT_DRIVE_ROOT_FOLDER : $folder;
