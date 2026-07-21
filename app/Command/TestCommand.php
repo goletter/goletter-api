@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Service\GoogleAuthService;
 use App\Service\GoogleSheetsService;
 use Goletter\Docs\Google\Exceptions\GoogleApiException;
 use Hyperf\Command\Annotation\Command;
@@ -20,6 +21,9 @@ class TestCommand extends HyperfCommand
 
     #[Inject]
     protected GoogleSheetsService $sheetsService;
+
+    #[Inject]
+    protected GoogleAuthService $authService;
 
     public function __construct()
     {
