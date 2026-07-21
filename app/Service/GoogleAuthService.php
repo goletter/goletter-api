@@ -1,48 +1,21 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of Hyperf.
- *
- * @link     https://www.hyperf.io
- * @document https://hyperf.wiki
- * @contact  group@hyperf.io
- * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
- */
 
 namespace App\Service;
 
-use Goletter\Server\Service\Service;
+use Goletter\Docs\Google\GoogleAuth;
 use Google\Client;
-use GuzzleHttp\Client as GuzzleClient;
-use Hyperf\Contract\ConfigInterface;
 use Hyperf\Di\Annotation\Inject;
 
-class GoogleAuthService extends Service
+class GoogleAuthService
 {
     #[Inject]
-    protected ConfigInterface $config;
+    protected GoogleAuth $auth;
 
     public function getClient(): Client
     {
-        $client = new Client();
-        $client->setHttpClient(new GuzzleClient([
-            'headers' => [
-                'Accept-Encoding' => 'identity',
-            ],
-        ]));
-
-        // 从配置中读取认证信息
-        $client->setClientId($this->config->get('google.client_id'));
-        $client->setClientSecret($this->config->get('google.client_secret'));
-        $client->setRedirectUri($this->config->get('google.redirect_uri'));
-        $client->addScope(\Google_Service_Docs::DOCUMENTS);
-        $client->addScope(\Google_Service_Drive::DRIVE_FILE);
-        $client->addScope('https://www.googleapis.com/auth/spreadsheets');
-        $client->setAccessType('offline');
-        $client->setPrompt('consent');
-
-        return $client;
+        return $this->auth->getClient();
     }
 
     /**
@@ -50,8 +23,7 @@ class GoogleAuthService extends Service
      */
     public function getAuthUrl(): string
     {
-        $client = $this->getClient();
-        return $client->createAuthUrl();
+        return $this->auth->getAuthUrl();
     }
 
     /**
@@ -59,9 +31,7 @@ class GoogleAuthService extends Service
      */
     public function fetchToken(string $code): array
     {
-        $client = $this->getClient();
-        $client->authenticate($code);
-        return $client->getAccessToken();
+        return $this->auth->fetchToken($code);
     }
 
     /**
@@ -69,8 +39,6 @@ class GoogleAuthService extends Service
      */
     public function refreshToken(string $refreshToken): array
     {
-        $client = $this->getClient();
-        $client->refreshToken($refreshToken);
-        return $client->getAccessToken();
+        return $this->auth->refreshToken($refreshToken);
     }
 }

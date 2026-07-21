@@ -1,6 +1,6 @@
 {
   "name": "goletter/hyperf-docs",
-  "description": "hyperf docs",
+  "description": "Hyperf Google Docs / Sheets / Drive integration",
   "license": "MIT",
   "type": "library",
   "authors": [
@@ -11,12 +11,18 @@
   ],
   "keywords": [
     "php",
-    "hyperf"
+    "hyperf",
+    "google",
+    "sheets",
+    "docs",
+    "drive"
   ],
   "require": {
     "php": ">=8.1",
-    "hyperf/di": "~3.1.0",
-    "google/apiclient": "^2.19"
+    "google/apiclient": "^2.19",
+    "guzzlehttp/guzzle": "^7.0",
+    "hyperf/contract": "~3.1.0",
+    "hyperf/di": "~3.1.0"
   },
   "autoload": {
     "psr-4": {
@@ -25,7 +31,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Goletter\\Ai\\Tests\\": "tests/"
+      "Goletter\\Docs\\Tests\\": "tests/"
     }
   },
   "config": {
@@ -39,7 +45,7 @@
       "dev-master": "3.1-dev"
     },
     "hyperf": {
-      "config": "Hyperf\\Ai\\ConfigProvider"
+      "config": "Goletter\\Docs\\ConfigProvider"
     }
   },
   "scripts": {

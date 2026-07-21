@@ -18,6 +18,6 @@ class TestService extends Service
 {
     public function index()
     {
-        logging([], '222', 'test');
+        //
     }
 }
