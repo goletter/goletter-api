@@ -10,5 +10,13 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 return [
-    'http' => [],
+    'http' => [
+        Goletter\Server\Middleware\RequestDecryptMiddleware::class,
+        Goletter\Server\Middleware\HeaderMiddleware::class,
+        Goletter\Server\Middleware\LocaleMiddleware::class,
+        Goletter\Server\Middleware\CorsMiddleware::class,
+        Goletter\Mtls\Middleware\ClientCertificateMiddleware::class,
+        Goletter\Server\Middleware\ResponseFormatMiddleware::class,
+        Goletter\Server\Middleware\ModelBindingMiddleware::class,
+    ],
 ];

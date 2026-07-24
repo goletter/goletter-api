@@ -50,7 +50,8 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
-            "Goletter\\Docs\\": "packages/goletter/hyperf-docs/src/"
+            "Goletter\\Docs\\": "packages/goletter/hyperf-docs/src/",
+            "Goletter\\Mtls\\": "packages/goletter/hyperf-mtls/src/"
         },
         "files": [
             "app/Helpers/Helper.php"

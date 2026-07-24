@@ -5,4 +5,5 @@ use Goletter\Server\Router\Router;
 
 Router::addGroup('/api/admin', function () {
     Router::get('/index', [\App\Controller\IndexController::class, 'index']);
+    Router::post('/mtls/client-certificates', [\App\Controller\MtlsCertificateController::class, 'store']);
 });
