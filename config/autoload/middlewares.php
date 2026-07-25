@@ -15,7 +15,6 @@ return [
         Goletter\Server\Middleware\HeaderMiddleware::class,
         Goletter\Server\Middleware\LocaleMiddleware::class,
         Goletter\Server\Middleware\CorsMiddleware::class,
-        Goletter\Mtls\Middleware\ClientCertificateMiddleware::class,
         Goletter\Server\Middleware\ResponseFormatMiddleware::class,
         Goletter\Server\Middleware\ModelBindingMiddleware::class,
     ],
