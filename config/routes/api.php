@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use Goletter\Mtls\Middleware\ClientCertificateMiddleware;
 use Goletter\Server\Router\Router;
 
 Router::addGroup('/api', function () {
@@ -9,4 +10,4 @@ Router::addGroup('/api', function () {
 
     Router::get('/google/auth-url', [\App\Controller\GoogleController::class, 'authUrl']);
     Router::get('/google/callback', [\App\Controller\GoogleController::class, 'callback']);
-});
+}, ['middleware' => [ClientCertificateMiddleware::class]]);
