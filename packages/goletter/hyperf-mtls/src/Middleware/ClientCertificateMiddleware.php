@@ -30,7 +30,7 @@ class ClientCertificateMiddleware implements MiddlewareInterface
 
         $verify = $this->header($request, 'verify');
         if ($verify !== 'SUCCESS') {
-            return $this->deny('mTLS client certificate verification failed.');
+            return $this->deny('客户端证书校验失败，请确认已安装并选择有效的客户端证书。');
         }
 
         $clientCn = $this->header($request, 'cn');
@@ -38,26 +38,26 @@ class ClientCertificateMiddleware implements MiddlewareInterface
         $fingerprint = $this->normalizeFingerprint($this->header($request, 'fingerprint'));
 
         if (! $this->allowed('mtls.allowed_client_cns', $clientCn)) {
-            return $this->deny('mTLS client certificate CN is not allowed.');
+            return $this->deny('客户端证书 CN 不在允许列表中。');
         }
 
         if (! $this->allowed('mtls.allowed_client_fingerprints', $fingerprint, true)) {
-            return $this->deny('mTLS client certificate fingerprint is not allowed.');
+            return $this->deny('客户端证书指纹不在允许列表中。');
         }
 
         $record = null;
         if ($this->databaseCheckEnabled()) {
             $record = $this->clientCertificate($fingerprint, $serial);
             if (! $record) {
-                return $this->deny('mTLS client certificate record was not found.');
+                return $this->deny('未找到客户端证书记录，请联系管理员重新签发证书。');
             }
 
             if ($record->status !== ClientCertificate::STATUS_ACTIVE) {
-                return $this->deny('mTLS client certificate has been revoked.');
+                return $this->deny('客户端证书已被注销，请联系管理员。');
             }
 
             if ($this->expired($record)) {
-                return $this->deny('mTLS client certificate has expired.');
+                return $this->deny('客户端证书已过期，请联系管理员重新签发证书。');
             }
         }
 
