@@ -76,8 +76,10 @@ services:
     volumes:
       - ../:/var/www
       - ./nginx.conf:/etc/nginx/conf.d/nginx.conf:ro # 以只读形式挂载配置
+      - ./cert:/var/www/cert:ro
     ports:
       - "80:80"
+      - "443:443"
     networks:
       - app_network
     restart: always
