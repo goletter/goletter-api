@@ -28,7 +28,7 @@ return [
     ))),
 
     // 证书默认根目录，生成文件会按 ca、clients/{user} 子目录分组。
-    'output_dir' => env('MTLS_CERT_OUTPUT_DIR', BASE_PATH . '/runtime/certs'),
+    'output_dir' => env('MTLS_CERT_OUTPUT_DIR', BASE_PATH . '/certs/mtls'),
 
     // CA 和普通证书的有效期，单位：天。
     'ca_days' => (int) env('MTLS_CA_DAYS', 3650),
