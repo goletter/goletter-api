@@ -25,6 +25,8 @@ php bin/hyperf.php mtls:client --user alice --password 123456
 php bin/hyperf.php mtls:client --user bob --password 123456
 ```
 
+When a client certificate is generated, its metadata is stored in the `client_certificates` table.
+
 ## Output
 
 By default, files are written under `runtime/certs` and grouped by certificate role.
@@ -57,6 +59,7 @@ Register `Goletter\Mtls\Middleware\ClientCertificateMiddleware::class` in the Hy
 
 ```env
 MTLS_VERIFY_CLIENT=true
+MTLS_CHECK_DATABASE=true
 ```
 
 The middleware expects Nginx to verify the client certificate first and pass the result to Hyperf:
@@ -79,6 +82,16 @@ MTLS_ALLOWED_CLIENT_CNS=alice,bob
 MTLS_ALLOWED_CLIENT_FINGERPRINTS=8F2A...,A94B...
 ```
 
+When `MTLS_CHECK_DATABASE=true`, the middleware also checks `client_certificates`:
+
+```text
+fingerprint or serial must exist
+status must be active
+expires_at must not be expired
+```
+
+Set `status=revoked` to revoke a client certificate. The next request with that certificate will return `403`.
+
 When the certificate passes, the middleware adds these request attributes:
 
 ```text
@@ -86,6 +99,8 @@ mtls_client_cn
 mtls_client_dn
 mtls_client_serial
 mtls_client_fingerprint
+mtls_client_certificate_id
+mtls_client_user
 ```
 
 ## Admin Download API
@@ -115,6 +130,28 @@ friendly_name  Optional. PKCS#12 friendly name, defaults to user.
 
 The generated files are stored under `runtime/certs/clients/{user}` and the selected `p12` or `pfx` file is returned as an attachment.
 
+The generated certificate metadata is also stored in `client_certificates`, including:
+
+```text
+user
+cn
+serial
+fingerprint
+status
+cert_path
+key_path
+p12_path
+pfx_path
+issued_at
+expires_at
+```
+
+Run the migration before using the command or admin API:
+
+```bash
+php bin/hyperf.php migrate
+```
+
 ## Configuration
 
 Publish or copy `publish/mtls.php` to `config/autoload/mtls.php`.
@@ -123,6 +160,7 @@ Supported environment variables:
 
 ```env
 MTLS_VERIFY_CLIENT=false
+MTLS_CHECK_DATABASE=true
 MTLS_ALLOWED_CLIENT_CNS=
 MTLS_ALLOWED_CLIENT_FINGERPRINTS=
 MTLS_CERT_OUTPUT_DIR=/path/to/certs

@@ -6,11 +6,13 @@ namespace Goletter\Mtls\Command;
 
 use Goletter\Mtls\Certificate\CertificateGenerationException;
 use Goletter\Mtls\Certificate\CertificateGenerator;
+use Goletter\Mtls\Repository\ClientCertificateRepository;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Di\Annotation\Inject;
 use Symfony\Component\Console\Input\InputOption;
+use Throwable;
 
 #[Command]
 class GenerateClientCertCommand extends HyperfCommand
@@ -20,6 +22,9 @@ class GenerateClientCertCommand extends HyperfCommand
 
     #[Inject]
     protected ConfigInterface $config;
+
+    #[Inject]
+    protected ClientCertificateRepository $repository;
 
     public function __construct()
     {
@@ -63,13 +68,20 @@ class GenerateClientCertCommand extends HyperfCommand
                 $this->optionString('friendly-name') ?: ($user ?: null),
                 $user ?: null
             );
+            $record = $this->repository->storeGenerated($user ?: ($this->optionString('cn') ?: 'client'), $paths);
 
             $this->info('mTLS client certificate generated.');
             $this->printPaths($paths);
+            $this->line(sprintf('record_id: %s', $record->getKey()));
+            $this->line(sprintf('fingerprint: %s', $record->fingerprint));
 
             return self::SUCCESS;
         } catch (CertificateGenerationException $e) {
             $this->error($e->getMessage());
+
+            return self::FAILURE;
+        } catch (Throwable $e) {
+            $this->error('Unable to store client certificate record: ' . $e->getMessage());
 
             return self::FAILURE;
         }

@@ -8,6 +8,9 @@ return [
     // 是否启用 Hyperf 层的客户端证书校验；生产环境通过 Nginx mTLS 后建议开启。
     'verify_client' => filter_var(env('MTLS_VERIFY_CLIENT', false), FILTER_VALIDATE_BOOLEAN),
 
+    // 是否查询 client_certificates 表确认客户端证书存在、未注销、未过期。
+    'check_database' => filter_var(env('MTLS_CHECK_DATABASE', true), FILTER_VALIDATE_BOOLEAN),
+
     // Nginx 透传给 Hyperf 的客户端证书相关 Header 名称。
     'headers' => [
         'verify' => env('MTLS_HEADER_VERIFY', 'X-SSL-Client-Verify'),

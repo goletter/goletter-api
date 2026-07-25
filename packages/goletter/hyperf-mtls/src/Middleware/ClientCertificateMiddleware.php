@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace Goletter\Mtls\Middleware;
 
+use DateTimeInterface;
+use Goletter\Mtls\Model\ClientCertificate;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface as ResponseFactory;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Throwable;
 
 class ClientCertificateMiddleware implements MiddlewareInterface
 {
@@ -31,6 +34,7 @@ class ClientCertificateMiddleware implements MiddlewareInterface
         }
 
         $clientCn = $this->header($request, 'cn');
+        $serial = $this->header($request, 'serial');
         $fingerprint = $this->normalizeFingerprint($this->header($request, 'fingerprint'));
 
         if (! $this->allowed('mtls.allowed_client_cns', $clientCn)) {
@@ -41,11 +45,29 @@ class ClientCertificateMiddleware implements MiddlewareInterface
             return $this->deny('mTLS client certificate fingerprint is not allowed.');
         }
 
+        $record = null;
+        if ($this->databaseCheckEnabled()) {
+            $record = $this->clientCertificate($fingerprint, $serial);
+            if (! $record) {
+                return $this->deny('mTLS client certificate record was not found.');
+            }
+
+            if ($record->status !== ClientCertificate::STATUS_ACTIVE) {
+                return $this->deny('mTLS client certificate has been revoked.');
+            }
+
+            if ($this->expired($record)) {
+                return $this->deny('mTLS client certificate has expired.');
+            }
+        }
+
         $request = $request
             ->withAttribute('mtls_client_cn', $clientCn)
             ->withAttribute('mtls_client_dn', $this->header($request, 'dn'))
-            ->withAttribute('mtls_client_serial', $this->header($request, 'serial'))
-            ->withAttribute('mtls_client_fingerprint', $fingerprint);
+            ->withAttribute('mtls_client_serial', $serial)
+            ->withAttribute('mtls_client_fingerprint', $fingerprint)
+            ->withAttribute('mtls_client_certificate_id', $record?->getKey())
+            ->withAttribute('mtls_client_user', $record?->user);
 
         return $handler->handle($request);
     }
@@ -53,6 +75,11 @@ class ClientCertificateMiddleware implements MiddlewareInterface
     private function enabled(): bool
     {
         return filter_var($this->config->get('mtls.verify_client', false), FILTER_VALIDATE_BOOLEAN);
+    }
+
+    private function databaseCheckEnabled(): bool
+    {
+        return filter_var($this->config->get('mtls.check_database', true), FILTER_VALIDATE_BOOLEAN);
     }
 
     private function header(ServerRequestInterface $request, string $name): string
@@ -83,6 +110,42 @@ class ClientCertificateMiddleware implements MiddlewareInterface
     private function normalizeFingerprint(string $fingerprint): string
     {
         return strtolower(str_replace(':', '', trim($fingerprint)));
+    }
+
+    private function clientCertificate(string $fingerprint, string $serial): ?ClientCertificate
+    {
+        if ($fingerprint === '' && $serial === '') {
+            return null;
+        }
+
+        try {
+            $query = ClientCertificate::query()->where('fingerprint', $fingerprint);
+            if ($serial !== '') {
+                $query->orWhere('serial', $serial);
+            }
+
+            /** @var null|ClientCertificate $record */
+            $record = $query->orderByDesc('id')->first();
+
+            return $record;
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    private function expired(ClientCertificate $record): bool
+    {
+        if ($record->expires_at === null) {
+            return false;
+        }
+
+        if ($record->expires_at instanceof DateTimeInterface) {
+            return $record->expires_at->getTimestamp() <= time();
+        }
+
+        $timestamp = strtotime((string) $record->expires_at);
+
+        return $timestamp !== false && $timestamp <= time();
     }
 
     private function deny(string $message): ResponseInterface

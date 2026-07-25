@@ -6,12 +6,17 @@ namespace App\Controller;
 
 use Goletter\Mtls\Certificate\CertificateGenerationException;
 use Goletter\Mtls\Certificate\CertificateGenerator;
+use Goletter\Mtls\Repository\ClientCertificateRepository;
 use Hyperf\Di\Annotation\Inject;
+use Throwable;
 
 class MtlsCertificateController extends AbstractController
 {
     #[Inject]
     protected CertificateGenerator $certificates;
+
+    #[Inject]
+    protected ClientCertificateRepository $repository;
 
     public function store()
     {
@@ -40,8 +45,11 @@ class MtlsCertificateController extends AbstractController
                 $this->inputString('friendly_name') ?: $user,
                 $user
             );
+            $this->repository->storeGenerated($user, $paths);
         } catch (CertificateGenerationException $e) {
             return $this->fail(422, $e->getMessage());
+        } catch (Throwable $e) {
+            return $this->fail(500, 'Unable to store client certificate record: ' . $e->getMessage());
         }
 
         $path = $paths['client_' . $format];
