@@ -9,7 +9,7 @@ return [
     'verify_client' => filter_var(env('MTLS_VERIFY_CLIENT', false), FILTER_VALIDATE_BOOLEAN),
 
     // 是否查询 client_certificates 表确认客户端证书存在、未注销、未过期。
-    'check_database' => filter_var(env('MTLS_CHECK_DATABASE', true), FILTER_VALIDATE_BOOLEAN),
+    'check_database' => filter_var(env('MTLS_CHECK_DATABASE', false), FILTER_VALIDATE_BOOLEAN),
 
     // Nginx 透传给 Hyperf 的客户端证书相关 Header 名称。
     'headers' => [
