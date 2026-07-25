@@ -39,7 +39,7 @@ class DatabaseQueryExceptionHandler extends ExceptionHandler
             'message' => '服务端开小差了！',
         ], JSON_UNESCAPED_UNICODE);
 
-        return $this->response(422, $data, $response);
+        return $this->response(500, $data, $response);
     }
 
     public function isValid(Throwable $throwable): bool

@@ -40,7 +40,7 @@ class DefaultExceptionHandler extends ExceptionHandler
 
         // 阻止异常冒泡
         $this->stopPropagation();
-        return $this->response(422, $data, $response);
+        return $this->response(500, $data, $response);
     }
 
     // 判断该异常类是否要对该异常进行处理

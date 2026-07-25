@@ -36,7 +36,7 @@ class HttpExceptionHandler extends ExceptionHandler
 
         // 阻止异常冒泡
         $this->stopPropagation();
-        return $this->response(422, $data, $response);
+        return $this->response(500, $data, $response);
     }
 
     public function isValid(Throwable $throwable): bool
