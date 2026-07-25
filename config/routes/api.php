@@ -12,5 +12,5 @@ Router::addGroup('/api', function () {
 }, ['middleware' => [ClientCertificateMiddleware::class]]);
 
 Router::addGroup('/api', function () {
-    Router::post('/test', [\App\Controller\IndexController::class, 'test']);
+    Router::get('/test', [\App\Controller\IndexController::class, 'test']);
 });
