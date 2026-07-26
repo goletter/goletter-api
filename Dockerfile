@@ -30,7 +30,7 @@ RUN cd /tmp \
     && make install
 
 # =========================================================
-# 阶段二：你的正式运行镜像（继承自官方 Hyperf 镜像，保持纯净）
+# 阶段二：正式运行镜像
 # =========================================================
 FROM hyperf/hyperf:8.3-alpine-v3.19-swoole
 
@@ -42,28 +42,11 @@ ENV TIMEZONE=${timezone:-"Asia/Shanghai"} \
 # 只安装运行所需的最小化基础包
 RUN apk add --no-cache libzip unzip curl
 
-# 容器内手动执行 `composer install` 时默认按生产依赖安装，避免误拉 require-dev。
-# 如需安装 dev 依赖，可执行：COMPOSER_INSTALL_WITH_DEV=1 composer install
-RUN set -ex \
-    && COMPOSER_BIN="$(command -v composer)" \
-    && mv "$COMPOSER_BIN" /usr/local/bin/composer-original \
-    && printf '%s\n' \
-        '#!/bin/sh' \
-        'if { [ "$1" = "install" ] || [ "$1" = "i" ]; } && [ "${COMPOSER_INSTALL_WITH_DEV:-0}" != "1" ]; then' \
-        '    shift' \
-        '    exec /usr/local/bin/composer-original install --no-dev --optimize-autoloader --ignore-platform-reqs "$@"' \
-        'fi' \
-        '' \
-        'exec /usr/local/bin/composer-original "$@"' \
-        > "$COMPOSER_BIN" \
-    && chmod +x "$COMPOSER_BIN"
-
-# 💡【核心杀手锏】：从上面的 builder 阶段中，直接把编译好的 xlswriter.so 偷过来！
-# 并把它塞进 Hyperf 默认的扩展配置目录里
+# 拷贝编译好的 xlswriter 扩展
 COPY --from=builder /usr/lib/php83/modules/xlswriter.so /usr/lib/php83/modules/xlswriter.so
 RUN echo "extension=xlswriter.so" > /etc/php83/conf.d/50_xlswriter.ini
 
-# ---------- PHP 配置与时区设置 ----------
+# PHP 配置与时区设置
 RUN set -ex \
     && cd /etc/php* \
     && { \
@@ -78,17 +61,25 @@ RUN set -ex \
 
 WORKDIR /opt/www
 
-# =========================================================
-# 💡【层缓存优化】：依赖包和代码的分流处理
-# =========================================================
-COPY ./composer.* /opt/www/
-RUN composer-original install --no-dev --no-scripts --no-autoloader --ignore-platform-reqs
+# 先复制 composer 文件，利用 Docker 层缓存
+COPY ./composer.json ./composer.lock /opt/www/
 
-# 复制其余业务源码
+# 校验 lock 是否同步，然后按 lock 安装生产依赖
+RUN composer validate --no-check-publish --strict \
+    && composer install \
+        --no-dev \
+        --prefer-dist \
+        --no-interaction \
+        --no-progress \
+        --no-scripts \
+        --no-autoloader \
+        --ignore-platform-reqs
+
+# 复制业务源码
 COPY . /opt/www
 
-# 生成类映射优化
-RUN composer-original dump-autoload -o
+# 生成优化 autoload
+RUN composer dump-autoload -o
 
 EXPOSE 9501
 
