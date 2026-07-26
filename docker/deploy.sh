@@ -4,6 +4,9 @@
 # -------------------------------------------------------------------
 set -e # 遇到任何一个命令出错，立即停止执行
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
 # 检测是否传入了 --build 参数
 NEED_BUILD=false
 UP_OPTIONS="--force-recreate" # 💡 默认参数：仅强制重建容器
