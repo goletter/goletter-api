@@ -51,6 +51,23 @@ runtime/certs/
 
 Use the generated `.p12` file on macOS Keychain Access and the generated `.pfx` file on Windows Certificate Manager. Install `ca.crt` as a trusted root certificate when the client machine needs to trust certificates signed by this local CA.
 
+PKCS#12 files are exported with legacy `3DES + SHA-1` so macOS Keychain can import them. OpenSSL 3's default `AES-256 + SHA-256` often fails on Mac with `MAC verification failed (wrong password?)` even when the password is correct.
+
+If you already have a modern `.p12` that Mac rejects, convert it:
+
+```bash
+openssl pkcs12 -in yong.p12 -out yong.tmp.pem -nodes -passin pass:123456
+openssl pkcs12 -export \
+  -in yong.tmp.pem \
+  -out yong-macos.p12 \
+  -name yong \
+  -passout pass:123456 \
+  -keypbe PBE-SHA1-3DES \
+  -certpbe PBE-SHA1-3DES \
+  -macalg sha1
+rm yong.tmp.pem
+```
+
 Use a public CA certificate, such as Let's Encrypt or a cloud provider SSL certificate, for the server side of HTTPS. This package only generates the private CA and client certificates used for mTLS client authentication.
 
 ## Middleware

@@ -237,22 +237,92 @@ class CertificateGenerator
         string $password,
         string $friendlyName
     ): void {
-        $exported = openssl_pkcs12_export_to_file(
-            file_get_contents($certPath),
+        // OpenSSL 3 defaults to AES-256-CBC + SHA-256 MAC. macOS Keychain /
+        // Security.framework still expect legacy 3DES + SHA-1 and report a
+        // misleading "MAC verification failed (wrong password?)" otherwise.
+        $command = [
+            $this->resolveOpenSslBinary(),
+            'pkcs12',
+            '-export',
+            '-inkey',
+            $keyPath,
+            '-in',
+            $certPath,
+            '-certfile',
+            $caCertPath,
+            '-out',
             $outputPath,
-            file_get_contents($keyPath),
-            $password,
-            [
-                'friendly_name' => $friendlyName,
-                'extracerts' => file_get_contents($caCertPath),
-            ]
-        );
+            '-name',
+            $friendlyName,
+            '-passout',
+            'pass:' . $password,
+            '-keypbe',
+            'PBE-SHA1-3DES',
+            '-certpbe',
+            'PBE-SHA1-3DES',
+            '-macalg',
+            'sha1',
+        ];
 
-        if (! $exported) {
-            throw new CertificateGenerationException('Unable to export PKCS#12 file: ' . $this->opensslErrors());
+        [$exitCode, $stderr] = $this->runOpenSslCommand($command);
+        if ($exitCode !== 0 || ! is_file($outputPath)) {
+            throw new CertificateGenerationException(sprintf(
+                'Unable to export PKCS#12 file: %s',
+                $stderr !== '' ? $stderr : 'openssl pkcs12 -export failed'
+            ));
         }
 
         chmod($outputPath, 0600);
+    }
+
+    private function resolveOpenSslBinary(): string
+    {
+        $candidates = ['openssl'];
+        foreach (['/usr/local/bin/openssl', '/opt/homebrew/bin/openssl', '/usr/bin/openssl'] as $path) {
+            if (is_executable($path)) {
+                array_unshift($candidates, $path);
+            }
+        }
+
+        foreach (array_unique($candidates) as $binary) {
+            [$exitCode] = $this->runOpenSslCommand([$binary, 'version']);
+            if ($exitCode === 0) {
+                return $binary;
+            }
+        }
+
+        throw new CertificateGenerationException(
+            'Unable to find a working openssl binary for macOS-compatible PKCS#12 export.'
+        );
+    }
+
+    /**
+     * @param list<string> $command
+     * @return array{0: int, 1: string}
+     */
+    private function runOpenSslCommand(array $command): array
+    {
+        $descriptors = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
+
+        $process = proc_open($command, $descriptors, $pipes, null, null, ['bypass_shell' => true]);
+        if (! is_resource($process)) {
+            return [1, 'Unable to start openssl process.'];
+        }
+
+        fclose($pipes[0]);
+        $stdout = stream_get_contents($pipes[1]) ?: '';
+        $stderr = stream_get_contents($pipes[2]) ?: '';
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+
+        $exitCode = proc_close($process);
+        $message = trim($stderr !== '' ? $stderr : $stdout);
+
+        return [$exitCode, $message];
     }
 
     /**
