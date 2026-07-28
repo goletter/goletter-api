@@ -81,6 +81,6 @@ COPY . /opt/www
 # 生成优化 autoload
 RUN composer dump-autoload -o
 
-EXPOSE 9501
+EXPOSE 8501
 
 ENTRYPOINT ["php", "/opt/www/bin/hyperf.php", "start"]
