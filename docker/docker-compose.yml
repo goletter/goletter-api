@@ -13,6 +13,7 @@ services:
       - ../:/opt/www
       - /opt/www/vendor
       - /opt/www/runtime # 💡 隔离 runtime 缓存，防止 A/B 节点文件锁死
+      - ../runtime/app_a/logs:/opt/www/runtime/logs # 将 A 节点日志落到宿主机独立目录
     ports:
       - "8501:8501"
     extra_hosts:
@@ -47,6 +48,7 @@ services:
       - ../:/opt/www
       - /opt/www/vendor
       - /opt/www/runtime # 💡 隔离 runtime 缓存
+      - ../runtime/app_b/logs:/opt/www/runtime/logs # 将 B 节点日志落到宿主机独立目录
     ports:
       - "8502:8501" # 宿主机暴露 9502，容器内部依然是 9501
     extra_hosts:
