@@ -16,7 +16,7 @@ class IndexController extends AbstractController
 {
     public function index()
     {
-        $data = ['test' => 11];
+        $data = ['test' => 8888];
 
         return $this->success($data);
     }
