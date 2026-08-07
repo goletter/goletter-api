@@ -36,11 +36,9 @@ class TestCommand extends HyperfCommand
         $chatId = '-1004388791491';
         // $users = $bot->getGroupUsers($chatId);
 
-        $xx = $bot->sendDocument([
+        $xx = $bot->sendMessage([
             'chat_id' => $chatId,
-            'document' => 'https://dev-wewallads.oss-cn-hongkong.aliyuncs.com/account.xlsx',
-            'caption' => '<b>账户列表</b>',
-            'parse_mode' => 'HTML',
+            'text' => '123488888',
         ]);
         dd($xx);
     }
