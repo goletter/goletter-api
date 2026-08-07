@@ -28,12 +28,19 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
+        $chatId = 8965689451;
         $token = '8631669243:AAFr8gijCSp1MlxJ5WQy98MapKTtz5sIhTs';
         $bot = $this->bots->token($token);
+        // $updates = $bot->getUpdates(['limit' => 10]);
+        // dd($updates);
+        $chatId = '-1004388791491';
+        // $users = $bot->getGroupUsers($chatId);
 
-        $xx = $bot->sendMessage([
-            'chat_id' => 4388791491,
-            'text' => 'Hello',
+        $xx = $bot->sendDocument([
+            'chat_id' => $chatId,
+            'document' => 'https://dev-wewallads.oss-cn-hongkong.aliyuncs.com/account.xlsx',
+            'caption' => '<b>账户列表</b>',
+            'parse_mode' => 'HTML',
         ]);
         dd($xx);
     }
