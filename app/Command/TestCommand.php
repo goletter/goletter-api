@@ -38,7 +38,7 @@ class TestCommand extends HyperfCommand
 
         $xx = $bot->sendMessage([
             'chat_id' => $chatId,
-            'text' => '123488888',
+            'text' => '真正的强大，不是嘶吼着对抗全世界，而是在所有人都躺平吹风时，你敢咬碎牙，把被窝里那个懦弱的自己拎出来，按在书桌前。',
         ]);
         dd($xx);
     }
