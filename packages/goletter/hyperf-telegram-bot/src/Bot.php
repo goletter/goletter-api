@@ -21,11 +21,34 @@ class Bot implements BotInterface
         string $baseUri = 'https://api.telegram.org',
         protected string $webhookSecret = ''
     ) {
+        $this->token = self::normalizeToken($token);
+        $this->http = new TelegramHttpClient($client, $this->token, $baseUri);
+    }
+
+    /**
+     * 规范化并校验 Bot Token（格式：123456789:AAH...）。
+     */
+    public static function normalizeToken(string $token): string
+    {
+        $token = trim($token);
+        // 误把 URL 或带 bot 前缀的值整段塞进来时去掉前缀
+        $token = preg_replace('#^https?://api\.telegram\.org/bot#i', '', $token) ?? $token;
+        $token = preg_replace('#^bot#i', '', $token) ?? $token;
+        $token = trim($token);
+
         if ($token === '') {
             throw new TelegramApiException('Telegram bot token is empty.');
         }
 
-        $this->http = new TelegramHttpClient($client, $token, $baseUri);
+        // 合法格式：<bot_id>:<secret>，例如 7123456789:AAHxxxx
+        if (! preg_match('/^\d+:[A-Za-z0-9_-]+$/', $token)) {
+            throw new TelegramApiException(
+                'Invalid Telegram bot token format. Expected "{bot_id}:{secret}", e.g. "7123456789:AAHxxxx". '
+                . 'A bare secret without the numeric bot_id prefix will cause Telegram to respond with "Not Found".'
+            );
+        }
+
+        return $token;
     }
 
     public function getToken(): string

@@ -42,11 +42,16 @@ class TelegramHttpClient
             }
 
             if (($decoded['ok'] ?? false) !== true) {
-                throw new TelegramApiException(
-                    (string) ($decoded['description'] ?? 'Telegram Bot API error'),
-                    (int) ($decoded['error_code'] ?? 0),
-                    $decoded
-                );
+                $description = (string) ($decoded['description'] ?? 'Telegram Bot API error');
+                $errorCode = (int) ($decoded['error_code'] ?? 0);
+
+                // Token 无效时 Telegram 常返回 404 Not Found，补充可读提示
+                if ($errorCode === 404 || strcasecmp($description, 'Not Found') === 0) {
+                    $description = 'Not Found (usually invalid bot token or wrong API path). '
+                        . 'Check token format "{bot_id}:{secret}".';
+                }
+
+                throw new TelegramApiException($description, $errorCode, $decoded);
             }
 
             return $decoded['result'] ?? null;

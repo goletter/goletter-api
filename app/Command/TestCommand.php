@@ -28,7 +28,7 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        $token = 'AAFr8gijCSp1MlxJ5WQy98MapKTtz5sIhTs';
+        $token = '8631669243:AAFr8gijCSp1MlxJ5WQy98MapKTtz5sIhTs';
         $bot = $this->bots->token($token);
 
         $xx = $bot->sendMessage([
