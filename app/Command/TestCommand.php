@@ -23,7 +23,7 @@ class TestCommand extends HyperfCommand
     public function configure(): void
     {
         parent::configure();
-        $this->setDescription('测试 Google Sheets 创建、写入、归档与分享');
+        $this->setDescription('测试');
     }
 
     public function handle()
@@ -38,7 +38,7 @@ class TestCommand extends HyperfCommand
 
         $xx = $bot->sendMessage([
             'chat_id' => $chatId,
-            'text' => '真正的强大，不是嘶吼着对抗全世界，而是在所有人都躺平吹风时，你敢咬碎牙，把被窝里那个懦弱的自己拎出来，按在书桌前。',
+            'text' => '生活不会因为你在哭就对你温柔，但会因为你没停下手里的活，偷偷给你让路。',
         ]);
         dd($xx);
     }
