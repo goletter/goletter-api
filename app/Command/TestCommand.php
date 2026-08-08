@@ -36,10 +36,9 @@ class TestCommand extends HyperfCommand
         $chatId = '-1004388791491';
         // $users = $bot->getGroupUsers($chatId);
 
-        $xx = $bot->sendMessage([
+        $bot->sendMessage([
             'chat_id' => $chatId,
-            'text' => '生活不会因为你在哭就对你温柔，但会因为你没停下手里的活，偷偷给你让路。',
+            'text' => '一个人成熟的标志，就是不再把‘我很努力’挂在嘴边，而是把结果甩在桌上。在此之前，闭嘴，干活。',
         ]);
-        dd($xx);
     }
 }
