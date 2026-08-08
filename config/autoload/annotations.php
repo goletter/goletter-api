@@ -13,8 +13,6 @@ return [
     'scan' => [
         'paths' => [
             BASE_PATH . '/app',
-            BASE_PATH . '/packages/goletter/hyperf-docs/src',
-            BASE_PATH . '/packages/goletter/hyperf-mtls/src',
             BASE_PATH . '/packages/goletter/hyperf-telegram-bot/src',
         ],
         'ignore_annotations' => [
