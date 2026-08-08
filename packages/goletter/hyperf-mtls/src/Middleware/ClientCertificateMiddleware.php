@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Goletter\Mtls\Middleware;
 
 use DateTimeInterface;
-use Goletter\Mtls\Model\ClientCertificate;
+use mtls\src\Model\ClientCertificate;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface as ResponseFactory;
 use Psr\Http\Message\ResponseInterface;
@@ -124,7 +124,7 @@ class ClientCertificateMiddleware implements MiddlewareInterface
                 $query->orWhere('serial', $serial);
             }
 
-            /** @var null|ClientCertificate $record */
+            /** @var null|mtls\src\Model\ClientCertificate $record */
             $record = $query->orderByDesc('id')->first();
 
             return $record;

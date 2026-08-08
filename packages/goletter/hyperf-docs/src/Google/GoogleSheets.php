@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Goletter\Docs\Google;
 
-use Google\Service\Drive;
+use docker\packages\goletter\hyperfuse Google\Service\Drive;
 use Google\Service\Drive\DriveFile;
 use Google\Service\Drive\Permission;
 use Google\Service\Sheets;

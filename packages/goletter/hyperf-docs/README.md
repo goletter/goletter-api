@@ -54,7 +54,7 @@ GOOGLE_DRIVE_ROOT_FOLDER_NAME=Goletter
 ### Google OAuth
 
 ```php
-use Goletter\Docs\Google\GoogleAuth;
+use docs\src\Google\GoogleAuth;
 use Hyperf\Di\Annotation\Inject;
 
 #[Inject]
@@ -68,7 +68,7 @@ $token = $this->auth->refreshToken($refreshToken);
 ### Google Sheets
 
 ```php
-use Goletter\Docs\Google\GoogleSheets;
+use docs\src\Google\GoogleSheets;
 use Hyperf\Di\Annotation\Inject;
 
 #[Inject]

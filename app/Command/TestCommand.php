@@ -38,7 +38,7 @@ class TestCommand extends HyperfCommand
 
         $bot->sendMessage([
             'chat_id' => $chatId,
-            'text' => '一个人成熟的标志，就是不再把‘我很努力’挂在嘴边，而是把结果甩在桌上。在此之前，闭嘴，干活。',
+            'text' => '跌倒了别急着爬起来，先在地上躺一会儿，想想是怎么倒的。但记住：只能躺一会儿。数到三，要么起来，要么被生活踩过去。',
         ]);
     }
 }

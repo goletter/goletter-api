@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Goletter\Docs\Google;
 
-use Google\Client;
+use docker\packages\goletter\hyperfuse Google\Client;
 use Hyperf\Di\Annotation\Inject;
 
 class GoogleAuth

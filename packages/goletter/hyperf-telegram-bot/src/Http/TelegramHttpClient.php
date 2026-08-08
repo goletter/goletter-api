@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Goletter\Telegram\Http;
 
-use Goletter\Telegram\Exceptions\TelegramApiException;
+use bot\src\Exceptions\TelegramApiException;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -23,7 +23,7 @@ class TelegramHttpClient
     /**
      * @param array<string, mixed> $params
      * @return mixed Telegram API result 字段
-     * @throws TelegramApiException
+     * @throws bot\src\Exceptions\TelegramApiException
      */
     public function request(string $method, array $params = []): mixed
     {

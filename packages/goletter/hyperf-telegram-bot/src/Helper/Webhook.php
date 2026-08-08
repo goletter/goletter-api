@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Goletter\Telegram\Helper;
 
 use Goletter\Telegram\Bot;
-use Goletter\Telegram\Exceptions\TelegramApiException;
+use bot\src\Exceptions\TelegramApiException;
 use Goletter\Telegram\Factory\BotFactory;
-use Goletter\Telegram\Update\Update;
+use bot\src\Update\Update;
 use Psr\Http\Message\ServerRequestInterface;
 
 class Webhook

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Goletter\Mtls\Repository;
 
 use Goletter\Mtls\Certificate\CertificateGenerationException;
-use Goletter\Mtls\Model\ClientCertificate;
+use mtls\src\Model\ClientCertificate;
 
 class ClientCertificateRepository
 {

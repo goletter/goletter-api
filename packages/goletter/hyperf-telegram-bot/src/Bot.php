@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Goletter\Telegram;
 
-use Goletter\Telegram\Contract\BotInterface;
-use Goletter\Telegram\Exceptions\TelegramApiException;
-use Goletter\Telegram\Http\TelegramHttpClient;
-use Goletter\Telegram\Update\Update;
+use bot\src\Contract\BotInterface;
+use bot\src\Exceptions\TelegramApiException;
+use bot\src\Http\TelegramHttpClient;
+use bot\src\Update\Update;
 use GuzzleHttp\ClientInterface;
 
 class Bot implements BotInterface

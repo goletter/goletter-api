@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Goletter\Docs\Command;
 
-use Goletter\Docs\Google\Exceptions\GoogleApiException;
-use Goletter\Docs\Google\GoogleAuth;
-use Goletter\Docs\Google\GoogleSheets;
+use docs\src\Google\Exceptions\GoogleApiException;
+use docs\src\Google\GoogleAuth;
+use docs\src\Google\GoogleSheets;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;

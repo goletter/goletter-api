@@ -6,7 +6,7 @@ namespace App\Controller;
 
 use Goletter\Mtls\Certificate\CertificateGenerationException;
 use Goletter\Mtls\Certificate\CertificateGenerator;
-use Goletter\Mtls\Repository\ClientCertificateRepository;
+use mtls\src\Repository\ClientCertificateRepository;
 use Hyperf\Di\Annotation\Inject;
 use Throwable;
 

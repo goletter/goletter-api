@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Goletter\Telegram\Contract;
 
-use Goletter\Telegram\Update\Update;
+use bot\src\Update\Update;
 
 interface BotInterface
 {

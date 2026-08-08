@@ -7,8 +7,8 @@ namespace Goletter\Docs\Google;
 use Google\Client;
 use Google\Exception as GoogleException;
 use Google\Service\Exception as GoogleServiceException;
-use Goletter\Docs\Google\Exceptions\GoogleApiException;
-use Goletter\Docs\Google\Exceptions\GoogleTokenExpiredException;
+use docs\src\Google\Exceptions\GoogleApiException;
+use docs\src\Google\Exceptions\GoogleTokenExpiredException;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\RequestException;
 use Hyperf\Contract\ConfigInterface;
@@ -56,8 +56,8 @@ class GoogleClient
      * @template T
      * @param callable(): T $callback
      * @return T
-     * @throws GoogleApiException
-     * @throws GoogleTokenExpiredException
+     * @throws docs\src\Google\Exceptions\GoogleApiException
+     * @throws docs\src\Google\Exceptions\GoogleTokenExpiredException
      */
     public function request(callable $callback): mixed
     {
@@ -77,8 +77,8 @@ class GoogleClient
     /**
      * 检查 OAuth token 响应，失败时抛出 GoogleApiException.
      *
-     * @throws GoogleApiException
-     * @throws GoogleTokenExpiredException
+     * @throws docs\src\Google\Exceptions\GoogleApiException
+     * @throws docs\src\Google\Exceptions\GoogleTokenExpiredException
      */
     public function assertTokenResponse(array $token): array
     {
@@ -140,8 +140,8 @@ class GoogleClient
     }
 
     /**
-     * @throws GoogleApiException
-     * @throws GoogleTokenExpiredException
+     * @throws docs\src\Google\Exceptions\GoogleApiException
+     * @throws docs\src\Google\Exceptions\GoogleTokenExpiredException
      */
     protected function handleServiceException(GoogleServiceException $e): never
     {
@@ -161,8 +161,8 @@ class GoogleClient
     }
 
     /**
-     * @throws GoogleApiException
-     * @throws GoogleTokenExpiredException
+     * @throws docs\src\Google\Exceptions\GoogleApiException
+     * @throws docs\src\Google\Exceptions\GoogleTokenExpiredException
      */
     protected function handleRequestException(RequestException $e): never
     {

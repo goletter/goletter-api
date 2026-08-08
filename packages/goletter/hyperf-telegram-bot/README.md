@@ -183,7 +183,7 @@ $bot->revokeChatInviteLink([
 
 ```php
 use Goletter\Telegram\Factory\BotFactory;
-use Goletter\Telegram\Helper\Webhook;
+use bot\src\Helper\Webhook;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use Hyperf\HttpServer\Contract\RequestInterface;
@@ -260,7 +260,7 @@ API 失败会抛出 `Goletter\Telegram\Exceptions\TelegramApiException`：
 ```php
 try {
     $bot->sendMessage(['chat_id' => 1, 'text' => 'hi']);
-} catch (\Goletter\Telegram\Exceptions\TelegramApiException $e) {
+} catch (bot\src\Exceptions\TelegramApiException $e) {
     $e->getDescription();
     $e->getErrorCode();
     $e->getParameters(); // 如 retry_after

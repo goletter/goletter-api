@@ -6,7 +6,7 @@ namespace Goletter\Mtls\Command;
 
 use Goletter\Mtls\Certificate\CertificateGenerationException;
 use Goletter\Mtls\Certificate\CertificateGenerator;
-use Goletter\Mtls\Repository\ClientCertificateRepository;
+use mtls\src\Repository\ClientCertificateRepository;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Contract\ConfigInterface;

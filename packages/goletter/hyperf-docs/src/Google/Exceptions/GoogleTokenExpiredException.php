@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 namespace Goletter\Docs\Google\Exceptions;
 
-class GoogleTokenExpiredException extends GoogleApiException
+use docker\packages\goletter\hyperfclass GoogleTokenExpiredException extends GoogleApiException
 {
 }
