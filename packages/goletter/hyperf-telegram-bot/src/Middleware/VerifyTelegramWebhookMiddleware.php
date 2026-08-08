@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Goletter\Telegram\Middleware;
 
 use Goletter\Telegram\Bot;
-use bot\src\Helper\Webhook;
+use Goletter\Telegram\Helper\Webhook;
 use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

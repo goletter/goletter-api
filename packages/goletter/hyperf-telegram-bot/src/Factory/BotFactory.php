@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Goletter\Telegram\Factory;
 
 use Goletter\Telegram\Bot;
-use bot\src\Exceptions\TelegramApiException;
+use Goletter\Telegram\Exceptions\TelegramApiException;
 use GuzzleHttp\ClientInterface;
 use Hyperf\Contract\ConfigInterface;
 use Hyperf\Guzzle\ClientFactory;

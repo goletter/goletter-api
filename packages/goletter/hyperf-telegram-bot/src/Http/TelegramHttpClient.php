@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Goletter\Telegram\Http;
 
-use bot\src\Exceptions\TelegramApiException;
+use Goletter\Telegram\Exceptions\TelegramApiException;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
