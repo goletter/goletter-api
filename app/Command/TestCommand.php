@@ -38,7 +38,7 @@ class TestCommand extends HyperfCommand
 
         $bot->sendMessage([
             'chat_id' => $chatId,
-            'text' => '跌倒了别急着爬起来，先在地上躺一会儿，想想是怎么倒的。但记住：只能躺一会儿。数到三，要么起来，要么被生活踩过去。',
+            'text' => '别抱怨生活太难，你见过凌晨四点的街道，可你见过凌晨四点还在搬砖的人吗？他们没时间抱怨，因为停下来，连砖都没得搬。',
         ]);
     }
 }
