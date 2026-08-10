@@ -20,11 +20,4 @@ class IndexController extends AbstractController
 
         return $this->success($data);
     }
-
-    public function test()
-    {
-        $data = $this->request->all();
-
-        return $this->success($data);
-    }
 }
