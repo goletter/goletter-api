@@ -14,6 +14,7 @@
     "require": {
         "php": ">=8.1",
         "goletter/hyperf-server": "^2.0",
+        "goletter/hyperf-telegram-bot": "^1.0",
         "hyperf/async-queue": "~3.1.0",
         "hyperf/cache": "~3.1.0",
         "hyperf/command": "~3.1.0",
@@ -49,8 +50,7 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/",
-            "Goletter\\Telegram\\": "packages/goletter/hyperf-telegram-bot/src/"
+            "App\\": "app/"
         },
         "files": [
             "app/Helpers/Helper.php"

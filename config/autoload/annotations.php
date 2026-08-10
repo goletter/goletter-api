@@ -12,8 +12,7 @@ declare(strict_types=1);
 return [
     'scan' => [
         'paths' => [
-            BASE_PATH . '/app',
-            BASE_PATH . '/packages/goletter/hyperf-telegram-bot/src',
+            BASE_PATH . '/app'
         ],
         'ignore_annotations' => [
             'mixin',
