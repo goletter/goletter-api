@@ -8,26 +8,31 @@ use ArrayAccess;
 use JsonSerializable;
 
 /**
- * Telegram Update 轻量封装，支持数组访问。
+ * Telegram Update 轻量封装，支持数组访问与 JSON 序列化。
  *
  * @implements ArrayAccess<string, mixed>
  */
 class Update implements ArrayAccess, JsonSerializable
 {
     /**
-     * @param array<string, mixed> $data
+     * @param array<string, mixed> $data 原始 Update 数组
      */
     public function __construct(protected array $data)
     {
     }
 
+    /**
+     * 获取 update_id。
+     */
     public function getUpdateId(): int
     {
         return (int) ($this->data['update_id'] ?? 0);
     }
 
     /**
-     * @return array<string, mixed>|null
+     * 获取消息类更新（message / edited_message / channel_post / edited_channel_post）。
+     *
+     * @return array<string, mixed>|null Message
      */
     public function getMessage(): ?array
     {
@@ -35,6 +40,8 @@ class Update implements ArrayAccess, JsonSerializable
     }
 
     /**
+     * 获取回调查询（callback_query）。
+     *
      * @return array<string, mixed>|null
      */
     public function getCallbackQuery(): ?array
@@ -45,6 +52,8 @@ class Update implements ArrayAccess, JsonSerializable
     }
 
     /**
+     * 获取加群申请（chat_join_request）。
+     *
      * @return array<string, mixed>|null
      */
     public function getChatJoinRequest(): ?array
@@ -55,7 +64,9 @@ class Update implements ArrayAccess, JsonSerializable
     }
 
     /**
-     * 成员状态变更（进群/退群/权限变化）。
+     * 获取成员状态变更（chat_member / my_chat_member）。
+     *
+     * 进群、退群、权限变化等，可用于自行维护群成员表。
      *
      * @return array<string, mixed>|null ChatMemberUpdated
      */
@@ -65,7 +76,9 @@ class Update implements ArrayAccess, JsonSerializable
     }
 
     /**
-     * @return array<string, mixed>|null
+     * 从常见 Update 类型中提取 chat 对象。
+     *
+     * @return array<string, mixed>|null Chat
      */
     public function getChat(): ?array
     {
@@ -92,6 +105,9 @@ class Update implements ArrayAccess, JsonSerializable
         return null;
     }
 
+    /**
+     * 获取会话 ID（私聊为正、群/超级群通常为负）。
+     */
     public function getChatId(): int|string|null
     {
         $chat = $this->getChat();
@@ -100,7 +116,9 @@ class Update implements ArrayAccess, JsonSerializable
     }
 
     /**
-     * @return array<string, mixed>|null
+     * 获取触发更新的用户（from）。
+     *
+     * @return array<string, mixed>|null User
      */
     public function getFrom(): ?array
     {
@@ -130,6 +148,9 @@ class Update implements ArrayAccess, JsonSerializable
         return null;
     }
 
+    /**
+     * 获取触发用户的 user_id。
+     */
     public function getUserId(): ?int
     {
         $from = $this->getFrom();
@@ -140,6 +161,9 @@ class Update implements ArrayAccess, JsonSerializable
         return (int) $from['id'];
     }
 
+    /**
+     * 获取文本：消息 text，或 callback_query.data。
+     */
     public function getText(): ?string
     {
         $message = $this->getMessage();
@@ -155,6 +179,13 @@ class Update implements ArrayAccess, JsonSerializable
         return null;
     }
 
+    /**
+     * 判断是否为 Bot 命令（以 / 开头）。
+     *
+     * 传入 $command 时匹配命令名，兼容 `/start@BotName` 形式。
+     *
+     * @param string|null $command 命令名，如 start 或 /start；null 表示任意命令
+     */
     public function isCommand(?string $command = null): bool
     {
         $text = $this->getText();
@@ -175,6 +206,8 @@ class Update implements ArrayAccess, JsonSerializable
     }
 
     /**
+     * 返回原始 Update 数组。
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array
@@ -182,16 +215,26 @@ class Update implements ArrayAccess, JsonSerializable
         return $this->data;
     }
 
+    /**
+     * @param mixed $offset
+     */
     public function offsetExists(mixed $offset): bool
     {
         return isset($this->data[$offset]);
     }
 
+    /**
+     * @param mixed $offset
+     */
     public function offsetGet(mixed $offset): mixed
     {
         return $this->data[$offset] ?? null;
     }
 
+    /**
+     * @param mixed $offset
+     * @param mixed $value
+     */
     public function offsetSet(mixed $offset, mixed $value): void
     {
         if ($offset === null) {
@@ -202,6 +245,9 @@ class Update implements ArrayAccess, JsonSerializable
         $this->data[$offset] = $value;
     }
 
+    /**
+     * @param mixed $offset
+     */
     public function offsetUnset(mixed $offset): void
     {
         unset($this->data[$offset]);
@@ -216,6 +262,8 @@ class Update implements ArrayAccess, JsonSerializable
     }
 
     /**
+     * 按顺序返回第一个存在且为数组的字段。
+     *
      * @param list<string> $keys
      * @return array<string, mixed>|null
      */

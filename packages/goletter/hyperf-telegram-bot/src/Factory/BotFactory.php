@@ -12,7 +12,7 @@ use Hyperf\Guzzle\ClientFactory;
 use InvalidArgumentException;
 
 /**
- * 支持配置文件与运行时动态 Token。
+ * Bot 工厂：支持配置文件与运行时动态 Token。
  *
  * 多机器人、Token 可变场景优先使用 token() / resolve()：
  *
@@ -27,17 +27,22 @@ use InvalidArgumentException;
 class BotFactory
 {
     /**
+     * 已缓存的 Bot 实例，键为逻辑名称。
+     *
      * @var array<string, Bot>
      */
     protected array $bots = [];
 
     /**
-     * 缓存中的 token，用于检测变更。
+     * 缓存中对应名称的 Token，用于检测变更。
      *
      * @var array<string, string>
      */
     protected array $tokens = [];
 
+    /**
+     * 共享 HTTP 客户端（懒创建）。
+     */
     protected ?ClientInterface $httpClient = null;
 
     public function __construct(
@@ -48,6 +53,12 @@ class BotFactory
 
     /**
      * 按配置名获取 Bot（可被 register/resolve 覆盖）。
+     *
+     * 名称默认取 `telegram.default`。需在 `telegram.bots.{name}.token` 有配置，
+     * 或此前已通过 token()/resolve() 注册。
+     *
+     * @param string|null $name Bot 名称；null 使用默认名
+     * @throws TelegramApiException 未配置且未缓存时
      */
     public function get(?string $name = null): Bot
     {
@@ -74,7 +85,13 @@ class BotFactory
     /**
      * 使用动态 Token 创建（或复用）Bot。
      *
+     * 未传 name 时，默认用 Token 中的 bot_id 生成缓存名：`bot:{bot_id}`。
+     * 业务侧推荐显式传入业务 ID，便于 Token 轮换后仍命中同一缓存槽。
+     *
+     * @param string $token Bot Token
+     * @param string|null $name 缓存/逻辑名称
      * @param array{webhook_secret?: string, name?: string} $options
+     * @throws TelegramApiException Token 为空时
      */
     public function token(string $token, ?string $name = null, array $options = []): Bot
     {
@@ -89,9 +106,12 @@ class BotFactory
     }
 
     /**
-     * 按名称绑定动态 Token；Token 变化时自动丢弃旧实例。
+     * 按名称绑定动态 Token；Token 或 webhook_secret 变化时自动丢弃旧实例。
      *
+     * @param string $name 缓存/逻辑名称
+     * @param string $token Bot Token
      * @param array{webhook_secret?: string} $options
+     * @throws TelegramApiException Token 为空时
      */
     public function resolve(string $name, string $token, array $options = []): Bot
     {
@@ -116,7 +136,7 @@ class BotFactory
     }
 
     /**
-     * 运行时注册/更新某个命名 Bot 的 Token。
+     * 运行时注册/更新某个命名 Bot 的 Token（等同 resolve）。
      *
      * @param array{webhook_secret?: string} $options
      */
@@ -126,9 +146,14 @@ class BotFactory
     }
 
     /**
-     * 仅创建，不写入缓存（适合一次性调用）。
+     * 仅创建 Bot，不写入工厂缓存（适合一次性调用）。
      *
+     * 未传 token 时从 `telegram.bots.{name}` 读取。
+     *
+     * @param string|null $name 逻辑名称，默认取 telegram.default
+     * @param string|null $token 为空则读配置
      * @param array{webhook_secret?: string} $options
+     * @throws TelegramApiException Token 不可用时
      */
     public function make(?string $name = null, ?string $token = null, array $options = []): Bot
     {
@@ -150,6 +175,8 @@ class BotFactory
     }
 
     /**
+     * 列出已知 Bot 名称（配置文件 + 运行时缓存）。
+     *
      * @return list<string>
      */
     public function names(): array
@@ -160,6 +187,9 @@ class BotFactory
         return array_values(array_unique([...$configured, ...array_keys($this->bots)]));
     }
 
+    /**
+     * 判断名称是否已有配置 Token 或运行时缓存。
+     */
     public function has(string $name): bool
     {
         if (isset($this->bots[$name])) {
@@ -169,6 +199,11 @@ class BotFactory
         return (string) $this->config->get("telegram.bots.{$name}.token", '') !== '';
     }
 
+    /**
+     * 丢弃缓存中的 Bot 实例。
+     *
+     * @param string|null $name 指定名称；null 清空全部
+     */
     public function forget(?string $name = null): void
     {
         if ($name === null) {
@@ -188,6 +223,14 @@ class BotFactory
         return $this->tokens[$name] ?? null;
     }
 
+    /**
+     * 将未定义方法代理到默认 Bot（`$factory->get()`）。
+     *
+     * 便于 `$factory->sendMessage([...])` 这类快捷调用；多 Bot 场景请先 token()/get()。
+     *
+     * @param list<mixed> $arguments
+     * @throws InvalidArgumentException 默认 Bot 上不存在该方法时
+     */
     public function __call(string $method, array $arguments): mixed
     {
         $bot = $this->get();
@@ -199,6 +242,8 @@ class BotFactory
     }
 
     /**
+     * 创建新的 Bot 实例（不负责缓存写入）。
+     *
      * @param array{webhook_secret?: string} $options
      */
     protected function create(string $name, string $token, array $options = []): Bot
@@ -215,6 +260,9 @@ class BotFactory
         );
     }
 
+    /**
+     * 获取（或懒创建）共享 Guzzle 客户端，读取 telegram.http 配置。
+     */
     protected function httpClient(): ClientInterface
     {
         if ($this->httpClient instanceof ClientInterface) {
@@ -236,6 +284,9 @@ class BotFactory
         return $this->httpClient = $this->clientFactory->create($options);
     }
 
+    /**
+     * 从 Token 推导默认缓存名：`bot:{bot_id}`；无法解析时用 sha256 前缀。
+     */
     protected function nameFromToken(string $token): string
     {
         $botId = explode(':', $token, 2)[0] ?? '';

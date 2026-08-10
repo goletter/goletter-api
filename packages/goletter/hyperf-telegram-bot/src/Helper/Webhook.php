@@ -10,8 +10,16 @@ use Goletter\Telegram\Factory\BotFactory;
 use Goletter\Telegram\Update\Update;
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Webhook 请求解析助手。
+ *
+ * 负责：解析 Update、校验 Secret Token、把动态 Bot 挂到 Request 上。
+ */
 class Webhook
 {
+    /**
+     * Request attribute 键：存放已解析的 Bot 实例。
+     */
     public const REQUEST_BOT_ATTRIBUTE = 'telegram.bot';
 
     public function __construct(protected BotFactory $botFactory)
@@ -19,9 +27,14 @@ class Webhook
     }
 
     /**
-     * 从 HTTP 请求解析 Update。
+     * 从 HTTP 请求体解析 Update。
      *
+     * 默认会校验请求头 `X-Telegram-Bot-Api-Secret-Token`（Bot 未配置 secret 时跳过）。
+     *
+     * @param ServerRequestInterface $request 原始 Webhook 请求
      * @param Bot|string|null $bot Bot 实例、缓存名，或 null（从 request attribute / 默认配置解析）
+     * @param bool $verifySecret 是否校验 secret
+     * @throws TelegramApiException secret 不匹配或 payload 非法时
      */
     public function parseRequest(
         ServerRequestInterface $request,
@@ -41,6 +54,10 @@ class Webhook
     }
 
     /**
+     * 解析当前应使用的 Bot。
+     *
+     * 优先级：传入的 Bot 实例 > 传入的名称 > Request attribute > 默认 get()。
+     *
      * @param Bot|string|null $bot
      */
     public function bot(Bot|string|null $bot = null, ?ServerRequestInterface $request = null): Bot
@@ -64,9 +81,14 @@ class Webhook
     }
 
     /**
-     * 用动态 Token 解析 Bot，并挂到 Request 上便于后续中间件/控制器使用。
+     * 用动态 Token 创建 Bot，并挂到 Request attribute，供后续中间件/控制器复用。
      *
+     * 动态多 Bot + VerifyTelegramWebhookMiddleware 时，业务中间件应先调用本方法。
+     *
+     * @param string $token Bot Token
+     * @param string|null $name 缓存名（推荐业务 ID）
      * @param array{webhook_secret?: string} $options
+     * @return ServerRequestInterface 带 telegram.bot attribute 的新 Request
      */
     public function attach(
         ServerRequestInterface $request,
@@ -80,6 +102,8 @@ class Webhook
     }
 
     /**
+     * 内部解析 Bot：实例 > request attribute > 名称 > 路由参数 bot > 默认配置。
+     *
      * @param Bot|string|null $bot
      */
     protected function resolveBot(ServerRequestInterface $request, Bot|string|null $bot): Bot

@@ -15,18 +15,20 @@ use Psr\Http\Server\RequestHandlerInterface;
 /**
  * 校验 Telegram Webhook 的 X-Telegram-Bot-Api-Secret-Token。
  *
- * 解析顺序：
+ * Bot 解析顺序：
  * 1. Request attribute `telegram.bot`（动态 Token 场景由业务先 attach）
  * 2. 路由参数 `bot` 对应的已注册/配置 Bot
  *
  * 动态多 Bot 示例：
  * ```php
- * // 业务中间件里
+ * // 业务中间件里（本中间件之前）
  * $entity = $repo->find($request->getAttribute('id'));
  * $request = $webhook->attach($request, $entity->token, (string) $entity->id, [
  *     'webhook_secret' => $entity->webhook_secret,
  * ]);
  * ```
+ *
+ * 注意：本中间件不会查库；动态 Token 必须先 attach，否则只能走静态配置名。
  */
 class VerifyTelegramWebhookMiddleware implements MiddlewareInterface
 {
@@ -36,6 +38,11 @@ class VerifyTelegramWebhookMiddleware implements MiddlewareInterface
     ) {
     }
 
+    /**
+     * 校验 secret；失败返回 403 JSON；Bot 无法解析返回 404 JSON。
+     *
+     * 校验通过后若 Request 尚无 telegram.bot，会写入当前 Bot，便于控制器复用。
+     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {

@@ -4,8 +4,16 @@ declare(strict_types=1);
 
 namespace Goletter\Telegram;
 
+/**
+ * Hyperf ConfigProvider：注册注解扫描路径，并发布 telegram.php 配置。
+ *
+ * 默认不绑定 BotInterface；动态多 Bot 请注入 BotFactory。
+ */
 class ConfigProvider
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function __invoke(): array
     {
         return [

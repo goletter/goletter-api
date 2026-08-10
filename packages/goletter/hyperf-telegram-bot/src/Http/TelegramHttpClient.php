@@ -10,8 +10,18 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\RequestOptions;
 
+/**
+ * Telegram Bot API 底层 HTTP 客户端。
+ *
+ * 负责拼装 URL、JSON/multipart 编码，并将非 ok 响应转为 TelegramApiException。
+ */
 class TelegramHttpClient
 {
+    /**
+     * @param ClientInterface $http Guzzle 客户端
+     * @param string $token 已规范化的 Bot Token
+     * @param string $baseUri API 根地址，默认 https://api.telegram.org
+     */
     public function __construct(
         protected ClientInterface $http,
         protected string $token,
@@ -21,9 +31,12 @@ class TelegramHttpClient
     }
 
     /**
-     * @param array<string, mixed> $params
+     * 调用 Bot API 方法，返回响应中的 result 字段。
+     *
+     * @param string $method 方法名，如 sendMessage
+     * @param array<string, mixed> $params 请求参数；含文件资源时自动走 multipart
      * @return mixed Telegram API result 字段
-     * @throws bot\src\Exceptions\TelegramApiException
+     * @throws TelegramApiException API 返回 ok=false、网络错误或非法 JSON
      */
     public function request(string $method, array $params = []): mixed
     {
@@ -74,6 +87,8 @@ class TelegramHttpClient
     }
 
     /**
+     * 根据参数是否含上传内容，构建 JSON 或 multipart 请求选项。
+     *
      * @param array<string, mixed> $params
      * @return array<string, mixed>
      */
@@ -95,6 +110,8 @@ class TelegramHttpClient
     }
 
     /**
+     * 判断参数中是否包含需要 multipart 上传的文件字段。
+     *
      * @param array<string, mixed> $params
      */
     protected function requiresMultipart(array $params): bool
@@ -108,6 +125,9 @@ class TelegramHttpClient
         return false;
     }
 
+    /**
+     * 是否为可上传内容：resource、SplFileInfo，或含 contents 的数组。
+     */
     protected function isUpload(mixed $value): bool
     {
         if (is_resource($value)) {
@@ -124,6 +144,10 @@ class TelegramHttpClient
     }
 
     /**
+     * 将参数转换为 Guzzle multipart 格式。
+     *
+     * 非文件字段中的 bool / array / object 会做字符串化处理。
+     *
      * @param array<string, mixed> $params
      * @return list<array<string, mixed>>
      */
