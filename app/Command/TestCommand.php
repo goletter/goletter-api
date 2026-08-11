@@ -43,7 +43,7 @@ class TestCommand extends HyperfCommand
         // dd($updates);
         $chatId = '-1004388791491';
         // $users = $bot->getGroupUsers($chatId);
-        $message = '你不是不行，你只是还没‘做完’。做完它，哪怕丑，哪怕错，哪怕被嘲笑。做完，你就赢了90%只敢想不敢做的人。';
+        $message = '今天很难，明天更难，后天很美好。但大多数人死在明天晚上——你要做那个咬着牙看到后天太阳的人。';
 
         $bot->sendMessage([
             'chat_id' => $chatId,
