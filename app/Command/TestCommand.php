@@ -147,20 +147,20 @@ class TestCommand extends HyperfCommand
             ['code' => '914671164729137', 'name' => 'YFPL-fg-vo-0728+7-06'],
         ];
 
-        $intro = "<u><b>闲置账户提醒</b></u>\n\n"
-            . "为避免资源浪费，优化账户使用率，账户闲置时间大于<b>15天</b>，系统将自动进行回收；\n"
-            . "<i>如暂时不使用该账户，请前往账户管理页面提交回收。</i>\n"
+        $intro = "闲置账户提醒\n\n"
+            . "为避免资源浪费，优化账户使用率，账户闲置时间大于15天，系统将自动进行回收；\n"
+            . "如暂时不使用该账户，请前往账户管理页面提交回收。\n"
             . "感谢您的理解与支持！\n\n"
-            . "以下为贵司<b>【闲置3天及以上】</b>账户清单：\n\n";
+            . "以下为贵司【闲置3天及以上】账户清单：\n\n";
 
-        $tableHeader = sprintf("%-4s %-20s %s\n", '序号', '账户ID', '账户名称');
-        $tableHeader .= str_repeat('-', 50) . "\n";
+        $tableHeader = sprintf("%-3s %-17s %s\n", '序号', '账户ID', '账户名称');
+        $tableHeader .= str_repeat('-', 44) . "\n";
         $table = $tableHeader;
         $messages = [];
 
         foreach ($accounts as $index => $account) {
             $row = sprintf(
-                "%-4d %-20s %s\n",
+                "%-3d %-17s %s\n",
                 $index + 1,
                 $account['code'],
                 $account['name']
@@ -168,7 +168,7 @@ class TestCommand extends HyperfCommand
 
             if (strlen($intro) + strlen($table) + strlen($row) > 3500 && $table !== $tableHeader) {
                 $messages[] = $intro . '<pre>' . htmlspecialchars($table, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</pre>';
-                $intro = "<u><b>闲置账户提醒（续）</b></u>\n\n";
+                $intro = '';
                 $table = $tableHeader;
             }
 
