@@ -153,36 +153,108 @@ class TestCommand extends HyperfCommand
             . "感谢您的理解与支持！\n\n"
             . "以下为贵司【闲置3天及以上】账户清单：\n\n";
 
-        $tableHeader = sprintf("%-3s %-17s %s\n", '序号', '账户ID', '账户名称');
-        $tableHeader .= str_repeat('-', 44) . "\n";
-        $table = $tableHeader;
-        $messages = [];
+        $imagePath = $this->createAccountTableImage($accounts);
 
-        foreach ($accounts as $index => $account) {
-            $row = sprintf(
-                "%-3d %-17s %s\n",
-                $index + 1,
-                $account['code'],
-                $account['name']
-            );
-
-            if (strlen($intro) + strlen($table) + strlen($row) > 3500 && $table !== $tableHeader) {
-                $messages[] = $intro . '<pre>' . htmlspecialchars($table, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</pre>';
-                $intro = '';
-                $table = $tableHeader;
-            }
-
-            $table .= $row;
-        }
-
-        $messages[] = $intro . '<pre>' . htmlspecialchars($table, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</pre>';
-
-        foreach ($messages as $message) {
+        try {
             $bot->sendMessage([
                 'chat_id' => $chatId,
-                'text' => $message,
-                'parse_mode' => 'HTML',
+                'text' => $intro,
             ]);
+
+            $bot->sendPhoto([
+                'chat_id' => $chatId,
+                'photo' => new \SplFileInfo($imagePath),
+            ]);
+        } finally {
+            if (is_file($imagePath)) {
+                unlink($imagePath);
+            }
         }
+    }
+
+    private function createAccountTableImage(array $accounts): string
+    {
+        if (! function_exists('imagecreatetruecolor')) {
+            throw new \RuntimeException('GD extension is required to create account table image.');
+        }
+
+        $font = $this->resolveFontPath();
+        $fontSize = 18;
+        $lineHeight = 34;
+        $padding = 24;
+        $headerHeight = 42;
+        $width = 760;
+        $height = $padding * 2 + $headerHeight + count($accounts) * $lineHeight;
+
+        $image = imagecreatetruecolor($width, $height);
+        $white = imagecolorallocate($image, 255, 255, 255);
+        $black = imagecolorallocate($image, 33, 37, 41);
+        $headerBg = imagecolorallocate($image, 232, 242, 255);
+        $lineColor = imagecolorallocate($image, 210, 220, 230);
+        $stripeBg = imagecolorallocate($image, 248, 250, 252);
+
+        imagefill($image, 0, 0, $white);
+        imagefilledrectangle($image, $padding, $padding, $width - $padding, $padding + $headerHeight, $headerBg);
+
+        [$noTitle, $codeTitle, $nameTitle] = ['No', 'Account ID', 'Account Name'];
+
+        $this->drawText($image, $noTitle, $fontSize, 42, 53, $black, $font);
+        $this->drawText($image, $codeTitle, $fontSize, 96, 53, $black, $font);
+        $this->drawText($image, $nameTitle, $fontSize, 314, 53, $black, $font);
+
+        foreach ($accounts as $index => $account) {
+            $top = $padding + $headerHeight + $index * $lineHeight;
+            $bottom = $top + $lineHeight;
+            $baseline = $top + 24;
+
+            if ($index % 2 === 1) {
+                imagefilledrectangle($image, $padding, $top, $width - $padding, $bottom, $stripeBg);
+            }
+
+            imageline($image, $padding, $bottom, $width - $padding, $bottom, $lineColor);
+            $this->drawText($image, (string) ($index + 1), $fontSize, 42, $baseline, $black, $font);
+            $this->drawText($image, (string) $account['code'], $fontSize, 96, $baseline, $black, $font);
+            $this->drawText($image, (string) $account['name'], $fontSize, 314, $baseline, $black, $font);
+        }
+
+        $dir = BASE_PATH . '/runtime';
+        if (! is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        $imagePath = $dir . '/idle_accounts_' . date('YmdHis') . '.png';
+        imagepng($image, $imagePath);
+        imagedestroy($image);
+
+        return $imagePath;
+    }
+
+    private function drawText($image, string $text, int $size, int $x, int $y, int $color, ?string $font): void
+    {
+        if ($font !== null) {
+            imagettftext($image, $size, 0, $x, $y, $color, $font, $text);
+            return;
+        }
+
+        imagestring($image, 4, $x, $y - 16, $text, $color);
+    }
+
+    private function resolveFontPath(): ?string
+    {
+        $fonts = [
+            '/System/Library/Fonts/PingFang.ttc',
+            '/System/Library/Fonts/STHeiti Light.ttc',
+            '/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc',
+            '/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc',
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+        ];
+
+        foreach ($fonts as $font) {
+            if (is_file($font)) {
+                return $font;
+            }
+        }
+
+        return null;
     }
 }
