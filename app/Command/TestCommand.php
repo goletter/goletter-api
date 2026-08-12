@@ -153,16 +153,12 @@ class TestCommand extends HyperfCommand
             . "感谢您的理解与支持！\n\n"
             . "以下为贵司【闲置3天及以上】账户清单：\n\n";
 
-        $tableHeader = sprintf("%-17s %s\n", '账户ID', '账户名称');
+        $tableHeader = '';
         $table = $tableHeader;
         $messages = [];
 
         foreach ($accounts as $account) {
-            $row = sprintf(
-                "%-17s %s\n",
-                $account['code'],
-                $account['name']
-            );
+            $row = $account['code'] . ' ' . $account['name'] . "\n";
 
             if (strlen($intro) + strlen($table) + strlen($row) > 3500 && $table !== $tableHeader) {
                 $messages[] = $intro . '<pre>' . htmlspecialchars($table, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</pre>';
