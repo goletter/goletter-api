@@ -43,7 +43,7 @@ class TestCommand extends HyperfCommand
         // dd($updates);
         $chatId = '-1004388791491';
         // $users = $bot->getGroupUsers($chatId);
-        $message = '今天很难，明天更难，后天很美好。但大多数人死在明天晚上——你要做那个咬着牙看到后天太阳的人。';
+        $message = "为避免资源浪费，优化账户使用率，账户闲置时间大于15天，系统将自动进行回收；\n 如暂时不使用该账户，请前往账户管理页面提交回收；\n 感谢您的理解与支持！\n 以下为贵司【闲置3天及以上】账户清单：";
 
         $bot->sendMessage([
             'chat_id' => $chatId,
