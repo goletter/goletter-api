@@ -54,10 +54,10 @@ class TestCommand extends HyperfCommand
             'text' => $message,
         ]);
 
-        sleep(10);
+        /*sleep(10);
         $bot->deleteMessage([
             'chat_id' => $chatId,
             'message_id' => $message['message_id'],
-        ]);
+        ]);*/
     }
 }
