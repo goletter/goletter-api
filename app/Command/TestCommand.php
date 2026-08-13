@@ -49,9 +49,15 @@ class TestCommand extends HyperfCommand
             . "感谢您的理解与支持！\n\n"
             . "以下为贵司【闲置3天及以上】账户清单：\n\n";
 
-        $bot->sendMessage([
+        $message = $bot->sendMessage([
             'chat_id' => $chatId,
             'text' => $message,
+        ]);
+
+        sleep(10);
+        $bot->deleteMessage([
+            'chat_id' => $chatId,
+            'message_id' => $message['message_id'],
         ]);
     }
 }
