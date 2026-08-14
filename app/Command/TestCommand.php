@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use Goletter\Telegram\Factory\BotFactory;
+use Goletter\Telegram\Service\BotChatTracker;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
@@ -22,6 +23,9 @@ class TestCommand extends HyperfCommand
 {
     #[Inject]
     protected BotFactory $bots;
+
+    #[Inject]
+    protected BotChatTracker $chats;
 
     public function __construct()
     {
@@ -39,8 +43,9 @@ class TestCommand extends HyperfCommand
         $chatId = 8965689451;
         $token = '8631669243:AAFr8gijCSp1MlxJ5WQy98MapKTtz5sIhTs';
         $bot = $this->bots->token($token);
-        $chat = $bot->getChat(['chat_id' => $chatId]);
-        dd($chat);
+
+        $groups = $this->chats->getGroups($bot);
+        dd($groups);
 
         // $updates = $bot->getUpdates(['limit' => 10]);
         // dd($updates);
