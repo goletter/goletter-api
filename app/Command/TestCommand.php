@@ -70,6 +70,7 @@ class TestCommand extends HyperfCommand
             'message_id' => $message['message_id'],
         ]);*/
 
+        // ms 池：第三个参数是毫秒（RedisMsDriver 约定）
         $this->queueService->push(new TestJob(), 'ms', 10);
     }
 }

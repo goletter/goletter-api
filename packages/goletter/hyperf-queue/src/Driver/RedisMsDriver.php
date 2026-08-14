@@ -25,8 +25,9 @@ use function Hyperf\Support\make;
  * Redis async-queue driver with millisecond delay precision.
  *
  * Compatible with hyperf/async-queue DriverFactory and ConsumerProcess.
- * Do NOT mix this driver with Hyperf\AsyncQueue\Driver\RedisDriver on the same channel:
- * delayed/reserved scores use milliseconds here, seconds in the official driver.
+ * On this driver, DriverInterface::push($job, $delay) treats $delay as **milliseconds**
+ * (so QueueService::push($job, 'ms', 10) means 10ms). Official RedisDriver still uses seconds.
+ * Do NOT mix this driver with Hyperf\AsyncQueue\Driver\RedisDriver on the same channel.
  */
 class RedisMsDriver extends Driver implements MsDriverInterface
 {
@@ -74,9 +75,12 @@ class RedisMsDriver extends Driver implements MsDriverInterface
         $this->channel = make(ChannelConfig::class, ['channel' => $channel]);
     }
 
+    /**
+     * @param int $delay delay in milliseconds (unlike official RedisDriver which uses seconds)
+     */
     public function push(JobInterface $job, int $delay = 0): bool
     {
-        return $this->pushMs($job, max(0, $delay) * 1000);
+        return $this->pushMs($job, max(0, $delay));
     }
 
     public function pushMs(JobInterface $job, int $delayMs = 0): bool

@@ -12,6 +12,8 @@ interface MsDriverInterface extends DriverInterface
     /**
      * Push a job with millisecond delay.
      *
+     * Same semantics as push() on RedisMsDriver: $delayMs is milliseconds.
+     *
      * @param int $delayMs delay in milliseconds; 0 means immediate
      */
     public function pushMs(JobInterface $job, int $delayMs = 0): bool;
