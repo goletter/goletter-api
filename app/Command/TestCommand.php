@@ -44,9 +44,6 @@ class TestCommand extends HyperfCommand
         $token = '8631669243:AAFr8gijCSp1MlxJ5WQy98MapKTtz5sIhTs';
         $bot = $this->bots->token($token);
 
-        $groups = $this->chats->getGroups($bot);
-        dd($groups);
-
         // $updates = $bot->getUpdates(['limit' => 10]);
         // dd($updates);
         $chatId = '-1004388791491';
