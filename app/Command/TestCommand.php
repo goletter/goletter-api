@@ -44,8 +44,9 @@ class TestCommand extends HyperfCommand
         $token = '8631669243:AAFr8gijCSp1MlxJ5WQy98MapKTtz5sIhTs';
         $bot = $this->bots->token($token);
 
-        // $updates = $bot->getUpdates(['limit' => 10]);
-        // dd($updates);
+        $updates = $bot->getUpdates(['limit' => 10]);
+        dd($updates);
+
         $chatId = '-1004388791491';
         // $users = $bot->getGroupUsers($chatId);
         $message = "闲置账户提醒\n\n"
