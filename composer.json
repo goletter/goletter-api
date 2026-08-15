@@ -10,19 +10,9 @@
         "middleware"
     ],
     "description": "A coroutine framework that focuses on hyperspeed and flexible, specifically use for build microservices and middlewares.",
-    "license": "Apache-2.0",
-    "repositories": [
-        {
-            "type": "path",
-            "url": "packages/goletter/hyperf-queue",
-            "options": {
-                "symlink": true
-            }
-        }
-    ],
     "require": {
         "php": ">=8.1",
-        "goletter/hyperf-queue": "*",
+        "goletter/hyperf-queue": "^1.0",
         "goletter/hyperf-server": "^2.0",
         "goletter/hyperf-telegram-bot": "^1.0",
         "hyperf/async-queue": "~3.1.0",
