@@ -30,13 +30,13 @@ return [
         'redis' => [
             'pool' => 'default',
         ],
-        'channel' => '{queue-ms}',
+        'channel' => 'queue-ms',
         'timeout' => 2,
         'retry_milliseconds' => [100, 500, 1000, 3000],
         'handle_timeout' => 10,
         'move_interval_ms' => 5,
         'move_batch' => 200,
-        'processes' => 1,
+        'processes' => 10,
         'concurrent' => [
             'limit' => 10,
         ],
