@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use Goletter\Adv\Platforms\Facebook\Exceptions\FacebookApiException;
 use Goletter\Adv\Platforms\Facebook\Exceptions\FacebookTokenExpiredException;
 use GuzzleHttp\Exception\RequestException;
+use function Goletter\Utils\logging;
 
 class FacebookClient
 {
