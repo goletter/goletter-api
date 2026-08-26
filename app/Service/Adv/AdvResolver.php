@@ -6,10 +6,7 @@ namespace App\Service\Adv;
 
 class AdvResolver
 {
-    /**
-     * 根据账户信息解析对应平台的广告服务实例
-     */
-    public function resolveAdv(string $token = '', string $type = '', $isOauth = false, $busineId = 0): ?object
+    public function resolveAdv(string $token = '', string $type = '', $busineId = 0): ?object
     {
         $platformId = 0;
 
