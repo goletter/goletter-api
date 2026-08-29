@@ -87,11 +87,6 @@ class FacebookClient
             if (!empty($body)) {
                 $options['json'] = $body;
             }
-
-            // 获取 base_uri 的路径部分（包含版本号，如 /v24.0）
-            $basePath = parse_url($this->baseUri, PHP_URL_PATH);
-            // 提取版本号（如 v24.0）
-            $apiVersion = $basePath ? trim($basePath, '/') : 'v24.0';
             $uri = $this->normalizeUri($uri);
 
             $response = $this->http->request($method, $uri, $options);
@@ -110,9 +105,6 @@ class FacebookClient
             throw $e;
         } catch (RequestException $e) {
             $response = $e->getResponse();
-            if ($response && str_contains($e->getMessage(), 'Calls to this api have exceeded the rate limit')) {
-                logging(['token' => $this->accessToken, 'headers' => $response->getHeaders()], 'limit-exceeded', 'limit');
-            }
 
             if ($response) {
                 $this->captureAppUsage($response, $this->accessToken, $this->busineId, $this->platformId);
