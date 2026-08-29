@@ -12,6 +12,7 @@
     "description": "A coroutine framework that focuses on hyperspeed and flexible, specifically use for build microservices and middlewares.",
     "require": {
         "php": ">=8.1",
+        "friendsofhyperf/cache": "^3.1",
         "goletter/hyperf-archive": "^1.0",
         "goletter/hyperf-queue": "^1.0",
         "goletter/hyperf-server": "^2.0",

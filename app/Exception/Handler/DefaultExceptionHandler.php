@@ -16,6 +16,7 @@ use App\Constants\LogTypeConstant;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\Logger\Logger;
 use Psr\Http\Message\ResponseInterface;
+use function Goletter\Utils\logging;
 use Throwable;
 
 class DefaultExceptionHandler extends ExceptionHandler

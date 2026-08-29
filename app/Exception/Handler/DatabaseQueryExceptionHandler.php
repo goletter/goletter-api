@@ -17,6 +17,7 @@ use Hyperf\Database\Exception\QueryException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\Logger\Logger;
 use Psr\Http\Message\ResponseInterface;
+use function Goletter\Utils\logging;
 use Throwable;
 
 class DatabaseQueryExceptionHandler extends ExceptionHandler
