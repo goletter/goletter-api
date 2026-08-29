@@ -70,6 +70,6 @@ class TestCommand extends HyperfCommand
             'message_id' => $message['message_id'],
         ]);*/
 
-        $this->queueService->push(new TestJob(1), 'ms', 100);
+        // $this->queueService->push(new TestJob(1), 'ms', 100);
     }
 }

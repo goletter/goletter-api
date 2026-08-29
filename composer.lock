@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f93611217d896bde7b4bf362a07ee825",
+    "content-hash": "9958656a61b8d99cce7636a5bec5b537",
     "packages": [
         {
             "name": "aliyuncs/oss-sdk-php",
@@ -587,6 +587,77 @@
                 "source": "https://github.com/php-fig/http-message-util/tree/1.1.5"
             },
             "time": "2020-11-24T22:02:12+00:00"
+        },
+        {
+            "name": "goletter/hyperf-archive",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/goletter/hyperf-archive.git",
+                "reference": "2f1eadb0e2419fe9d81b6f3fae3447311d28442c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/goletter/hyperf-archive/zipball/2f1eadb0e2419fe9d81b6f3fae3447311d28442c",
+                "reference": "2f1eadb0e2419fe9d81b6f3fae3447311d28442c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-zip": "*",
+                "hyperf/context": "~3.1.0",
+                "hyperf/contract": "~3.1.0",
+                "hyperf/coroutine": "~3.1.0",
+                "hyperf/filesystem": "~3.1.0",
+                "hyperf/http-server": "~3.1.0",
+                "hyperf/support": "~3.1.0",
+                "php": ">=8.1",
+                "psr/container": "^1.0 || ^2.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.0",
+                "mockery/mockery": "^1.0",
+                "phpstan/phpstan": "^1.0",
+                "phpunit/phpunit": "^10.0",
+                "swoole/ide-helper": "dev-master"
+            },
+            "type": "library",
+            "extra": {
+                "hyperf": {
+                    "config": "Goletter\\Archive\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/Functions.php"
+                ],
+                "psr-4": {
+                    "Goletter\\Archive\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "goletter",
+                    "email": "goletter@outlook.com"
+                }
+            ],
+            "description": "Multi-file archive (ZIP) builder for Hyperf with sync download and storage upload support.",
+            "keywords": [
+                "archive",
+                "download",
+                "hyperf",
+                "pack",
+                "php",
+                "zip"
+            ],
+            "support": {
+                "issues": "https://github.com/goletter/hyperf-archive/issues",
+                "source": "https://github.com/goletter/hyperf-archive/tree/v1.0.0"
+            },
+            "time": "2026-08-27T16:48:32+00:00"
         },
         {
             "name": "goletter/hyperf-modelfilter",
