@@ -798,6 +798,7 @@
         },
         {
             "name": "goletter/hyperf-docs",
+<<<<<<< HEAD
             "version": "v1.0.2",
             "source": {
                 "type": "git",
@@ -808,6 +809,18 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/goletter/hyperf-docs/zipball/b45de06d13e26647dbdee8bf6c4ff2c091a49710",
                 "reference": "b45de06d13e26647dbdee8bf6c4ff2c091a49710",
+=======
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/goletter/hyperf-docs.git",
+                "reference": "2d2ff49bae7a72745296aef12928bc4fbe164990"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/goletter/hyperf-docs/zipball/2d2ff49bae7a72745296aef12928bc4fbe164990",
+                "reference": "2d2ff49bae7a72745296aef12928bc4fbe164990",
+>>>>>>> bba265aa06e40548bf78f0702bf7e70e5394b7af
                 "shasum": ""
             },
             "require": {
@@ -842,13 +855,18 @@
                     "email": "goletter@outlook.com"
                 }
             ],
+<<<<<<< HEAD
             "description": "Hyperf Docs integration for Google Docs/Sheets/Drive and Tencent Docs",
+=======
+            "description": "Hyperf Google Docs / Sheets / Drive integration",
+>>>>>>> bba265aa06e40548bf78f0702bf7e70e5394b7af
             "keywords": [
                 "docs",
                 "drive",
                 "google",
                 "hyperf",
                 "php",
+<<<<<<< HEAD
                 "sheets",
                 "tencent"
             ],
@@ -857,6 +875,15 @@
                 "source": "https://github.com/goletter/hyperf-docs/tree/v1.0.2"
             },
             "time": "2026-08-31T14:40:53+00:00"
+=======
+                "sheets"
+            ],
+            "support": {
+                "issues": "https://github.com/goletter/hyperf-docs/issues",
+                "source": "https://github.com/goletter/hyperf-docs/tree/v1.0.0"
+            },
+            "time": "2026-07-21T17:13:54+00:00"
+>>>>>>> bba265aa06e40548bf78f0702bf7e70e5394b7af
         },
         {
             "name": "goletter/hyperf-modelfilter",
