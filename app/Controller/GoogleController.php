@@ -23,10 +23,10 @@ class GoogleController extends AbstractController
         try {
             $url = $this->auth->getAuthUrl();
         } catch (GoogleApiException $e) {
-            return $this->fail($e->getCode() ?: 400, $e->getMessage());
+           $this->fail($e->getCode() ?: 400, $e->getMessage());
         }
 
-        return $this->success([
+        $this->success([
             'auth_url' => $url,
         ]);
     }
@@ -40,23 +40,23 @@ class GoogleController extends AbstractController
     {
         $code = (string) $this->request->input('code', '');
         if ($code === '') {
-            return $this->fail(400, '缺少授权码 code');
+            $this->fail(400, '缺少授权码 code');
         }
 
         $error = (string) $this->request->input('error', '');
         if ($error !== '') {
             $description = (string) $this->request->input('error_description', $error);
 
-            return $this->fail(400, $description);
+            $this->fail(400, $description);
         }
 
         try {
             $token = $this->auth->fetchToken($code);
         } catch (GoogleApiException $e) {
-            return $this->fail($e->getCode() ?: 400, $e->getMessage());
+            $this->fail($e->getCode() ?: 400, $e->getMessage());
         }
 
-        return $this->success([
+        $this->success([
             'access_token' => $token['access_token'] ?? null,
             'refresh_token' => $token['refresh_token'] ?? null,
             'expires_in' => $token['expires_in'] ?? null,
