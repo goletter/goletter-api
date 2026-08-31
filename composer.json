@@ -1,6 +1,7 @@
 {
     "name": "hyperf/hyperf-skeleton",
     "type": "project",
+    "license": "proprietary",
     "keywords": [
         "php",
         "swoole",
