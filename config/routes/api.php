@@ -8,4 +8,7 @@ Router::addGroup('/api', function () {
 
     Router::get('/google/auth-url', [\App\Controller\GoogleController::class, 'authUrl']);
     Router::get('/google/callback', [\App\Controller\GoogleController::class, 'callback']);
+
+    Router::get('/tencent/auth-url', [\App\Controller\TencentController::class, 'authUrl']);
+    Router::get('/tencent/callback', [\App\Controller\TencentController::class, 'callback']);
 });
