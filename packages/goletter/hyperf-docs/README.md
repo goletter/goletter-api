@@ -170,7 +170,9 @@ $range = $platform->rangeForGid($token, $spreadsheetId, $gid, 'A1:Z100');
 
 ```php
 // 只返回有内容的行，并裁掉行尾空单元格
+// 第 4 个参数：每行至少几个非空单元格才保留（默认 1）
 $rows = $sheets->readCells($token, $spreadsheetId, "gid:{$gid}");
+$rows = $sheets->readCells($token, $spreadsheetId, "gid:{$gid}", 3);
 ```
 
 #### 按内容查找指定行
@@ -241,6 +243,23 @@ if ($hit) {
         [null, null, null, null, '新名称', '333333333', null, true],
     ]);
 }
+```
+
+#### 删除指定行
+
+```php
+// 按行号删除
+$result = $sheets->deleteRow($token, $spreadsheetId, "gid:{$gid}", row: 12);
+// ['row' => 12]
+
+// 按列内容定位第一行再删除（找不到返回 null）
+$result = $sheets->deleteRow(
+    $token,
+    $spreadsheetId,
+    "gid:{$gid}",
+    column: 'F',
+    match: '333333333',
+);
 ```
 
 #### 追加到表格末尾
@@ -318,6 +337,7 @@ $sheets->appendCells($tokenPayload, $spreadsheetId, 'A1', [
 ]);
 $sheets->findRows($tokenPayload, $spreadsheetId, 'A1:Z1000', 'A', '张三');
 $sheets->updateRow($tokenPayload, $spreadsheetId, 'A1:Z1000', ['李四', '产品部'], column: 'A', match: '张三');
+$sheets->deleteRow($tokenPayload, $spreadsheetId, 'A1:Z1000', column: 'A', match: '李四');
 
 $this->sheets->moveSpreadsheetToDateFolder($accessToken, $openId, $spreadsheetId);
 $this->sheets->shareSpreadsheetForAnyoneReader($accessToken, $openId, $spreadsheetId);
@@ -334,6 +354,7 @@ $this->sheets->shareSpreadsheetForAnyoneReader($accessToken, $openId, $spreadshe
 | 读单元格 | ✅ Values（过滤空行） | ✅ spreadsheet v3 |
 | 写单元格 | ✅ Values（null 跳过保护列） | ✅ sheetbook v2 |
 | 编辑指定行 | ✅ `updateRow`（行号 / 按列查找） | ✅ `updateRow` |
+| 删除指定行 | ✅ `deleteRow`（行号 / 按列查找） | ✅ `deleteRow` |
 | 追加行 | ✅ `appendCells` | ✅ `appendCells` |
 | 按列内容查找 | ✅ `findRows` | ✅ `findRows` |
 | gid / sheetId 定位 | ✅ URL `#gid=` | ✅ 标题或 sheetId |

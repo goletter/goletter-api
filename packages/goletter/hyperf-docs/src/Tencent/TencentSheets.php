@@ -60,8 +60,7 @@ class TencentSheets
      * - 工作表标题!A1:Z1000
      * - sheetId!A1:Z1000
      *
-     * 需应用具备 scope.sheet 或 scope.sheet.readonly，且用户已重新授权。
-     *
+     * @param int $minNonEmpty 每行至少几个非空单元格才保留（默认 1，可调）
      * @return list<list<mixed>>
      * @throws TencentApiException
      */
@@ -70,6 +69,7 @@ class TencentSheets
         string $openId,
         string $spreadsheetId,
         string $range = self::DEFAULT_RANGE,
+        int $minNonEmpty = 1,
     ): array {
         [$sheetRef, $a1Range] = $this->parseRange($range);
         $sheetId = $this->resolveSheetId($accessToken, $openId, $spreadsheetId, $sheetRef);
@@ -86,7 +86,9 @@ class TencentSheets
             ?? $response['gridData']
             ?? [];
 
-        return $this->flattenGridData(is_array($gridData) ? $gridData : []);
+        $rows = $this->flattenGridData(is_array($gridData) ? $gridData : []);
+
+        return $this->filterNonEmptyRows($rows, $minNonEmpty);
     }
 
     /**
@@ -118,7 +120,7 @@ class TencentSheets
             if (! $this->cellEquals($cell, $value)) {
                 continue;
             }
-            if (! $this->rowHasData($row)) {
+            if (! $this->rowHasData($row, 1)) {
                 continue;
             }
 
@@ -174,15 +176,39 @@ class TencentSheets
     /**
      * @param list<mixed> $row
      */
-    private function rowHasData(array $row): bool
+    private function rowHasData(array $row, int $minNonEmpty = 1): bool
     {
+        $minNonEmpty = max(1, $minNonEmpty);
+        $count = 0;
         foreach ($row as $cell) {
-            if ($cell !== null && $cell !== '') {
+            if ($cell === null || $cell === '') {
+                continue;
+            }
+            ++$count;
+            if ($count >= $minNonEmpty) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * @param list<list<mixed>> $rows
+     * @return list<list<mixed>>
+     */
+    private function filterNonEmptyRows(array $rows, int $minNonEmpty = 1): array
+    {
+        $minNonEmpty = max(1, $minNonEmpty);
+        $result = [];
+        foreach ($rows as $row) {
+            if (! is_array($row) || ! $this->rowHasData($row, $minNonEmpty)) {
+                continue;
+            }
+            $result[] = $this->trimTrailingEmptyCells(array_values($row));
+        }
+
+        return $result;
     }
 
     /**
@@ -311,6 +337,63 @@ class TencentSheets
             'range' => $readRange,
             'values' => $this->unwrapSingleRowValues($readValues, $rowCount),
         ];
+    }
+
+    /**
+     * 删除指定行（v3 deleteDimensionRequest，行号从 1 起）.
+     *
+     * @return null|array{row: int}
+     * @throws TencentApiException
+     */
+    public function deleteRow(
+        string $accessToken,
+        string $openId,
+        string $spreadsheetId,
+        string $range,
+        ?int $row = null,
+        string|int|null $column = null,
+        mixed $match = null,
+    ): ?array {
+        $targetRow = $row;
+        if ($targetRow === null) {
+            if ($column === null) {
+                throw new \InvalidArgumentException('deleteRow requires $row or $column+$match');
+            }
+            $hits = $this->findRows($accessToken, $openId, $spreadsheetId, $range, $column, $match);
+            if ($hits === []) {
+                return null;
+            }
+            $targetRow = (int) $hits[0]['row'];
+        }
+
+        if ($targetRow < 1) {
+            throw new \InvalidArgumentException('deleteRow $row must be >= 1');
+        }
+
+        [$sheetRef] = $this->parseRange($range);
+        $sheetId = $this->resolveSheetId($accessToken, $openId, $spreadsheetId, $sheetRef);
+        $uri = sprintf('/openapi/spreadsheet/v3/files/%s/batchUpdate', rawurlencode($spreadsheetId));
+
+        $this->client->request(
+            'POST',
+            $uri,
+            $accessToken,
+            $openId,
+            json: [
+                'requests' => [
+                    [
+                        'deleteDimensionRequest' => [
+                            'sheetId' => $sheetId,
+                            'dimension' => 'ROWS',
+                            'startIndex' => $targetRow,
+                            'endIndex' => $targetRow + 1,
+                        ],
+                    ],
+                ],
+            ],
+        );
+
+        return ['row' => $targetRow];
     }
 
     /**

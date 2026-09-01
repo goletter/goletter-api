@@ -64,9 +64,18 @@ class GooglePlatform implements PlatformInterface, AuthInterface, SheetsInterfac
         return $this->normalizeSpreadsheet($spreadsheet);
     }
 
-    public function readCells(array $token, string $spreadsheetId, string $range = 'A1:Z1000'): array
-    {
-        return $this->googleSheets->readCells($this->accessToken($token), $spreadsheetId, $range);
+    public function readCells(
+        array $token,
+        string $spreadsheetId,
+        string $range = 'A1:Z1000',
+        int $minNonEmpty = 1,
+    ): array {
+        return $this->googleSheets->readCells(
+            $this->accessToken($token),
+            $spreadsheetId,
+            $range,
+            $minNonEmpty,
+        );
     }
 
     public function findRows(
@@ -104,6 +113,24 @@ class GooglePlatform implements PlatformInterface, AuthInterface, SheetsInterfac
             $spreadsheetId,
             $range,
             $values,
+            $row,
+            $column,
+            $match,
+        );
+    }
+
+    public function deleteRow(
+        array $token,
+        string $spreadsheetId,
+        string $range,
+        ?int $row = null,
+        string|int|null $column = null,
+        mixed $match = null,
+    ): ?array {
+        return $this->googleSheets->deleteRow(
+            $this->accessToken($token),
+            $spreadsheetId,
+            $range,
             $row,
             $column,
             $match,

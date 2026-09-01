@@ -16,9 +16,15 @@ interface SheetsInterface
 
     /**
      * @param array{access_token: string, open_id?: string, user_id?: string} $token
+     * @param int $minNonEmpty 每行至少几个非空单元格才保留（默认 1）
      * @return list<list<mixed>>
      */
-    public function readCells(array $token, string $spreadsheetId, string $range = 'A1:Z1000'): array;
+    public function readCells(
+        array $token,
+        string $spreadsheetId,
+        string $range = 'A1:Z1000',
+        int $minNonEmpty = 1,
+    ): array;
 
     /**
      * 按列内容查找行（根据表格内容定位指定行）.
@@ -56,6 +62,24 @@ interface SheetsInterface
         string $spreadsheetId,
         string $range,
         array $values,
+        ?int $row = null,
+        string|int|null $column = null,
+        mixed $match = null,
+    ): ?array;
+
+    /**
+     * 删除指定行.
+     *
+     * - 传 $row：直接删除该行号
+     * - 不传 $row，传 $column + $match：按列内容找到第一行再删除
+     *
+     * @param array{access_token: string, open_id?: string, user_id?: string} $token
+     * @return null|array{row: int}
+     */
+    public function deleteRow(
+        array $token,
+        string $spreadsheetId,
+        string $range,
         ?int $row = null,
         string|int|null $column = null,
         mixed $match = null,

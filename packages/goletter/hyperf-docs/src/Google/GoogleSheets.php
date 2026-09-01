@@ -12,6 +12,8 @@ use Google\Service\Sheets;
 use Google\Service\Sheets\AddSheetRequest;
 use Google\Service\Sheets\BatchUpdateSpreadsheetRequest;
 use Google\Service\Sheets\BatchUpdateValuesRequest;
+use Google\Service\Sheets\DeleteDimensionRequest;
+use Google\Service\Sheets\DimensionRange;
 use Google\Service\Sheets\Request;
 use Google\Service\Sheets\Spreadsheet;
 use Google\Service\Sheets\ValueRange;
@@ -63,20 +65,22 @@ class GoogleSheets
      * - '含空格标题'!A1:Z1000
      * - gid:123456 / gid:123456!A1:Z1000（仅 gid 时读整表 A:Z）
      *
+     * @param int $minNonEmpty 每行至少几个非空单元格才保留（默认 1，可调）
      * @return list<list<mixed>>
      */
     public function readCells(
         string $accessToken,
         string $spreadsheetId,
-        string $range = 'Sheet1!A1:Z1000'
+        string $range = 'Sheet1!A1:Z1000',
+        int $minNonEmpty = 1,
     ): array {
-        return $this->googleClient->request(function () use ($accessToken, $spreadsheetId, $range) {
+        return $this->googleClient->request(function () use ($accessToken, $spreadsheetId, $range, $minNonEmpty) {
             $resolved = $this->resolveRange($accessToken, $spreadsheetId, $range, true);
             $response = $this->getSheetsService($accessToken)
                 ->spreadsheets_values
                 ->get($spreadsheetId, $resolved);
 
-            return $this->filterNonEmptyRows($response->getValues() ?? []);
+            return $this->filterNonEmptyRows($response->getValues() ?? [], $minNonEmpty);
         });
     }
 
@@ -112,7 +116,7 @@ class GoogleSheets
                 if (! $this->cellEquals($cell, $value)) {
                     continue;
                 }
-                if (! $this->rowHasData($row)) {
+                if (! $this->rowHasData($row, 1)) {
                     continue;
                 }
 
@@ -224,6 +228,60 @@ class GoogleSheets
                 'range' => $readRange,
                 'values' => $this->unwrapSingleRowValues($readValues, $rowCount),
             ];
+        });
+    }
+
+    /**
+     * 删除指定行.
+     *
+     * @return null|array{row: int}
+     */
+    public function deleteRow(
+        string $accessToken,
+        string $spreadsheetId,
+        string $range,
+        ?int $row = null,
+        string|int|null $column = null,
+        mixed $match = null,
+    ): ?array {
+        return $this->googleClient->request(function () use ($accessToken, $spreadsheetId, $range, $row, $column, $match) {
+            $targetRow = $row;
+            if ($targetRow === null) {
+                if ($column === null) {
+                    throw new \InvalidArgumentException('deleteRow requires $row or $column+$match');
+                }
+                $hits = $this->findRows($accessToken, $spreadsheetId, $range, $column, $match);
+                if ($hits === []) {
+                    return null;
+                }
+                $targetRow = (int) $hits[0]['row'];
+            }
+
+            if ($targetRow < 1) {
+                throw new \InvalidArgumentException('deleteRow $row must be >= 1');
+            }
+
+            $sheetId = $this->resolveNumericSheetId($accessToken, $spreadsheetId, $range);
+            $startIndex = $targetRow - 1; // API 0-based
+
+            $body = new BatchUpdateSpreadsheetRequest([
+                'requests' => [
+                    new Request([
+                        'deleteDimension' => new DeleteDimensionRequest([
+                            'range' => new DimensionRange([
+                                'sheetId' => $sheetId,
+                                'dimension' => 'ROWS',
+                                'startIndex' => $startIndex,
+                                'endIndex' => $startIndex + 1,
+                            ]),
+                        ]),
+                    ]),
+                ],
+            ]);
+
+            $this->getSheetsService($accessToken)->spreadsheets->batchUpdate($spreadsheetId, $body);
+
+            return ['row' => $targetRow];
         });
     }
 
@@ -715,6 +773,42 @@ class GoogleSheets
         return 1;
     }
 
+    /**
+     * 解析 Google 子表 sheetId（即 URL 中的 gid）.
+     */
+    private function resolveNumericSheetId(string $accessToken, string $spreadsheetId, string $range): int
+    {
+        $range = trim($range);
+        if (preg_match('/^(?:gid[=:]|#gid=)(\d+)/i', $range, $matches) === 1) {
+            return (int) $matches[1];
+        }
+
+        $resolved = $this->resolveRange($accessToken, $spreadsheetId, $range, true);
+        $title = null;
+        if (preg_match("/^'([^']+)'!/", $resolved, $matches) === 1) {
+            $title = $matches[1];
+        } elseif (preg_match('/^([^!]+)!/', $resolved, $matches) === 1) {
+            $title = $matches[1];
+        }
+
+        if ($title === null || $title === '') {
+            throw new \InvalidArgumentException("Unable to resolve sheet title for range: {$range}");
+        }
+
+        $spreadsheet = $this->getSheetsService($accessToken)->spreadsheets->get($spreadsheetId, [
+            'fields' => 'sheets.properties(sheetId,title)',
+        ]);
+
+        foreach ($spreadsheet->getSheets() ?? [] as $sheet) {
+            $properties = $sheet->getProperties();
+            if ($properties && (string) $properties->getTitle() === $title) {
+                return (int) $properties->getSheetId();
+            }
+        }
+
+        throw new \InvalidArgumentException("Unable to resolve sheetId for range: {$range}");
+    }
+
     private function toZeroBasedColumn(string|int $column): int
     {
         if (is_int($column)) {
@@ -749,11 +843,12 @@ class GoogleSheets
      * @param list<list<mixed>> $rows
      * @return list<list<mixed>>
      */
-    private function filterNonEmptyRows(array $rows): array
+    private function filterNonEmptyRows(array $rows, int $minNonEmpty = 1): array
     {
+        $minNonEmpty = max(1, $minNonEmpty);
         $result = [];
         foreach ($rows as $row) {
-            if (! is_array($row) || ! $this->rowHasData($row)) {
+            if (! is_array($row) || ! $this->rowHasData($row, $minNonEmpty)) {
                 continue;
             }
             $result[] = $this->trimTrailingEmptyCells(array_values($row));
@@ -765,10 +860,15 @@ class GoogleSheets
     /**
      * @param list<mixed> $row
      */
-    private function rowHasData(array $row): bool
+    private function rowHasData(array $row, int $minNonEmpty = 1): bool
     {
+        $count = 0;
         foreach ($row as $cell) {
-            if ($cell !== null && $cell !== '') {
+            if ($cell === null || $cell === '') {
+                continue;
+            }
+            ++$count;
+            if ($count >= $minNonEmpty) {
                 return true;
             }
         }

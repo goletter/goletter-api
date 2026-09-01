@@ -50,7 +50,8 @@ class TestCommand extends HyperfCommand
         // 按 F 列内容查找指定行（只返回匹配且有数据的行）
         // $rows = $sheets->findRows($token, $spreadsheetId, "gid:{$gid}", 'F', '333333333');
 
-        // 读整表（自动过滤空行、裁掉行尾空单元格）
-        // $all = $sheets->readCells($token, $spreadsheetId, "gid:{$gid}");
+        // 读整表：每行至少 3 个非空单元格才保留（第 4 个参数可调）
+        $all = $sheets->readCells($token, $spreadsheetId, "gid:{$gid}", 3);
+        dd($all);
     }
 }

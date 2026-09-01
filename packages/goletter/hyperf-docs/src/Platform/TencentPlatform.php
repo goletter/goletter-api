@@ -70,13 +70,18 @@ class TencentPlatform implements PlatformInterface, AuthInterface, SheetsInterfa
         ];
     }
 
-    public function readCells(array $token, string $spreadsheetId, string $range = 'A1:Z1000'): array
-    {
+    public function readCells(
+        array $token,
+        string $spreadsheetId,
+        string $range = 'A1:Z1000',
+        int $minNonEmpty = 1,
+    ): array {
         return $this->tencentSheets->readCells(
             $this->accessToken($token),
             $this->openId($token),
             $spreadsheetId,
             $range,
+            $minNonEmpty,
         );
     }
 
@@ -123,6 +128,25 @@ class TencentPlatform implements PlatformInterface, AuthInterface, SheetsInterfa
             $spreadsheetId,
             $range,
             $values,
+            $row,
+            $column,
+            $match,
+        );
+    }
+
+    public function deleteRow(
+        array $token,
+        string $spreadsheetId,
+        string $range,
+        ?int $row = null,
+        string|int|null $column = null,
+        mixed $match = null,
+    ): ?array {
+        return $this->tencentSheets->deleteRow(
+            $this->accessToken($token),
+            $this->openId($token),
+            $spreadsheetId,
+            $range,
             $row,
             $column,
             $match,
