@@ -90,6 +90,119 @@ class TencentSheets
     }
 
     /**
+     * 按列内容查找行.
+     *
+     * @param string|int $column 列字母 F 或 0-based 下标（A=0）
+     * @return list<array{row: int, range: string, values: list<mixed>}>
+     * @throws TencentApiException
+     */
+    public function findRows(
+        string $accessToken,
+        string $openId,
+        string $spreadsheetId,
+        string $range,
+        string|int $column,
+        mixed $value,
+    ): array {
+        [$sheetRef] = $this->parseRange($range);
+        $probe = ($sheetRef !== null && $sheetRef !== '' ? $sheetRef . '!' : '') . 'A1:Z10000';
+        $rows = $this->readCells($accessToken, $openId, $spreadsheetId, $probe);
+        $colIndex = $this->toZeroBasedColumn($column);
+        $matches = [];
+
+        foreach ($rows as $offset => $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+            $cell = $row[$colIndex] ?? null;
+            if (! $this->cellEquals($cell, $value)) {
+                continue;
+            }
+            if (! $this->rowHasData($row)) {
+                continue;
+            }
+
+            $rowNumber = (int) $offset + 1;
+            $values = $this->trimTrailingEmptyCells(array_values($row));
+            $matches[] = [
+                'row' => $rowNumber,
+                'range' => ($sheetRef !== null && $sheetRef !== '' ? $sheetRef . '!' : '') . 'A' . $rowNumber . ':Z' . $rowNumber,
+                'values' => $values,
+            ];
+        }
+
+        return $matches;
+    }
+
+    private function toZeroBasedColumn(string|int $column): int
+    {
+        if (is_int($column)) {
+            return max(0, $column);
+        }
+
+        $column = trim($column);
+        if ($column !== '' && ctype_digit($column)) {
+            return max(0, (int) $column);
+        }
+
+        $column = strtoupper($column);
+        $index = 0;
+        $length = strlen($column);
+        for ($i = 0; $i < $length; ++$i) {
+            $index = $index * 26 + (ord($column[$i]) - 64);
+        }
+
+        return max(0, $index - 1);
+    }
+
+    private function cellEquals(mixed $cell, mixed $expected): bool
+    {
+        if (is_bool($expected)) {
+            if (is_bool($cell)) {
+                return $cell === $expected;
+            }
+            $normalized = strtoupper(trim((string) $cell));
+
+            return $expected
+                ? in_array($normalized, ['TRUE', '1', 'YES'], true)
+                : in_array($normalized, ['FALSE', '0', 'NO', ''], true);
+        }
+
+        return (string) $cell === (string) $expected;
+    }
+
+    /**
+     * @param list<mixed> $row
+     */
+    private function rowHasData(array $row): bool
+    {
+        foreach ($row as $cell) {
+            if ($cell !== null && $cell !== '') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param list<mixed> $row
+     * @return list<mixed>
+     */
+    private function trimTrailingEmptyCells(array $row): array
+    {
+        while ($row !== []) {
+            $last = $row[array_key_last($row)];
+            if ($last !== null && $last !== '') {
+                break;
+            }
+            array_pop($row);
+        }
+
+        return array_values($row);
+    }
+
+    /**
      * 查询工作表元数据（spreadsheet v3）.
      *
      * @return list<array<string, mixed>>

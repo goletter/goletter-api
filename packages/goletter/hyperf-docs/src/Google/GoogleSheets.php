@@ -673,10 +673,6 @@ class GoogleSheets
                 : in_array($normalized, ['FALSE', '0', 'NO', ''], true);
         }
 
-        if (is_bool($cell)) {
-            return $this->cellEquals($cell, filter_var($expected, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? $expected);
-        }
-
         return (string) $cell === (string) $expected;
     }
 
@@ -703,14 +699,9 @@ class GoogleSheets
     private function rowHasData(array $row): bool
     {
         foreach ($row as $cell) {
-            if ($cell === null || $cell === '') {
-                continue;
-            }
-            if (is_bool($cell)) {
+            if ($cell !== null && $cell !== '') {
                 return true;
             }
-
-            return true;
         }
 
         return false;

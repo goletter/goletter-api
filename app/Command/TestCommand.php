@@ -47,18 +47,10 @@ class TestCommand extends HyperfCommand
         $spreadsheetId = '1f6KLBbJnsOMKMKUxkwH-Bfwm4YWkFA_RBibJbbLIq8M';
         $gid = 649506568;
 
-        // 读取
-        $rows = $sheets->readCells($token, $spreadsheetId, "gid:{$gid}");
-        dd($rows);
+        // 按 F 列内容查找指定行（只返回匹配且有数据的行）
+        // $rows = $sheets->findRows($token, $spreadsheetId, "gid:{$gid}", 'F', '333333333');
 
-        $title = $platform->getSheetTitleByGid($token, $spreadsheetId, $gid);
-        $this->info("gid={$gid} → 工作表：{$title}");
-
-        // 创建
-        $value = $sheets->appendCells($token, $spreadsheetId, "gid:{$gid}", [
-            null, null, null, null, 'BS16 - …', '333333333', null, true,
-        ]);
-
-
+        // 读整表（自动过滤空行、裁掉行尾空单元格）
+        // $all = $sheets->readCells($token, $spreadsheetId, "gid:{$gid}");
     }
 }

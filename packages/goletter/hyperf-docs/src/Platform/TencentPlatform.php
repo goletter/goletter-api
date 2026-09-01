@@ -80,6 +80,23 @@ class TencentPlatform implements PlatformInterface, AuthInterface, SheetsInterfa
         );
     }
 
+    public function findRows(
+        array $token,
+        string $spreadsheetId,
+        string $range,
+        string|int $column,
+        mixed $value,
+    ): array {
+        return $this->tencentSheets->findRows(
+            $this->accessToken($token),
+            $this->openId($token),
+            $spreadsheetId,
+            $range,
+            $column,
+            $value,
+        );
+    }
+
     public function writeCells(array $token, string $spreadsheetId, string $range, array $values): void
     {
         $this->tencentSheets->writeCells(
