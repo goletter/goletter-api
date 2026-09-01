@@ -15,7 +15,6 @@
         "php": ">=8.1",
         "friendsofhyperf/cache": "^3.1",
         "goletter/hyperf-archive": "^1.0",
-        "goletter/hyperf-docs": "^1.0",
         "goletter/hyperf-queue": "^1.0",
         "goletter/hyperf-server": "^2.0",
         "goletter/hyperf-telegram-bot": "^1.0",
@@ -55,7 +54,8 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
-            "Goletter\\Adv\\": "packages/goletter/adv/src/"
+            "Goletter\\Adv\\": "packages/goletter/adv/src/",
+            "Goletter\\Docs\\": "packages/goletter/hyperf-docs/src/"
         },
         "files": [
             "app/Helpers/Helper.php"
