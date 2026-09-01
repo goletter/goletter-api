@@ -2,7 +2,7 @@
 
 Hyperf 文档平台扩展包，支持多平台：
 
-- **Google**：Docs / Sheets / Drive
+- **Google**：OAuth、Sheets、Drive（gid 定位、追加、按内容查找、受保护列 / 勾选框）
 - **腾讯文档**：OAuth、在线表格、文件夹、分享权限
 
 ## 安装
@@ -46,6 +46,7 @@ return [
             'client_secret' => env('TENCENT_DOCS_CLIENT_SECRET'),
             'redirect_uri' => env('TENCENT_DOCS_REDIRECT_URI'),
             'drive_root_folder' => env('TENCENT_DOCS_DRIVE_ROOT_FOLDER_NAME', 'Goletter'),
+            // OAuth 文档要求 scope 固定为 all；实际权限以开放平台已开通权限为准
             'scopes' => env('TENCENT_DOCS_SCOPES', 'all'),
         ],
     ],
@@ -64,6 +65,8 @@ GOOGLE_REDIRECT_URI=
 GOOGLE_API_KEY=
 GOOGLE_DRIVE_ROOT_FOLDER_NAME=Goletter
 GOOGLE_TOKEN=
+GOOGLE_REFRESH_TOKEN=
+GOOGLE_SPREADSHEET_ID=
 
 # 腾讯文档（开放平台 Client ID / Secret）
 TENCENT_DOCS_CLIENT_ID=
@@ -75,8 +78,8 @@ TENCENT_DOCS_TOKEN=
 TENCENT_DOCS_OPEN_ID=
 ```
 
-> 腾讯文档需先在 [开放合作平台](https://docs.qq.com/open) 创建应用并完成审核，拿到 Client ID / Secret。  
-> 调用 OpenAPI 时除 `Access-Token` 外，还必须带上 `Open-Id`（换 token 回包中的 `user_id`）。
+> Google：`access_token` 短期有效，请保存 `refresh_token` 并在过期后刷新。  
+> 腾讯文档需先在 [开放合作平台](https://docs.qq.com/open) 创建应用并完成审核；OpenAPI 除 `Access-Token` 外必须带 `Open-Id`（换 token 回包中的 `user_id`）。表格接口通常需要 `scope.sheet` / `scope.sheet.readonly`。
 
 ## 使用
 
@@ -93,15 +96,9 @@ protected DocsManager $docs;
 #[Inject]
 protected PlatformFactoryInterface $factory;
 
-// 工厂直接创建
-$google = $this->factory->make('google');
-$tencent = $this->factory->make('tencent');
-$default = $this->factory->make(); // docs.default
-
-// 或通过门面（内部仍走工厂）
 $google = $this->docs->platform('google');
 $tencent = $this->docs->platform('tencent');
-$authUrl = $this->docs->auth()->getAuthUrl();
+$authUrl = $this->docs->auth('google')->getAuthUrl();
 
 $file = $this->docs->sheets('google')->createSpreadsheet(
     ['access_token' => $googleToken['access_token']],
@@ -130,40 +127,159 @@ $this->factory->register('my_docs', MyDocsPlatform::class);
 $this->factory->make('my_docs');
 ```
 
-统一 `Sheets` 返回值：
+统一 `createSpreadsheet` 返回值：
 
 ```php
 ['id' => '...', 'title' => '...', 'url' => '...', 'raw' => /* 原始对象/数组 */]
 ```
 
-也可继续直接注入底层类（不经过工厂）：
-
 ### Google OAuth / Sheets
 
 ```php
-use Goletter\Docs\Google\GoogleAuth;
-use Goletter\Docs\Google\GoogleSheets;
-use Hyperf\Di\Annotation\Inject;
+use Goletter\Docs\DocsManager;
+use Goletter\Docs\Platform\GooglePlatform;
 
-#[Inject]
-protected GoogleAuth $auth;
+/** @var GooglePlatform $platform */
+$platform = $this->docs->platform('google');
+$sheets = $platform->sheets();
 
-#[Inject]
-protected GoogleSheets $sheets;
+$token = ['access_token' => $accessToken];
+// 过期时：
+// $token = $platform->refreshToken($refreshToken);
 
-$authUrl = $this->auth->getAuthUrl();
-$token = $this->auth->fetchToken($code);
-$token = $this->auth->refreshToken($refreshToken);
-
-$spreadsheet = $this->sheets->createSpreadsheet($accessToken, '报表');
-$this->sheets->writeCells($accessToken, $spreadsheetId, 'Sheet1!A1', [['姓名', '部门']]);
-$this->sheets->batchWrite($accessToken, $spreadsheetId, [
-    ['range' => 'Sheet1!A1', 'values' => [['a', 'b']]],
-]);
-$this->sheets->addSheet($accessToken, $spreadsheetId, 'Sheet2');
-$this->sheets->moveSpreadsheetToDateFolder($accessToken, $spreadsheetId);
-$this->sheets->shareSpreadsheetForAnyoneReader($accessToken, $spreadsheetId);
+$spreadsheetId = '1f6KLBbJnsOMKMKUxkwH-Bfwm4YWkFA_RBibJbbLIq8M';
+$gid = 649506568; // URL 里 #gid=
 ```
+
+#### Range / gid
+
+| 写法 | 说明 |
+| --- | --- |
+| `Sheet1!A1:Z100` | 按工作表标题 |
+| `'含空格标题'!A1` | 特殊字符标题自动加引号 |
+| `gid:123456` | 整表（读为 `A:Z`） |
+| `gid:123456!A1:Z100` | 指定 gid + A1 |
+| `gid:123456!F1` | 只写某一列 |
+
+```php
+$title = $platform->getSheetTitleByGid($token, $spreadsheetId, $gid);
+$range = $platform->rangeForGid($token, $spreadsheetId, $gid, 'A1:Z100');
+```
+
+#### 读取
+
+```php
+// 只返回有内容的行，并裁掉行尾空单元格
+$rows = $sheets->readCells($token, $spreadsheetId, "gid:{$gid}");
+```
+
+#### 按内容查找指定行
+
+```php
+// 按 F 列（也可用 0-based 下标，A=0）匹配
+$matches = $sheets->findRows($token, $spreadsheetId, "gid:{$gid}", 'F', '333333333');
+/*
+[
+  [
+    'row' => 12,
+    'range' => "'Sheet'!A12:Z12",
+    'values' => [..., '333333333', true],
+  ],
+]
+*/
+$one = $matches[0] ?? null;
+```
+
+#### 写入（受保护列 / 勾选框）
+
+```php
+// null = 跳过该格（不会把保护列放进请求 range）
+// '' = 清空（仍需编辑权限）
+// true/false = 勾选框
+$sheets->writeCells($token, $spreadsheetId, "gid:{$gid}!A1", [
+    [null, null, null, null, '名称', 'ID', null, true],
+]);
+
+// 更稳妥：直接写可编辑列
+$sheets->writeCells($token, $spreadsheetId, "gid:{$gid}!F1", [['333333333']]);
+$sheets->writeCells($token, $spreadsheetId, "gid:{$gid}!H1", [[true]]);
+```
+
+#### 编辑指定行
+
+```php
+// 按行号编辑
+$result = $sheets->updateRow(
+    $token,
+    $spreadsheetId,
+    "gid:{$gid}",
+    [null, null, null, null, '新名称', '333333333', null, true],
+    row: 12,
+);
+
+// 按列内容定位第一行再编辑（找不到返回 null）
+$result = $sheets->updateRow(
+    $token,
+    $spreadsheetId,
+    "gid:{$gid}",
+    [null, null, null, null, '新名称', '333333333', null, false],
+    column: 'F',
+    match: '333333333',
+);
+/*
+[
+  'row' => 12,
+  'range' => "'Sheet'!A12:Z12",
+  'values' => [..., '333333333', false],  // 单行一维
+]
+*/
+
+// 也可以 findRows + writeCells
+$hit = $sheets->findRows($token, $spreadsheetId, "gid:{$gid}", 'F', '333333333')[0] ?? null;
+if ($hit) {
+    $sheets->writeCells($token, $spreadsheetId, "gid:{$gid}!A{$hit['row']}", [
+        [null, null, null, null, '新名称', '333333333', null, true],
+    ]);
+}
+```
+
+#### 追加到表格末尾
+
+```php
+// 单行（一维）
+$result = $sheets->appendCells($token, $spreadsheetId, "gid:{$gid}", [
+    null, null, null, null, '名称', '333333333', null, true,
+]);
+/*
+[
+  'row' => 12,
+  'range' => "'Sheet'!A12:Z12",
+  'values' => [..., '333333333', true],  // 单行返回一维
+]
+*/
+
+// 多行（二维）；values 仍为二维
+$result = $sheets->appendCells($token, $spreadsheetId, "gid:{$gid}", [
+    [null, null, null, null, '名称1', '111', null, true],
+    [null, null, null, null, '名称2', '222', null, true],
+]);
+```
+
+含 `null` 时会先算下一空行，再只写有值的列（避开受保护列）。勾选列请传布尔 `true` / `false`，不要用 `''`。
+
+#### 其它
+
+```php
+$file = $sheets->createSpreadsheet($token, '报表');
+$sheets->batchWrite($token, $spreadsheetId, [
+    ['range' => "gid:{$gid}!A1", 'values' => [['a', 'b']]],
+]);
+$sheets->addSheet($token, $spreadsheetId, 'Sheet2');
+$sheets->moveSpreadsheetToDateFolder($token, $spreadsheetId);
+$sheets->shareSpreadsheetForAnyoneReader($token, $spreadsheetId);
+```
+
+也可直接注入底层 `GoogleAuth` / `GoogleSheets`（不经过工厂），参数为原始 `accessToken` 字符串。
 
 ### 腾讯文档 OAuth / 表格
 
@@ -178,28 +294,57 @@ protected TencentAuth $auth;
 #[Inject]
 protected TencentSheets $sheets;
 
-$authUrl = $this->auth->getAuthUrl(state: 'xyz');
+$authUrl = $this->auth->getAuthUrl(state: 'xyz'); // scope 固定为 all
 $token = $this->auth->fetchToken($code);
 // $token['access_token']、$token['refresh_token']、$token['open_id']
 
 $file = $this->sheets->createSpreadsheet($accessToken, $openId, '报表');
-$this->sheets->writeCells($accessToken, $openId, $file['ID'], 'A1', [['姓名', '部门']]);
-$this->sheets->moveSpreadsheetToDateFolder($accessToken, $openId, $file['ID']);
-$this->sheets->shareSpreadsheetForAnyoneReader($accessToken, $openId, $file['ID']);
+$spreadsheetId = $file['ID'] ?? $file['id'];
+
+// 读：spreadsheet v3（需 scope.sheet / scope.sheet.readonly）
+$values = $this->sheets->readCells($accessToken, $openId, $spreadsheetId, 'A1:Z1000');
+
+// 写：sheetbook v2
+$this->sheets->writeCells($accessToken, $openId, $spreadsheetId, 'A1', [['姓名', '部门']]);
+
+// 追加 / 按列查找（门面 sheets('tencent') 同样支持）
+$sheets = $this->docs->sheets('tencent');
+$tokenPayload = [
+    'access_token' => $accessToken,
+    'open_id' => $openId,
+];
+$sheets->appendCells($tokenPayload, $spreadsheetId, 'A1', [
+    '张三', '技术部',
+]);
+$sheets->findRows($tokenPayload, $spreadsheetId, 'A1:Z1000', 'A', '张三');
+$sheets->updateRow($tokenPayload, $spreadsheetId, 'A1:Z1000', ['李四', '产品部'], column: 'A', match: '张三');
+
+$this->sheets->moveSpreadsheetToDateFolder($accessToken, $openId, $spreadsheetId);
+$this->sheets->shareSpreadsheetForAnyoneReader($accessToken, $openId, $spreadsheetId);
 ```
 
-## 说明
+权限变更或接口报 `Request Scope Invalid` 时：在开放平台开通表格相关权限 → 用户重新授权换新 token。
+
+## 能力对照
 
 | 能力 | Google | 腾讯文档 |
 | --- | --- | --- |
 | OAuth 授权 / 刷新 | ✅ | ✅ |
 | 创建表格 | ✅ Spreadsheet | ✅ `type=sheet` |
-| 读写单元格 | ✅ Sheets Values | ✅ spreadsheet v3（读）/ sheetbook v2（写） |
+| 读单元格 | ✅ Values（过滤空行） | ✅ spreadsheet v3 |
+| 写单元格 | ✅ Values（null 跳过保护列） | ✅ sheetbook v2 |
+| 编辑指定行 | ✅ `updateRow`（行号 / 按列查找） | ✅ `updateRow` |
+| 追加行 | ✅ `appendCells` | ✅ `appendCells` |
+| 按列内容查找 | ✅ `findRows` | ✅ `findRows` |
+| gid / sheetId 定位 | ✅ URL `#gid=` | ✅ 标题或 sheetId |
+| 勾选框 | ✅ `true` / `false` | — |
 | 添加工作表 | ✅ | ✅ spreadsheet v3 batchUpdate |
 | 移动到日期目录 | ✅ Drive | ✅ folders + move |
 | 公开只读分享 | ✅ anyone reader | ✅ `publicRead` |
 
 ## 测试命令
+
+包内自带：
 
 ```bash
 # Google
@@ -210,3 +355,5 @@ php bin/hyperf.php docs:test --platform=google --token=xxx
 php bin/hyperf.php docs:test --platform=tencent --auth-url
 php bin/hyperf.php docs:test --platform=tencent --token=xxx --open-id=yyy
 ```
+
+业务侧也可自建命令，用 `DocsManager` + `gid` / `appendCells` / `findRows` 做联调。

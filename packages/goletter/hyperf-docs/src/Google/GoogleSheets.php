@@ -159,6 +159,75 @@ class GoogleSheets
     }
 
     /**
+     * 编辑指定行，并读回更新后的行数据.
+     *
+     * @param list<null|bool|scalar>|list<list<null|bool|scalar>> $values
+     * @return null|array{row: int, range: string, values: list<mixed>|list<list<mixed>>}
+     */
+    public function updateRow(
+        string $accessToken,
+        string $spreadsheetId,
+        string $range,
+        array $values,
+        ?int $row = null,
+        string|int|null $column = null,
+        mixed $match = null,
+    ): ?array {
+        return $this->googleClient->request(function () use ($accessToken, $spreadsheetId, $range, $values, $row, $column, $match) {
+            $values = $this->normalizeRows($values);
+            if ($values === []) {
+                return null;
+            }
+
+            $targetRow = $row;
+            if ($targetRow === null) {
+                if ($column === null) {
+                    throw new \InvalidArgumentException('updateRow requires $row or $column+$match');
+                }
+                $hits = $this->findRows($accessToken, $spreadsheetId, $range, $column, $match);
+                if ($hits === []) {
+                    return null;
+                }
+                $targetRow = (int) $hits[0]['row'];
+            }
+
+            if ($targetRow < 1) {
+                throw new \InvalidArgumentException('updateRow $row must be >= 1');
+            }
+
+            $resolved = $this->resolveRange($accessToken, $spreadsheetId, $range, true);
+            $sheetPrefix = $this->sheetPrefixFromRange($resolved);
+            $rowCount = count($values);
+            $writeRange = $sheetPrefix . 'A' . $targetRow;
+            $chunks = $this->expandSparseWrites($writeRange, $values);
+            if ($chunks !== []) {
+                $this->applyValueChunks($accessToken, $spreadsheetId, $chunks);
+            }
+
+            $endRow = $targetRow + $rowCount - 1;
+            $readRange = $sheetPrefix . 'A' . $targetRow . ':Z' . $endRow;
+            $read = $this->getSheetsService($accessToken)
+                ->spreadsheets_values
+                ->get($spreadsheetId, $readRange);
+            $readValues = $this->filterNonEmptyRows($read->getValues() ?? []);
+            if ($readValues === []) {
+                // 本行可能只写了稀疏列，仍读原始行
+                $raw = $read->getValues() ?? [];
+                $readValues = array_map(
+                    fn ($row) => is_array($row) ? $this->trimTrailingEmptyCells(array_values($row)) : [],
+                    $raw
+                );
+            }
+
+            return [
+                'row' => $targetRow,
+                'range' => $readRange,
+                'values' => $this->unwrapSingleRowValues($readValues, $rowCount),
+            ];
+        });
+    }
+
+    /**
      * 在表格已有内容后面追加行，并读回追加后的行数据.
      *
      * $range 可为整表：gid:123 / Sheet1，或指定列带：gid:123!A:F

@@ -259,6 +259,61 @@ class TencentSheets
     }
 
     /**
+     * 编辑指定行，并读回更新后的行数据.
+     *
+     * @param list<mixed>|list<list<mixed>> $values
+     * @return null|array{row: int, range: string, values: list<mixed>|list<list<mixed>>}
+     * @throws TencentApiException
+     */
+    public function updateRow(
+        string $accessToken,
+        string $openId,
+        string $spreadsheetId,
+        string $range,
+        array $values,
+        ?int $row = null,
+        string|int|null $column = null,
+        mixed $match = null,
+    ): ?array {
+        $values = $this->normalizeRows($values);
+        if ($values === []) {
+            return null;
+        }
+
+        $targetRow = $row;
+        if ($targetRow === null) {
+            if ($column === null) {
+                throw new \InvalidArgumentException('updateRow requires $row or $column+$match');
+            }
+            $hits = $this->findRows($accessToken, $openId, $spreadsheetId, $range, $column, $match);
+            if ($hits === []) {
+                return null;
+            }
+            $targetRow = (int) $hits[0]['row'];
+        }
+
+        if ($targetRow < 1) {
+            throw new \InvalidArgumentException('updateRow $row must be >= 1');
+        }
+
+        [$sheetRef] = $this->parseRange($range);
+        $sheetPrefix = ($sheetRef !== null && $sheetRef !== '') ? $sheetRef . '!' : '';
+        $rowCount = count($values);
+        $endRow = $targetRow + $rowCount - 1;
+        $writeRange = $sheetPrefix . 'A' . $targetRow;
+        $this->writeCells($accessToken, $openId, $spreadsheetId, $writeRange, $values);
+
+        $readRange = $sheetPrefix . 'A' . $targetRow . ':Z' . $endRow;
+        $readValues = $this->readCells($accessToken, $openId, $spreadsheetId, $readRange);
+
+        return [
+            'row' => $targetRow,
+            'range' => $readRange,
+            'values' => $this->unwrapSingleRowValues($readValues, $rowCount),
+        ];
+    }
+
+    /**
      * 在已有内容后追加行，并读回追加后的行数据.
      *
      * $values 支持单行 [a,b] 或多行 [[a],[b]].

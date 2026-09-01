@@ -42,6 +42,26 @@ interface SheetsInterface
     public function writeCells(array $token, string $spreadsheetId, string $range, array $values): void;
 
     /**
+     * 编辑指定行，并读回更新后的行数据.
+     *
+     * - 传 $row：直接更新该行号
+     * - 不传 $row，传 $column + $match：按列内容找到第一行再更新
+     *
+     * @param array{access_token: string, open_id?: string, user_id?: string} $token
+     * @param list<null|bool|scalar>|list<list<null|bool|scalar>> $values
+     * @return null|array{row: int, range: string, values: list<mixed>|list<list<mixed>>}
+     */
+    public function updateRow(
+        array $token,
+        string $spreadsheetId,
+        string $range,
+        array $values,
+        ?int $row = null,
+        string|int|null $column = null,
+        mixed $match = null,
+    ): ?array;
+
+    /**
      * 在表格已有内容后面追加行，并读回追加后的行数据.
      *
      * $values 支持单行 [a,b,…] 或多行 [[…],[…]].

@@ -90,6 +90,26 @@ class GooglePlatform implements PlatformInterface, AuthInterface, SheetsInterfac
         $this->googleSheets->writeCells($this->accessToken($token), $spreadsheetId, $range, $values);
     }
 
+    public function updateRow(
+        array $token,
+        string $spreadsheetId,
+        string $range,
+        array $values,
+        ?int $row = null,
+        string|int|null $column = null,
+        mixed $match = null,
+    ): ?array {
+        return $this->googleSheets->updateRow(
+            $this->accessToken($token),
+            $spreadsheetId,
+            $range,
+            $values,
+            $row,
+            $column,
+            $match,
+        );
+    }
+
     public function appendCells(array $token, string $spreadsheetId, string $range, array $values): array
     {
         return $this->googleSheets->appendCells($this->accessToken($token), $spreadsheetId, $range, $values);
