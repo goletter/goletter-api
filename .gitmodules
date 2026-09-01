@@ -1,3 +1,0 @@
-[submodule "packages/goletter/hyperf-docs"]
-	path = packages/goletter/hyperf-docs
-	url = git@github.com:goletter/hyperf-docs.git
