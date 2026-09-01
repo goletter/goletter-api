@@ -194,7 +194,7 @@ $this->sheets->shareSpreadsheetForAnyoneReader($accessToken, $openId, $file['ID'
 | --- | --- | --- |
 | OAuth 授权 / 刷新 | ✅ | ✅ |
 | 创建表格 | ✅ Spreadsheet | ✅ `type=sheet` |
-| 读写单元格 | ✅ Sheets Values | ✅ sheetbook values |
+| 读写单元格 | ✅ Sheets Values | ✅ spreadsheet v3（读）/ sheetbook v2（写） |
 | 添加工作表 | ✅ | ✅ spreadsheet v3 batchUpdate |
 | 移动到日期目录 | ✅ Drive | ✅ folders + move |
 | 公开只读分享 | ✅ anyone reader | ✅ `publicRead` |

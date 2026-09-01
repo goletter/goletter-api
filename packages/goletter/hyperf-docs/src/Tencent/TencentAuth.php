@@ -25,7 +25,8 @@ class TencentAuth
             'client_id' => (string) $this->client->option('client_id'),
             'redirect_uri' => (string) $this->client->option('redirect_uri'),
             'response_type' => 'code',
-            'scope' => $scope ?: implode(',', $this->client->getScopes()),
+            // 腾讯文档 OAuth 文档要求 scope 固定为 all（实际权限以开放平台已开通权限为准）
+            'scope' => $scope ?: 'all',
             'new_login' => '1',
         ];
 

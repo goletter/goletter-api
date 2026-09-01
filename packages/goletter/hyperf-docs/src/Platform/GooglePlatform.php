@@ -69,9 +69,50 @@ class GooglePlatform implements PlatformInterface, AuthInterface, SheetsInterfac
         return $this->googleSheets->readCells($this->accessToken($token), $spreadsheetId, $range);
     }
 
+    public function findRows(
+        array $token,
+        string $spreadsheetId,
+        string $range,
+        string|int $column,
+        mixed $value,
+    ): array {
+        return $this->googleSheets->findRows(
+            $this->accessToken($token),
+            $spreadsheetId,
+            $range,
+            $column,
+            $value,
+        );
+    }
+
     public function writeCells(array $token, string $spreadsheetId, string $range, array $values): void
     {
         $this->googleSheets->writeCells($this->accessToken($token), $spreadsheetId, $range, $values);
+    }
+
+    public function appendCells(array $token, string $spreadsheetId, string $range, array $values): array
+    {
+        return $this->googleSheets->appendCells($this->accessToken($token), $spreadsheetId, $range, $values);
+    }
+
+    /**
+     * URL #gid=xxx → 工作表标题.
+     */
+    public function getSheetTitleByGid(array $token, string $spreadsheetId, int|string $gid): string
+    {
+        return $this->googleSheets->getSheetTitleByGid($this->accessToken($token), $spreadsheetId, $gid);
+    }
+
+    /**
+     * 用 gid 生成 A1 range.
+     */
+    public function rangeForGid(
+        array $token,
+        string $spreadsheetId,
+        int|string $gid,
+        string $a1Range = 'A1:Z1000',
+    ): string {
+        return $this->googleSheets->rangeForGid($this->accessToken($token), $spreadsheetId, $gid, $a1Range);
     }
 
     public function batchWrite(array $token, string $spreadsheetId, array $data): void

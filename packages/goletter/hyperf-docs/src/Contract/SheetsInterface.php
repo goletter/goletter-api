@@ -21,10 +21,36 @@ interface SheetsInterface
     public function readCells(array $token, string $spreadsheetId, string $range = 'A1:Z1000'): array;
 
     /**
+     * 按列内容查找行（根据表格内容定位指定行）.
+     *
      * @param array{access_token: string, open_id?: string, user_id?: string} $token
-     * @param list<list<mixed>> $values
+     * @param string|int $column 列字母（如 F）或 0-based 列下标
+     * @return list<array{row: int, range: string, values: list<mixed>}>
+     */
+    public function findRows(
+        array $token,
+        string $spreadsheetId,
+        string $range,
+        string|int $column,
+        mixed $value,
+    ): array;
+
+    /**
+     * @param array{access_token: string, open_id?: string, user_id?: string} $token
+     * @param list<list<null|scalar>> $values
      */
     public function writeCells(array $token, string $spreadsheetId, string $range, array $values): void;
+
+    /**
+     * 在表格已有内容后面追加行，并读回追加后的行数据.
+     *
+     * $values 支持单行 [a,b,…] 或多行 [[…],[…]].
+     *
+     * @param array{access_token: string, open_id?: string, user_id?: string} $token
+     * @param list<null|bool|scalar>|list<list<null|bool|scalar>> $values
+     * @return array{row: int, range: string, values: list<mixed>|list<list<mixed>>}
+     */
+    public function appendCells(array $token, string $spreadsheetId, string $range, array $values): array;
 
     /**
      * @param array{access_token: string, open_id?: string, user_id?: string} $token

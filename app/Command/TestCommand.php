@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use Goletter\Docs\DocsManager;
+use Goletter\Docs\Platform\GooglePlatform;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
@@ -31,24 +32,33 @@ class TestCommand extends HyperfCommand
     public function configure(): void
     {
         parent::configure();
-        $this->setDescription('测试');
+        $this->setDescription('测试 Google Sheets 读写（支持 gid）');
     }
 
     public function handle()
     {
-        /*$accessToken = '';
-        $openId = 'e2df27da1ec34ceb9c353debbeed6adc';
-        $spreadsheetId = 'DSEJrdWtXV0ZsRnVV';
+        $accessToken = '';
+        $token = ['access_token' => $accessToken];
 
-        $token = [
-            'access_token' => $accessToken,
-            'open_id' => $openId, // 或 user_id
-        ];
+        /** @var GooglePlatform $platform */
+        $platform = $this->docs->platform('google');
+        $sheets = $platform->sheets();
 
-        $values = $this->docs->sheets('tencent')->readCells(
-            $token,
-            $spreadsheetId,
-        );
-        dd($values);*/
+        $spreadsheetId = '1f6KLBbJnsOMKMKUxkwH-Bfwm4YWkFA_RBibJbbLIq8M';
+        $gid = 649506568;
+
+        // 读取
+        $rows = $sheets->readCells($token, $spreadsheetId, "gid:{$gid}");
+        dd($rows);
+
+        $title = $platform->getSheetTitleByGid($token, $spreadsheetId, $gid);
+        $this->info("gid={$gid} → 工作表：{$title}");
+
+        // 创建
+        $value = $sheets->appendCells($token, $spreadsheetId, "gid:{$gid}", [
+            null, null, null, null, 'BS16 - …', '333333333', null, true,
+        ]);
+
+
     }
 }

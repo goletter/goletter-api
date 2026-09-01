@@ -91,6 +91,17 @@ class TencentPlatform implements PlatformInterface, AuthInterface, SheetsInterfa
         );
     }
 
+    public function appendCells(array $token, string $spreadsheetId, string $range, array $values): array
+    {
+        return $this->tencentSheets->appendCells(
+            $this->accessToken($token),
+            $this->openId($token),
+            $spreadsheetId,
+            $range,
+            $values,
+        );
+    }
+
     public function batchWrite(array $token, string $spreadsheetId, array $data): void
     {
         $this->tencentSheets->batchWrite(
