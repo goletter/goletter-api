@@ -23,10 +23,10 @@ class GoogleController extends AbstractController
         try {
             $url = $this->auth->getAuthUrl();
         } catch (GoogleApiException $e) {
-           $this->fail($e->getCode() ?: 400, $e->getMessage());
+            $this->fail($e->getCode() ?: 400, $e->getMessage());
         }
 
-        $this->success([
+        return $this->success([
             'auth_url' => $url,
         ]);
     }
@@ -56,7 +56,7 @@ class GoogleController extends AbstractController
             $this->fail($e->getCode() ?: 400, $e->getMessage());
         }
 
-        $this->success([
+        return $this->success([
             'access_token' => $token['access_token'] ?? null,
             'refresh_token' => $token['refresh_token'] ?? null,
             'expires_in' => $token['expires_in'] ?? null,
