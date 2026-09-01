@@ -12,7 +12,8 @@ declare(strict_types=1);
 return [
     'scan' => [
         'paths' => [
-            BASE_PATH . '/app'
+            BASE_PATH . '/app',
+            BASE_PATH . '/packages/goletter/hyperf-docs/src',
         ],
         'ignore_annotations' => [
             'mixin',

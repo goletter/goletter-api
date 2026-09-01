@@ -10,7 +10,13 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 
+use Goletter\Docs\Contract\PlatformFactoryInterface;
+use Goletter\Docs\DocsManager;
+use Goletter\Docs\PlatformFactory;
+
 return [
-    // 多 Bot / 动态 Token：请注入 BotFactory，使用 token()/resolve()
-    // BotInterface 仅在配置了 telegram.bots.default.token 时可用
+    // hyperf-docs 本地 PSR-4 引入时 ConfigProvider 不会自动加载，需手动绑定
+    PlatformFactoryInterface::class => PlatformFactory::class,
+    PlatformFactory::class => PlatformFactory::class,
+    DocsManager::class => DocsManager::class,
 ];

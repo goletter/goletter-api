@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Job\TestJob;
+use Goletter\Docs\Google\GoogleAuth;
 use Goletter\Server\Service\QueueService;
 use Goletter\Telegram\Factory\BotFactory;
 use Goletter\Telegram\Service\BotChatTracker;
