@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "84a3c21b0d9741f7986f836a2238f29b",
+    "content-hash": "d30286fe29fb3ad11583b7a586d681fe",
     "packages": [
         {
             "name": "aliyuncs/oss-sdk-php",
@@ -3763,6 +3763,74 @@
             "time": "2026-05-09T02:09:50+00:00"
         },
         {
+            "name": "hyperf/laminas-mime",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hyperf/laminas-mime.git",
+                "reference": "425121a9094eaed3e167aeadc72538c6f448cfef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hyperf/laminas-mime/zipball/425121a9094eaed3e167aeadc72538c6f448cfef",
+                "reference": "425121a9094eaed3e167aeadc72538c6f448cfef",
+                "shasum": ""
+            },
+            "require": {
+                "laminas/laminas-stdlib": "^2.7 || ^3.0",
+                "php": "^8.0"
+            },
+            "conflict": {
+                "zendframework/zend-mime": "*"
+            },
+            "replace": {
+                "laminas/laminas-mime": "*"
+            },
+            "require-dev": {
+                "laminas/laminas-coding-standard": "~2.4.0",
+                "laminas/laminas-mail": "^2.19.0",
+                "phpunit/phpunit": "~9.5.25"
+            },
+            "suggest": {
+                "laminas/laminas-mail": "Laminas\\Mail component"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Laminas\\Mime\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "Create and parse MIME messages and parts",
+            "homepage": "https://laminas.dev",
+            "keywords": [
+                "laminas",
+                "mime"
+            ],
+            "support": {
+                "chat": "https://laminas.dev/chat",
+                "docs": "https://docs.laminas.dev/laminas-mime/",
+                "forum": "https://discourse.laminas.dev",
+                "issues": "https://github.com/laminas/laminas-mime/issues",
+                "rss": "https://github.com/laminas/laminas-mime/releases.atom",
+                "source": "https://github.com/laminas/laminas-mime"
+            },
+            "funding": [
+                {
+                    "url": "https://hyperf.wiki/#/zh-cn/donate",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://opencollective.com/hyperf",
+                    "type": "open_collective"
+                }
+            ],
+            "time": "2025-05-20T08:23:09+00:00"
+        },
+        {
             "name": "hyperf/logger",
             "version": "v3.1.63",
             "source": {
@@ -5157,68 +5225,6 @@
                 "issues": "https://youtrack.jetbrains.com/newIssue?project=WI"
             },
             "time": "2026-07-22T11:27:58+00:00"
-        },
-        {
-            "name": "laminas/laminas-mime",
-            "version": "2.12.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/laminas/laminas-mime.git",
-                "reference": "08cc544778829b7d68d27a097885bd6e7130135e"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-mime/zipball/08cc544778829b7d68d27a097885bd6e7130135e",
-                "reference": "08cc544778829b7d68d27a097885bd6e7130135e",
-                "shasum": ""
-            },
-            "require": {
-                "laminas/laminas-stdlib": "^2.7 || ^3.0",
-                "php": "~8.0.0 || ~8.1.0 || ~8.2.0 || ~8.3.0"
-            },
-            "conflict": {
-                "zendframework/zend-mime": "*"
-            },
-            "require-dev": {
-                "laminas/laminas-coding-standard": "~2.4.0",
-                "laminas/laminas-mail": "^2.19.0",
-                "phpunit/phpunit": "~9.5.25"
-            },
-            "suggest": {
-                "laminas/laminas-mail": "Laminas\\Mail component"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Laminas\\Mime\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "Create and parse MIME messages and parts",
-            "homepage": "https://laminas.dev",
-            "keywords": [
-                "laminas",
-                "mime"
-            ],
-            "support": {
-                "chat": "https://laminas.dev/chat",
-                "docs": "https://docs.laminas.dev/laminas-mime/",
-                "forum": "https://discourse.laminas.dev",
-                "issues": "https://github.com/laminas/laminas-mime/issues",
-                "rss": "https://github.com/laminas/laminas-mime/releases.atom",
-                "source": "https://github.com/laminas/laminas-mime"
-            },
-            "funding": [
-                {
-                    "url": "https://funding.communitybridge.org/projects/laminas-project",
-                    "type": "community_bridge"
-                }
-            ],
-            "abandoned": "symfony/mime",
-            "time": "2023-11-02T16:47:19+00:00"
         },
         {
             "name": "laminas/laminas-stdlib",
