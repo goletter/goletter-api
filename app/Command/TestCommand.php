@@ -29,6 +29,7 @@ class TestCommand extends HyperfCommand
         $this->setDescription('测试');
     }
 
+
     public function handle()
     {
         //
