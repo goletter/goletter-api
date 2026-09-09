@@ -14,7 +14,6 @@ namespace App\Command;
 
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
-use Hyperf\Di\Annotation\Inject;
 
 #[Command]
 class TestCommand extends HyperfCommand
@@ -27,7 +26,7 @@ class TestCommand extends HyperfCommand
     public function configure(): void
     {
         parent::configure();
-        $this->setDescription('测试 Google Sheets 读写（支持 gid）');
+        $this->setDescription('测试');
     }
 
     public function handle()
