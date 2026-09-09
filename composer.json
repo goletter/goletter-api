@@ -16,6 +16,7 @@
         "friendsofhyperf/cache": "^3.1",
         "goletter/hyperf-adv": "^1.0",
         "goletter/hyperf-archive": "^1.0",
+        "goletter/hyperf-cache": "^1.0",
         "goletter/hyperf-queue": "^1.0",
         "goletter/hyperf-server": "^2.0",
         "goletter/hyperf-telegram-bot": "^1.0",

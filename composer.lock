@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "06a6eb1ada52efd840f8fccc36d41361",
+    "content-hash": "a9644403ebc6eb71c775b3b4c3a78a33",
     "packages": [
         {
             "name": "aliyuncs/oss-sdk-php",
@@ -856,6 +856,70 @@
                 "source": "https://github.com/goletter/hyperf-archive/tree/v1.0.0"
             },
             "time": "2026-08-27T16:48:32+00:00"
+        },
+        {
+            "name": "goletter/hyperf-cache",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/goletter/hyperf-cache.git",
+                "reference": "a485f963f69c798b7050ab1f7a07d8feee7fc4af"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/goletter/hyperf-cache/zipball/a485f963f69c798b7050ab1f7a07d8feee7fc4af",
+                "reference": "a485f963f69c798b7050ab1f7a07d8feee7fc4af",
+                "shasum": ""
+            },
+            "require": {
+                "hyperf/cache": "~3.1.0 || ~3.2.0",
+                "hyperf/collection": "~3.1.0 || ~3.2.0",
+                "hyperf/context": "~3.1.0 || ~3.2.0",
+                "hyperf/macroable": "~3.1.0 || ~3.2.0",
+                "hyperf/support": "~3.1.0 || ~3.2.0",
+                "hyperf/tappable": "~3.1.0 || ~3.2.0",
+                "nesbot/carbon": "^2.0 || ^3.0",
+                "php": ">=8.1"
+            },
+            "suggest": {
+                "friendsofhyperf/lock": "Required to lock stale-while-revalidate refresh (~3.1.0 || ~3.2.0).",
+                "hyperf/coroutine": "Required to defer stale-while-revalidate refresh (~3.1.0 || ~3.2.0)."
+            },
+            "type": "library",
+            "extra": {
+                "hyperf": {
+                    "config": "Goletter\\Cache\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "src/helpers.php"
+                ],
+                "psr-4": {
+                    "Goletter\\Cache\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "goletter",
+                    "email": "goletter@outlook.com"
+                }
+            ],
+            "description": "Laravel-style cache repository for Hyperf.",
+            "keywords": [
+                "cache",
+                "hyperf",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/goletter/hyperf-cache/issues",
+                "source": "https://github.com/goletter/hyperf-cache/tree/v1.0.0"
+            },
+            "time": "2026-09-09T16:34:39+00:00"
         },
         {
             "name": "goletter/hyperf-modelfilter",
