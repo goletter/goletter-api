@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d30286fe29fb3ad11583b7a586d681fe",
+    "content-hash": "6c5cc6603708946334d0e0baf780aa8f",
     "packages": [
         {
             "name": "aliyuncs/oss-sdk-php",
@@ -724,6 +724,67 @@
                 }
             ],
             "time": "2026-06-07T13:37:26+00:00"
+        },
+        {
+            "name": "goletter/adv",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/goletter/hyperf-adv.git",
+                "reference": "07bcdfdc2e4d9fcb2ced1d8164facc12553cedaf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/goletter/hyperf-adv/zipball/07bcdfdc2e4d9fcb2ced1d8164facc12553cedaf",
+                "reference": "07bcdfdc2e4d9fcb2ced1d8164facc12553cedaf",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^7.0",
+                "php": ">=8.1"
+            },
+            "replace": {
+                "goletter/hyperf-adv": "self.version"
+            },
+            "suggest": {
+                "hyperf/framework": "Required to use ConfigProvider in Hyperf applications."
+            },
+            "type": "library",
+            "extra": {
+                "hyperf": {
+                    "config": "Goletter\\Adv\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Goletter\\Adv\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "goletter",
+                    "email": "goletter@outlook.com"
+                }
+            ],
+            "description": "多平台广告 API SDK，支持 Facebook、TikTok、Google Ads",
+            "keywords": [
+                "TikTok ",
+                "ads",
+                "facebook",
+                "google-ads",
+                "hyperf",
+                "hyperf-adv",
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/goletter/hyperf-adv/issues",
+                "source": "https://github.com/goletter/hyperf-adv/tree/v1.0.1"
+            },
+            "time": "2026-09-08T17:20:53+00:00"
         },
         {
             "name": "goletter/hyperf-archive",

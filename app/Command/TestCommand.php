@@ -12,8 +12,6 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use Goletter\Docs\DocsManager;
-use Goletter\Docs\Platform\GooglePlatform;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
@@ -21,9 +19,6 @@ use Hyperf\Di\Annotation\Inject;
 #[Command]
 class TestCommand extends HyperfCommand
 {
-    #[Inject]
-    protected DocsManager $docs;
-
     public function __construct()
     {
         parent::__construct('test:to');
@@ -37,21 +32,6 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        $accessToken = '';
-        $token = ['access_token' => $accessToken];
-
-        /** @var GooglePlatform $platform */
-        $platform = $this->docs->platform('google');
-        $sheets = $platform->sheets();
-
-        $spreadsheetId = '1f6KLBbJnsOMKMKUxkwH-Bfwm4YWkFA_RBibJbbLIq8M';
-        $gid = 649506568;
-
-        // 按 F 列内容查找指定行（只返回匹配且有数据的行）
-        // $rows = $sheets->findRows($token, $spreadsheetId, "gid:{$gid}", 'F', '333333333');
-
-        // 读整表：每行至少 3 个非空单元格才保留（第 4 个参数可调）
-        $all = $sheets->readCells($token, $spreadsheetId, "gid:{$gid}", 3);
-        dd($all);
+        //
     }
 }

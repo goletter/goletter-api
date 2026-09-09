@@ -12,9 +12,6 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Job\TestJob;
-use Goletter\Docs\DocsManager;
-use Goletter\Docs\Google\GoogleAuth;
 use Goletter\Server\Service\QueueService;
 use Goletter\Telegram\Factory\BotFactory;
 use Goletter\Telegram\Service\BotChatTracker;
@@ -33,9 +30,6 @@ class OpenCommand extends HyperfCommand
 
     #[Inject]
     private QueueService $queueService;
-
-    #[Inject]
-    protected DocsManager $docs;
 
     public function __construct()
     {
