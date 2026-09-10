@@ -1109,16 +1109,16 @@
         },
         {
             "name": "goletter/hyperf-server",
-            "version": "v2.0.4",
+            "version": "v2.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goletter/hyperf-server.git",
-                "reference": "66dd5c6a5ad8fe192218573fe300d1ffd70f5802"
+                "reference": "6df839322bb891973b13ec274e5eeef0d94375c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goletter/hyperf-server/zipball/66dd5c6a5ad8fe192218573fe300d1ffd70f5802",
-                "reference": "66dd5c6a5ad8fe192218573fe300d1ffd70f5802",
+                "url": "https://api.github.com/repos/goletter/hyperf-server/zipball/6df839322bb891973b13ec274e5eeef0d94375c4",
+                "reference": "6df839322bb891973b13ec274e5eeef0d94375c4",
                 "shasum": ""
             },
             "require": {
@@ -1130,7 +1130,6 @@
                 "hyperf/filesystem": "^3.1",
                 "hyperf/flysystem-oss": "^1.4",
                 "hyperf/server": "^3.1",
-                "opentracing/opentracing": "^1.0",
                 "php": ">=8.0"
             },
             "type": "library",
@@ -1162,9 +1161,9 @@
             ],
             "support": {
                 "issues": "https://github.com/goletter/hyperf-server/issues",
-                "source": "https://github.com/goletter/hyperf-server/tree/v2.0.4"
+                "source": "https://github.com/goletter/hyperf-server/tree/v2.0.5"
             },
-            "time": "2026-08-03T17:31:08+00:00"
+            "time": "2026-09-10T04:20:16+00:00"
         },
         {
             "name": "goletter/hyperf-sls-log",
@@ -5908,56 +5907,6 @@
                 "source": "https://github.com/nikic/PHP-Parser/tree/v4.19.5"
             },
             "time": "2025-12-06T11:45:25+00:00"
-        },
-        {
-            "name": "opentracing/opentracing",
-            "version": "1.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/opentracing/opentracing-php.git",
-                "reference": "cd60bd1fb2a25280600bc74c7f9e0c13881a9116"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/opentracing/opentracing-php/zipball/cd60bd1fb2a25280600bc74c7f9e0c13881a9116",
-                "reference": "cd60bd1fb2a25280600bc74c7f9e0c13881a9116",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1 || ^8.0"
-            },
-            "require-dev": {
-                "phpstan/phpstan": "~0.12",
-                "phpunit/phpunit": "^7.0 || ^9.0",
-                "squizlabs/php_codesniffer": "3.*"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "src/OpenTracing/Tags.php",
-                    "src/OpenTracing/Formats.php"
-                ],
-                "psr-4": {
-                    "OpenTracing\\": "src/OpenTracing/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "José Carlos Chávez",
-                    "email": "jcchavezs@gmail.com"
-                }
-            ],
-            "description": "OpenTracing API for PHP",
-            "support": {
-                "issues": "https://github.com/opentracing/opentracing-php/issues",
-                "source": "https://github.com/opentracing/opentracing-php/tree/1.0.2"
-            },
-            "abandoned": true,
-            "time": "2022-01-27T19:59:21+00:00"
         },
         {
             "name": "php-di/phpdoc-reader",
