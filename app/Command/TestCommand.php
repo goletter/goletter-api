@@ -53,7 +53,7 @@ class TestCommand extends HyperfCommand
             $response = $http->get($url, ['query' => $params]);
             $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
-            dd($result);
+            dd($result, 11);
 
         } catch (Exception $exception) {
             dd($exception->getMessage());
