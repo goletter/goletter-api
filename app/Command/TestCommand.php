@@ -49,7 +49,7 @@ class TestCommand extends HyperfCommand
             $params = [
                 'access_token' => 'EAAGNO4a7r2wBSWi9Ez4CMZCdB1faAEtcHidGn34d9IpDKKa7GtN3Ek1LhsTJ1YVb5t8yQYFjEIziRfHZAPL0IiU9ZBDq5xmFWllgHyJpyTMZBpA5LRb2N9gYANZAPpQ62eZBZBhiPlaY3pTBGfV7J67DstFe4PXpXauaWvZBluUdZAGq5MN877FR80XEk3FjZBDgZDZD',
             ];
-            $url = "https://graph.facebook.com/v19.0/719354937788295";
+            $url = "https://graph.facebook.com/719354937788295";
             $response = $http->get($url, ['query' => $params]);
             $result = $response->getBody()->getContents();
             $result = json_decode($result, true);
