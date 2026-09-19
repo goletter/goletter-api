@@ -12,12 +12,18 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use Goletter\Server\Service\Service;
+use Goletter\Server\BaseService;
+use function Goletter\Utils\di;
 
-class TestService extends Service
+class AccountService extends BaseService
 {
-    public function index()
+    public function create($data)
     {
-        //
+        return di()->get(\App\Service\Action\Account\CreateAction::class)->handle($data);
+    }
+
+    public function update($data)
+    {
+        return di()->get(\App\Service\Action\Account\UpdateAction::class)->handle($data);
     }
 }

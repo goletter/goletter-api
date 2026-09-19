@@ -7,7 +7,12 @@
 
 namespace App\Service\Action\Account;
 
-class CreateAction
-{
+use Goletter\Server\BaseService;
 
+class CreateAction extends BaseService
+{
+    public function handle(array $data)
+    {
+        return [];
+    }
 }
