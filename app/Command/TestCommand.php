@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Mail\TestMail;
+use Goletter\Mail\Mail;
 use Goletter\Server\Service\QueueService;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
@@ -36,6 +38,6 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        //
+        Mail::to('goletter@outlook.com')->queue(new TestMail('Yong'));
     }
 }
