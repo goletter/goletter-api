@@ -24,6 +24,7 @@
         "goletter/hyperf-telegram-bot": "^1.0",
         "google/apiclient": "^2.19",
         "guzzlehttp/guzzle": "^7.15",
+        "hyperf/amqp": "^3.1",
         "hyperf/async-queue": "~3.1.0",
         "hyperf/cache": "~3.1.0",
         "hyperf/command": "~3.1.0",

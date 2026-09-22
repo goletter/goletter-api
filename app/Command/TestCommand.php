@@ -12,19 +12,16 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Mail\TestMail;
-use Goletter\Mail\Mail;
-use Goletter\Server\Service\QueueService;
+use App\Amqp\Producer\DemoProducer;
+use Hyperf\Amqp\Producer;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
-use Hyperf\Di\Annotation\Inject;
+
+use function Goletter\Utils\di;
 
 #[Command]
 class TestCommand extends HyperfCommand
 {
-    #[Inject]
-    private QueueService $queueService;
-
     public function __construct()
     {
         parent::__construct('test:to');
@@ -33,11 +30,24 @@ class TestCommand extends HyperfCommand
     public function configure(): void
     {
         parent::configure();
-        $this->setDescription('测试');
+        $this->setDescription('测试：投递 AMQP 消息（Consumer 第一次失败、第二次成功）');
     }
 
     public function handle()
     {
-        Mail::to('goletter@outlook.com')->queue(new TestMail('Yong'));
+        $id = uniqid('demo_', true);
+        $payload = [
+            'id' => $id,
+            'xxx' => 1,
+        ];
+
+        $message = new DemoProducer($payload);
+        $result = di()->get(Producer::class)->produce($message);
+
+        $this->info("已投递 id={$id}，produce=" . var_export($result, true));
+        $this->line('请确保 Hyperf 服务已启动（DemoConsumer 在跑）。');
+        $this->line('预期：第一次 consume 失败 REQUEUE，第二次 ACK 成功。看日志 channel=amqp');
+
+        return 0;
     }
 }
