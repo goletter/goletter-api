@@ -12,10 +12,12 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Job\TestJob;
 use Goletter\Server\Service\QueueService;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
+use function Goletter\Utils\di;
 
 #[Command]
 class TestCommand extends HyperfCommand
@@ -36,6 +38,9 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        //
+        for ($i=0; $i<100; $i++) {
+            $key = sprintf('tenant:%d:biz:%d', $i, $i);
+            $this->queueService->pushSerial($key, new TestJob($i), 'default', 1);
+        }
     }
 }
