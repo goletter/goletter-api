@@ -1056,16 +1056,16 @@
         },
         {
             "name": "goletter/hyperf-mail",
-            "version": "v1.0.8",
+            "version": "v1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goletter/hyperf-mail.git",
-                "reference": "6b97ebf81807a3744d008027b7e23e83145f5771"
+                "reference": "476450d307e81697fa226cc3e7c99d6c8d0ed05f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goletter/hyperf-mail/zipball/6b97ebf81807a3744d008027b7e23e83145f5771",
-                "reference": "6b97ebf81807a3744d008027b7e23e83145f5771",
+                "url": "https://api.github.com/repos/goletter/hyperf-mail/zipball/476450d307e81697fa226cc3e7c99d6c8d0ed05f",
+                "reference": "476450d307e81697fa226cc3e7c99d6c8d0ed05f",
                 "shasum": ""
             },
             "require": {
@@ -1134,9 +1134,9 @@
             ],
             "support": {
                 "issues": "https://github.com/goletter/hyperf-mail/issues",
-                "source": "https://github.com/goletter/hyperf-mail/tree/v1.0.8"
+                "source": "https://github.com/goletter/hyperf-mail/tree/v1.0.9"
             },
-            "time": "2026-09-21T17:42:56+00:00"
+            "time": "2026-09-29T16:10:49+00:00"
         },
         {
             "name": "goletter/hyperf-modelfilter",
