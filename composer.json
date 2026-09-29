@@ -18,6 +18,7 @@
         "goletter/hyperf-adv": "^1.0",
         "goletter/hyperf-archive": "^1.0",
         "goletter/hyperf-cache": "^1.0",
+        "goletter/hyperf-docs": "^2.0",
         "goletter/hyperf-mail": "^1.0",
         "goletter/hyperf-queue": "^1.0",
         "goletter/hyperf-server": "^2.0",

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8caf0114a28a114cfab89af247b302d0",
+    "content-hash": "80abe647a0ec8a404d2280e267858ec0",
     "packages": [
         {
             "name": "aliyuncs/oss-sdk-php",
@@ -991,6 +991,68 @@
                 "source": "https://github.com/goletter/hyperf-cache/tree/v1.0.0"
             },
             "time": "2026-09-09T16:34:39+00:00"
+        },
+        {
+            "name": "goletter/hyperf-docs",
+            "version": "v2.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/goletter/hyperf-docs.git",
+                "reference": "81b7f68752717277dcd2537e331099655bad112d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/goletter/hyperf-docs/zipball/81b7f68752717277dcd2537e331099655bad112d",
+                "reference": "81b7f68752717277dcd2537e331099655bad112d",
+                "shasum": ""
+            },
+            "require": {
+                "google/apiclient": "^2.19",
+                "guzzlehttp/guzzle": "^7.0",
+                "hyperf/command": "~3.1.0",
+                "hyperf/contract": "~3.1.0",
+                "hyperf/di": "~3.1.0",
+                "php": ">=8.1"
+            },
+            "type": "library",
+            "extra": {
+                "hyperf": {
+                    "config": "Goletter\\Docs\\ConfigProvider"
+                },
+                "branch-alias": {
+                    "dev-master": "3.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Goletter\\Docs\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "goletter",
+                    "email": "goletter@outlook.com"
+                }
+            ],
+            "description": "Hyperf Docs integration for Google Docs/Sheets/Drive and Tencent Docs",
+            "keywords": [
+                "docs",
+                "drive",
+                "google",
+                "hyperf",
+                "php",
+                "sheets",
+                "tencent"
+            ],
+            "support": {
+                "issues": "https://github.com/goletter/hyperf-docs/issues",
+                "source": "https://github.com/goletter/hyperf-docs/tree/v2.0.4"
+            },
+            "time": "2026-09-28T07:41:27+00:00"
         },
         {
             "name": "goletter/hyperf-mail",

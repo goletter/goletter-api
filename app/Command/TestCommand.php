@@ -38,9 +38,6 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        for ($i=0; $i<100; $i++) {
-            $key = sprintf('tenant:%d:biz:%d', $i, $i);
-            $this->queueService->pushSerial($key, new TestJob($i), 'default', 1);
-        }
+        //
     }
 }
