@@ -12,18 +12,21 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Job\TestJob;
+use Goletter\Docs\Google\Exceptions\GoogleApiException;
+use Goletter\Docs\Google\GoogleAuth;
 use Goletter\Server\Service\QueueService;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
-use function Goletter\Utils\di;
 
 #[Command]
 class TestCommand extends HyperfCommand
 {
     #[Inject]
     private QueueService $queueService;
+
+    #[Inject]
+    protected GoogleAuth $auth;
 
     public function __construct()
     {
@@ -38,6 +41,11 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        //
+        try {
+            $url = $this->auth->getAuthUrl();
+            dd($url);
+        } catch (GoogleApiException $e) {
+            dd($e->getMessage());
+        }
     }
 }
