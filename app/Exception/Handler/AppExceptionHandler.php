@@ -38,7 +38,7 @@ class AppExceptionHandler extends ExceptionHandler
             $throwable->getFile(),
             $throwable->getLine(),
             $throwable->getTraceAsString(),
-        ], 'AppException', LogTypeConstant::Daily, Logger::ERROR);
+        ], 'AppException', LogTypeConstant::Daily);
 
         // 阻止异常冒泡
         $this->stopPropagation();
