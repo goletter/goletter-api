@@ -17,35 +17,26 @@ use Hyperf\Database\Exception\QueryException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\Logger\Logger;
 use Psr\Http\Message\ResponseInterface;
-use function Goletter\Utils\logging;
 use Throwable;
 
 class DatabaseQueryExceptionHandler extends ExceptionHandler
 {
-    use Exception;
+    use JsonResponseTrait;
+
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        // 这里可以记录日志，发送报警等
-        logging([
-            $throwable->getMessage(),
-            $throwable->getFile(),
-            $throwable->getLine(),
-            $throwable->getTraceAsString(),
-        ], '服务器错误', LogTypeConstant::Daily, Logger::ERROR);
+        $this->logThrowable($throwable, 'DatabaseQueryException', LogTypeConstant::Daily, Logger::ERROR);
 
-        // 阻止异常冒泡
         $this->stopPropagation();
-        $data = json_encode([
-            'code' => $throwable->getCode(),
-            'message' => '服务端开小差了！',
-        ], JSON_UNESCAPED_UNICODE);
 
-        return $this->response(500, $data, $response);
+        // SQL 可能包含表结构和数据，仅开发环境返回
+        $message = $this->isDebug() ? $throwable->getMessage() : '服务端开小差了！';
+
+        return $this->json($response, 500, 500, $message);
     }
 
     public function isValid(Throwable $throwable): bool
     {
-        // 判断异常是否是 QueryException 实例
         return $throwable instanceof QueryException;
     }
 }

@@ -12,17 +12,11 @@ declare(strict_types=1);
 
 namespace App\Exception;
 
-use Hyperf\Server\Exception\ServerException;
-use Throwable;
+use Goletter\Resource\Exception\BusinessException as BaseBusinessException;
 
-class BusinessException extends ServerException
+/**
+ * 继承 goletter/hyperf-resource 的业务异常，两个类均由 AppExceptionHandler 处理.
+ */
+class BusinessException extends BaseBusinessException
 {
-    public function __construct(int $code = 0, string $message = null, Throwable $previous = null)
-    {
-        if (is_null($message)) {
-            // $message = ErrorCode::getMessage($code);
-        }
-
-        parent::__construct($message, $code, $previous);
-    }
 }

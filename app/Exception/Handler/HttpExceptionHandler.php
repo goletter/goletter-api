@@ -13,34 +13,35 @@ declare(strict_types=1);
 namespace App\Exception\Handler;
 
 use Hyperf\ExceptionHandler\ExceptionHandler;
+use Hyperf\HttpMessage\Exception\HttpException;
 use Hyperf\HttpMessage\Exception\MethodNotAllowedHttpException;
 use Hyperf\HttpMessage\Exception\NotFoundHttpException;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
-/**
- * HTTP请求异常处理器
- * Class HttpExceptionHandler.
- */
 class HttpExceptionHandler extends ExceptionHandler
 {
-    use Exception;
+    use JsonResponseTrait;
 
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        // 判断是否是路由存在
-        $data = json_encode([
-            'code' => $throwable->getStatusCode(),
-            'message' => '路由不存在!',
-        ], JSON_UNESCAPED_UNICODE);
-
-        // 阻止异常冒泡
         $this->stopPropagation();
-        return $this->response(500, $data, $response);
+
+        /** @var HttpException $throwable */
+        $status = $throwable->getStatusCode();
+
+        // 路由未匹配时框架抛出的 NotFoundHttpException 没有 message，主动抛出的保留原文
+        $message = match (true) {
+            $throwable instanceof NotFoundHttpException => $throwable->getMessage() ?: '路由不存在',
+            $throwable instanceof MethodNotAllowedHttpException => '请求方法不允许',
+            default => $throwable->getMessage() ?: 'HTTP 错误',
+        };
+
+        return $this->json($response, $status, $status, $message);
     }
 
     public function isValid(Throwable $throwable): bool
     {
-        return $throwable instanceof NotFoundHttpException || $throwable instanceof MethodNotAllowedHttpException;
+        return $throwable instanceof HttpException;
     }
 }

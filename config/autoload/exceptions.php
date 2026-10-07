@@ -12,8 +12,12 @@ declare(strict_types=1);
 return [
     'handler' => [
         'http' => [
-            Hyperf\HttpServer\Exception\Handler\HttpExceptionHandler::class,
+            App\Exception\Handler\HttpExceptionHandler::class,
+            App\Exception\Handler\ValidationExceptionHandler::class,
             App\Exception\Handler\AppExceptionHandler::class,
+            App\Exception\Handler\DatabaseQueryExceptionHandler::class,
+            // isValid 恒为 true，必须放在最后
+            App\Exception\Handler\DefaultExceptionHandler::class,
         ],
     ],
 ];

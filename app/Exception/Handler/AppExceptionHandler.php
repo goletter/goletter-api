@@ -12,40 +12,29 @@ declare(strict_types=1);
 
 namespace App\Exception\Handler;
 
-use App\Constants\LogTypeConstant;
 use Goletter\Resource\Exception\BusinessException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
-use Hyperf\Logger\Logger;
 use Psr\Http\Message\ResponseInterface;
-use function Goletter\Utils\logging;
 use Throwable;
 
+/**
+ * 业务异常：属于正常业务分支，不记录日志.
+ */
 class AppExceptionHandler extends ExceptionHandler
 {
-    use Exception;
+    use JsonResponseTrait;
 
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        $res = [
-            'code' => $throwable->getCode(),
-            'message' => $throwable->getMessage(),
-        ];
-        // 格式化输出
-        $data = json_encode($res, JSON_UNESCAPED_UNICODE);
-        // 记录错误日志
-        logging([
-            $throwable->getMessage(),
-            $throwable->getFile(),
-            $throwable->getLine(),
-            $throwable->getTraceAsString(),
-        ], 'AppException', LogTypeConstant::Daily);
-
-        // 阻止异常冒泡
         $this->stopPropagation();
-        return $this->response(500, $data, $response);
+
+        $code = $throwable->getCode();
+        // 业务码落在 4xx 时同步为 HTTP 状态码（如 401 未登录、403 无权限），其余返回 200
+        $status = $code >= 400 && $code < 500 ? $code : 200;
+
+        return $this->json($response, $status, $code, $throwable->getMessage());
     }
 
-    // 判断该异常类是否要对该异常进行处理
     public function isValid(Throwable $throwable): bool
     {
         return $throwable instanceof BusinessException;

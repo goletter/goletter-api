@@ -16,35 +16,31 @@ use App\Constants\LogTypeConstant;
 use Hyperf\ExceptionHandler\ExceptionHandler;
 use Hyperf\Logger\Logger;
 use Psr\Http\Message\ResponseInterface;
-use function Goletter\Utils\logging;
 use Throwable;
 
+/**
+ * 兜底异常处理器，必须注册在最后.
+ */
 class DefaultExceptionHandler extends ExceptionHandler
 {
-    use Exception;
+    use JsonResponseTrait;
 
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        $res = [
-            'code' => $throwable->getCode(),
-            'message' => $throwable->getMessage(),
-        ];
-        // 格式化输出
-        $data = json_encode($res, JSON_UNESCAPED_UNICODE);
-        // 记录错误日志
-        logging([
-            $throwable->getMessage(),
-            $throwable->getFile(),
-            $throwable->getLine(),
-            $throwable->getTraceAsString(),
-        ], 'DefaultException', LogTypeConstant::Daily, Logger::ERROR);
+        $this->logThrowable($throwable, 'DefaultException', LogTypeConstant::Daily, Logger::ERROR);
 
-        // 阻止异常冒泡
         $this->stopPropagation();
-        return $this->response(500, $data, $response);
+
+        if ($this->isDebug()) {
+            return $this->json($response, 500, 500, $throwable->getMessage(), [
+                'exception' => get_class($throwable),
+                'file' => $throwable->getFile() . ':' . $throwable->getLine(),
+            ]);
+        }
+
+        return $this->json($response, 500, 500, '服务器错误');
     }
 
-    // 判断该异常类是否要对该异常进行处理
     public function isValid(Throwable $throwable): bool
     {
         return true;

@@ -13,8 +13,6 @@ class AuthMiddleWare implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $request->setAttribute('tenant_id', 2);
-
-        return $handler->handle($request);
+        return $handler->handle($request->withAttribute('tenant_id', 2));
     }
 }

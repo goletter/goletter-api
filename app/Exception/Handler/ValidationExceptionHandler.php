@@ -9,40 +9,34 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
+
 namespace App\Exception\Handler;
 
 use App\Exception\ValidateException;
 use Hyperf\ExceptionHandler\ExceptionHandler;
-use Hyperf\Collection\Arr;
-use Hyperf\Collection\Collection;
 use Hyperf\Validation\ValidationException;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
 class ValidationExceptionHandler extends ExceptionHandler
 {
-    use Exception;
+    use JsonResponseTrait;
 
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        $message = $throwable->getMessage();
-        if ($throwable instanceof ValidationException) {
-            $message = Arr::get((new Collection($throwable->errors()))->first(), 0, '');
-        }
-        // 阻止异常冒泡
         $this->stopPropagation();
-        $data = json_encode([
-            'code' => $throwable->getCode(),
-            'message' => $message,
-        ], JSON_UNESCAPED_UNICODE);
 
-        return $this->response(500, $data, $response);
+        if ($throwable instanceof ValidationException) {
+            $errors = $throwable->errors();
+            $first = reset($errors);
+            $message = is_array($first) ? (string) ($first[0] ?? '') : '';
+
+            return $this->json($response, 422, 422, $message ?: '参数错误', ['errors' => $errors]);
+        }
+
+        return $this->json($response, 422, 422, $throwable->getMessage() ?: '参数错误');
     }
 
-    /**
-     * @param Throwable $throwable 抛出的异常
-     * @return bool 该异常处理器是否处理该异常
-     */
     public function isValid(Throwable $throwable): bool
     {
         return $throwable instanceof ValidateException || $throwable instanceof ValidationException;
