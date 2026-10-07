@@ -12,12 +12,14 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Model\Account;
+
 class IndexController extends AbstractController
 {
     public function index()
     {
-        $data = ['test' => 123456];
+        $accounts = Account::query()->get();
 
-        return $this->success($data);
+        return $this->collection($accounts);
     }
 }
