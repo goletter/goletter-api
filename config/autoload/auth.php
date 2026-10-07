@@ -16,13 +16,27 @@ use function Hyperf\Support\make;
 
 return [
     'default' => [
-        'guard' => 'jwt',
+        'guard' => 'users',
         'provider' => 'users',
     ],
     'guards' => [
         'users' => [
-            'driver' => Qbhy\HyperfAuth\Guard\JwtGuard::class,
+            'driver' => Qbhy\HyperfAuth\Guard\SsoGuard::class,
             'provider' => 'users',
+
+            /*
+             * SSO 配置
+             * 同一用户在同一客户端只保留最后一次登录的 token，旧 token 会被拉黑（强制下线）
+             * login($user, [], 'web') 第三个参数指定客户端，不传默认取 clients 第一个
+             */
+            'clients' => explode(',', env('AUTH_SSO_CLIENTS', 'web,app')),
+
+            // 登录 token 存储：hash，field 为客户端，value 为 token
+            'redis_key' => 'u:token:{uid}',
+
+            'redis' => function () {
+                return make(\Hyperf\Redis\Redis::class);
+            },
 
             /*
              * 以下是 simple-jwt 配置
@@ -80,7 +94,7 @@ return [
             // 'cache' => new \Doctrine\Common\Cache\FilesystemCache(sys_get_temp_dir()),
             // 如果需要分布式部署，请选择 redis 或者其他支持分布式的缓存驱动
             'cache' => function () {
-               return make(\Qbhy\HyperfAuth\HyperfRedisCache::class);
+                return make(\Qbhy\HyperfAuth\HyperfRedisCache::class);
             },
             /*
              * 可选配置

@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Model\User;
 use Goletter\Server\Service\QueueService;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
@@ -37,8 +36,6 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        $user = User::query()->where('id', 1)->first();
-        $token = auth()->guard('users')->login($user);
-        dd($token);
+        //
     }
 }
