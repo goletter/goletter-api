@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Service\Action\Account;
 
 use App\Model\Account;
-use App\Support\TenantContext;
 use Goletter\Server\BaseService;
+use Goletter\Utils\TenantContext;
 
 class CreateAction extends BaseService
 {

@@ -12,9 +12,11 @@ declare(strict_types=1);
 return [
     'default' => [
         'handler' => [
-            'class' => Monolog\Handler\NullHandler::class,
+            // 按天切分：{LOG_PATH}/hyperf-2026-10-07.log，maxFiles 为保留天数（0 表示不清理）
+            'class' => Monolog\Handler\RotatingFileHandler::class,
             'constructor' => [
-                'stream' => BASE_PATH . '/runtime/logs/hyperf.log',
+                'filename' => rtrim((string) (Hyperf\Support\env('LOG_PATH') ?: BASE_PATH . '/runtime/logs'), '/') . '/hyperf.log',
+                'maxFiles' => (int) Hyperf\Support\env('LOG_MAX_FILES', 30),
                 'level' => Monolog\Logger::DEBUG,
             ],
         ],
