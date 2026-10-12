@@ -18,12 +18,9 @@
         "friendsofhyperf/cache": "^3.1",
         "goletter/hyperf-adv": "^1.0",
         "goletter/hyperf-cache": "^1.0",
-        "goletter/hyperf-mail": "^1.0",
         "goletter/hyperf-queue": "^1.0",
         "goletter/hyperf-server": "^2.0",
-        "google/apiclient": "^2.19",
         "guzzlehttp/guzzle": "^7.15",
-        "hyperf/amqp": "^3.1",
         "hyperf/async-queue": "~3.1.0",
         "hyperf/cache": "~3.1.0",
         "hyperf/command": "~3.1.0",
@@ -40,8 +37,7 @@
         "hyperf/memory": "~3.1.0",
         "hyperf/process": "~3.1.0",
         "hyperf/redis": "~3.1.0",
-        "hyperf/validation": "^3.1",
-        "hyperf/view": "^3.1"
+        "hyperf/validation": "^3.1"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
