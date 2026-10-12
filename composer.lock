@@ -1468,16 +1468,16 @@
         },
         {
             "name": "goletter/hyperf-utils",
-            "version": "v1.10.3",
+            "version": "v1.10.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goletter/hyperf-utils.git",
-                "reference": "45a3f5d85aa0652918add34ee79ac1cd971141bb"
+                "reference": "c846a00e23ca483d176faa2e2c514cd085619c53"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goletter/hyperf-utils/zipball/45a3f5d85aa0652918add34ee79ac1cd971141bb",
-                "reference": "45a3f5d85aa0652918add34ee79ac1cd971141bb",
+                "url": "https://api.github.com/repos/goletter/hyperf-utils/zipball/c846a00e23ca483d176faa2e2c514cd085619c53",
+                "reference": "c846a00e23ca483d176faa2e2c514cd085619c53",
                 "shasum": ""
             },
             "require": {
@@ -1542,9 +1542,9 @@
             ],
             "support": {
                 "issues": "https://github.com/goletter/hyperf-utils/issues",
-                "source": "https://github.com/goletter/hyperf-utils/tree/v1.10.3"
+                "source": "https://github.com/goletter/hyperf-utils/tree/v1.10.4"
             },
-            "time": "2026-10-05T06:28:09+00:00"
+            "time": "2026-10-12T16:58:58+00:00"
         },
         {
             "name": "graham-campbell/result-type",

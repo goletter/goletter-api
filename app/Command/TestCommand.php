@@ -16,6 +16,7 @@ use Goletter\Server\Service\QueueService;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
+use function Goletter\Utils\logging;
 
 #[Command]
 class TestCommand extends HyperfCommand
