@@ -25,7 +25,7 @@ class DatabaseQueryExceptionHandler extends ExceptionHandler
 
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        $this->logThrowable($throwable, 'DatabaseQueryException', LogTypeConstant::Daily, Logger::ERROR);
+        $this->logThrowable($throwable, 'DatabaseQueryException');
 
         $this->stopPropagation();
 

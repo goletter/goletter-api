@@ -27,7 +27,7 @@ class DefaultExceptionHandler extends ExceptionHandler
 
     public function handle(Throwable $throwable, ResponseInterface $response)
     {
-        $this->logThrowable($throwable, 'DefaultException', LogTypeConstant::Daily, Logger::ERROR);
+        $this->logThrowable($throwable, 'DefaultException');
 
         $this->stopPropagation();
 

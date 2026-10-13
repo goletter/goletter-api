@@ -32,13 +32,13 @@ trait JsonResponseTrait
         return in_array(env('APP_ENV', 'dev'), ['dev', 'local', 'test'], true);
     }
 
-    protected function logThrowable(Throwable $throwable, string $title, string $category, int $level): void
+    protected function logThrowable(Throwable $throwable, string $title): void
     {
         logging([
             get_class($throwable),
             $throwable->getMessage(),
             $throwable->getFile() . ':' . $throwable->getLine(),
             $throwable->getTraceAsString(),
-        ], $title, $category, $level);
+        ], $title);
     }
 }
