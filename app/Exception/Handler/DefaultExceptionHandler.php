@@ -12,9 +12,7 @@ declare(strict_types=1);
 
 namespace App\Exception\Handler;
 
-use App\Constants\LogTypeConstant;
 use Hyperf\ExceptionHandler\ExceptionHandler;
-use Hyperf\Logger\Logger;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
