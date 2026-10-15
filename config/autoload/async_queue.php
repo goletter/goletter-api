@@ -12,9 +12,9 @@ return [
         'timeout' => 10,
         'retry_seconds' => [10, 30, 60],
         'handle_timeout' => 10,
-        'processes' => 1,
+        'processes' => 10,
         'concurrent' => [
-            'limit' => 1,
+            'limit' => 10,
         ],
         'max_messages' => 0,
     ],
