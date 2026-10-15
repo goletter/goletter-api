@@ -11,11 +11,13 @@ declare(strict_types=1);
  */
 return [
     'http' => [
+        Goletter\Server\Middleware\TraceGatewayMiddleware::class,
+        Goletter\Server\Middleware\CorsMiddleware::class,
         Goletter\Server\Middleware\RequestDecryptMiddleware::class,
         Goletter\Server\Middleware\HeaderMiddleware::class,
         Goletter\Server\Middleware\LocaleMiddleware::class,
-        Goletter\Server\Middleware\CorsMiddleware::class,
         Goletter\Server\Middleware\ResponseFormatMiddleware::class,
+        Goletter\Server\Middleware\IdempotencyMiddleware::class,
         Goletter\Server\Middleware\ModelBindingMiddleware::class,
     ],
 ];
