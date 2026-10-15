@@ -13,18 +13,24 @@ declare(strict_types=1);
 namespace App\Job;
 
 use Carbon\Carbon;
+use Goletter\Server\Job\QueueableJob;
 use Hyperf\AsyncQueue\Job;
 
 use function Goletter\Utils\logging;
 
-class TestJob extends Job
+class TestJob extends Job implements QueueableJob
 {
-    public function __construct(protected int $id)
+    public function queue(): string
+    {
+        return 'ms';
+    }
+
+    public function __construct(protected int $id, protected string $key)
     {
     }
 
     public function handle()
     {
-        logging(['id' => $this->id, 'time' => Carbon::now()->toDateTimeString()], 'TestJob', 'test');
+        logging(['id' => $this->id, 'key' => $this->key, 'time' => Carbon::now()->toDateTimeString()], 'TestJob', 'test');
     }
 }

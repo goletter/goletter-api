@@ -1,14 +1,7 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of Hyperf.
- *
- * @link     https://www.hyperf.io
- * @document https://hyperf.wiki
- * @contact  group@hyperf.io
- * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
- */
+
 return [
     'default' => [
         'driver' => Hyperf\AsyncQueue\Driver\RedisDriver::class,
@@ -16,15 +9,16 @@ return [
             'pool' => 'default',
         ],
         'channel' => 'queue',
-        'timeout' => 2,
+        'timeout' => 10,
         'retry_seconds' => [10, 30, 60],
         'handle_timeout' => 10,
-        'processes' => 10,
+        'processes' => 1,
         'concurrent' => [
-            'limit' => 10,
+            'limit' => 1,
         ],
         'max_messages' => 0,
     ],
+    // Millisecond-precision pool. Keep channel distinct from second-based pools.
     'ms' => [
         'driver' => Goletter\Queue\Driver\RedisMsDriver::class,
         'redis' => [
@@ -32,13 +26,11 @@ return [
         ],
         'channel' => 'queue-ms',
         'timeout' => 2,
-        'retry_milliseconds' => [100, 500, 1000, 3000],
+        'retry_seconds' => [10, 30, 60],
         'handle_timeout' => 10,
-        'move_interval_ms' => 5,
-        'move_batch' => 200,
-        'processes' => 20,
+        'processes' => 1,
         'concurrent' => [
-            'limit' => 20,
+            'limit' => 10,
         ],
         'max_messages' => 0,
     ],

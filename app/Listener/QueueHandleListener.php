@@ -37,8 +37,8 @@ class QueueHandleListener implements ListenerInterface
     public function listen(): array
     {
         return [
-            AfterHandle::class,
-            BeforeHandle::class,
+            // AfterHandle::class,
+            // BeforeHandle::class,
             FailedHandle::class,
             RetryHandle::class,
         ];
