@@ -12,16 +12,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Model\Account;
-use App\Model\User;
-
 class IndexController extends AbstractController
 {
     public function index()
     {
-        $user = User::query()->where('id', 1)->first();
-        $token = auth()->guard('users')->login($user);
-
-        return $this->success(['token' => $token]);
+        return $this->success(['token' => 111]);
     }
 }
