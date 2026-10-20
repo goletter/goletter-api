@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use Goletter\Adv\AdvFactory;
 use Goletter\Server\Service\QueueService;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
@@ -20,6 +21,9 @@ use Hyperf\Di\Annotation\Inject;
 #[Command]
 class TestCommand extends HyperfCommand
 {
+    #[Inject]
+    protected AdvFactory $advFactory;
+
     #[Inject]
     private QueueService $queueService;
 
