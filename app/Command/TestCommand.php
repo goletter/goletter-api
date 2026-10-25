@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Amqp\Producer\AccountDemandProducer;
 use Goletter\Adv\AdvFactory;
-use Goletter\Server\Service\QueueService;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
@@ -23,9 +23,6 @@ class TestCommand extends HyperfCommand
 {
     #[Inject]
     protected AdvFactory $advFactory;
-
-    #[Inject]
-    private QueueService $queueService;
 
     public function __construct()
     {
@@ -40,6 +37,9 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        //
+        // produce(new AccountDemandProducer(['user_id' => 1, 'status' => 0]));
+        $message = new AccountDemandProducer(['user_id' => 1, 'status' => 0]);
+        $message->setDelayMs(5000);
+        produce($message);
     }
 }
