@@ -6,8 +6,9 @@ use Hyperf\Crontab\Annotation\Crontab;
 
 #[Crontab(
     rule: '0 */1 * * * *',
-    name: 'Echo',
+    name: 'AccountCrontab',
     type: 'command',
+    singleton: true,
     callback: [
         'command' => 'test:to',
         '--disable-event-dispatcher' => true,

@@ -44,6 +44,6 @@ class TestCommand extends HyperfCommand
         $message->setDelayMs(5000);
         produce($message);*/
 
-        logging(['time' => Carbon::now()->toDateTimeString()], 'test:to', 'xxx');
+        logging(['time' => Carbon::now()->toDateTimeString(), 'name' => 123], 'test:to', 'xxx');
     }
 }
