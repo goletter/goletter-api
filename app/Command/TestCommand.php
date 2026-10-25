@@ -13,10 +13,12 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Amqp\Producer\AccountDemandProducer;
+use Carbon\Carbon;
 use Goletter\Adv\AdvFactory;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
+use function Goletter\Utils\logging;
 
 #[Command]
 class TestCommand extends HyperfCommand
@@ -38,8 +40,10 @@ class TestCommand extends HyperfCommand
     public function handle()
     {
         // produce(new AccountDemandProducer(['user_id' => 1, 'status' => 0]));
-        $message = new AccountDemandProducer(['user_id' => 1, 'status' => 0]);
+        /*$message = new AccountDemandProducer(['user_id' => 1, 'status' => 0]);
         $message->setDelayMs(5000);
-        produce($message);
+        produce($message);*/
+
+        logging(['time' => Carbon::now()->toDateTimeString()], 'test:to', 'xxx');
     }
 }
