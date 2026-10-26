@@ -13,8 +13,6 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Amqp\Producer\AccountDemandProducer;
-use App\Amqp\Producer\AccountProducer;
-use Carbon\Carbon;
 use Goletter\Adv\AdvFactory;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
@@ -40,13 +38,10 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        // produce(new AccountDemandProducer(['user_id' => 1, 'status' => 0]));
-        /*$message = new AccountDemandProducer(['user_id' => 1, 'status' => 0]);
-        $message->setDelayMs(5000);
-        produce($message);*/
+        produce(new AccountDemandProducer(['account_id' => 1, 'tenant_id' => 1, 'busine_id' => 1, 'status' => 1]));
+        produce(new AccountDemandProducer(['account_id' => 2, 'tenant_id' => 1, 'busine_id' => 1, 'status' => 2]));
 
-        for ($i = 0; $i < 10000; $i++) {
-            produce(new AccountProducer(['user_id' => $i, 'status' => 0]));
-        }
+        produce(new AccountDemandProducer(['account_id' => 3, 'tenant_id' => 2, 'busine_id' => 3, 'status' => 3]));
+        produce(new AccountDemandProducer(['account_id' => 4, 'tenant_id' => 2, 'busine_id' => 3, 'status' => 4]));
     }
 }
