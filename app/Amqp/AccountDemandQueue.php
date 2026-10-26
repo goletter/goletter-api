@@ -35,4 +35,10 @@ final class AccountDemandQueue extends ShardedQueue
     {
         return AccountDemandConsumer::class;
     }
+
+    /** 同组串行：本条处理完后隔 2 秒再拉下一条 */
+    public static function intervalMs(): int
+    {
+        return 2000;
+    }
 }

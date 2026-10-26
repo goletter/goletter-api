@@ -34,6 +34,15 @@ abstract class ShardedQueue
         return 16;
     }
 
+    /**
+     * 同组分片内，本条 ACK 前等待的毫秒数（下一条才会被投递）。
+     * 0 = 无间隔。只影响同一分片串行节奏，不同分片互不影响。
+     */
+    public static function intervalMs(): int
+    {
+        return 0;
+    }
+
     public static function shard(array $data): int
     {
         $hash = (int) sprintf('%u', crc32(static::serialKey($data)));

@@ -15,14 +15,16 @@ namespace App\Amqp\Sharded;
 use Hyperf\Amqp\Builder\QueueBuilder;
 use Hyperf\Amqp\Message\ConsumerMessage;
 use Hyperf\Amqp\Message\Type;
+use Hyperf\Amqp\Result;
 use InvalidArgumentException;
+use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPAbstractCollection;
 use PhpAmqpLib\Wire\AMQPTable;
 
 /**
  * 分片消费者：quorum + 单活跃消费者 + prefetch=1。
  *
- * 子类实现 queueClass() 和 consumeMessage()。
+ * 子类实现 queueClass() 和 handle()。
  * 不要加 #[Consumer]，由 ShardedConsumeProcess 按分片拉起。
  */
 abstract class ShardedConsumer extends ConsumerMessage
@@ -52,6 +54,22 @@ abstract class ShardedConsumer extends ConsumerMessage
         return $this->shard;
     }
 
+    /**
+     * 业务处理放在 handle()；成功 ACK 前按 Queue::intervalMs() 间隔，保证同组下一条晚一点才进来。
+     * @param mixed $data
+     */
+    final public function consumeMessage($data, AMQPMessage $message): Result
+    {
+        $result = $this->handle($data, $message);
+        $intervalMs = max(0, static::queueClass()::intervalMs());
+        // prefetch=1：ACK 前等待，同组分片下一条才会被投递
+        if ($intervalMs > 0 && $result === Result::ACK) {
+            usleep($intervalMs * 1000);
+        }
+
+        return $result;
+    }
+
     public function getQueueBuilder(): QueueBuilder
     {
         $arguments = new AMQPTable();
@@ -63,6 +81,8 @@ abstract class ShardedConsumer extends ConsumerMessage
             ->setQueue($this->getQueue())
             ->setArguments($arguments);
     }
+
+    abstract protected function handle(mixed $data, AMQPMessage $message): Result;
 
     /**
      * @return class-string<ShardedQueue>

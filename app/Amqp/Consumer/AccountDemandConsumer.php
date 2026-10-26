@@ -21,14 +21,15 @@ use function Goletter\Utils\logging;
 
 class AccountDemandConsumer extends ShardedConsumer
 {
-    public function consumeMessage($data, AMQPMessage $message): Result
+    protected function handle(mixed $data, AMQPMessage $message): Result
     {
         $payload = is_array($data) ? $data : [];
-        $key = AccountDemandQueue::serialKey($payload);
-
         logging([
+            'event' => 'handle',
             'shard' => $this->getShard(),
-            'key' => $key,
+            'key' => AccountDemandQueue::serialKey($payload),
+            'interval_ms' => AccountDemandQueue::intervalMs(),
+            'at' => date('H:i:s'),
             ...$payload,
         ], '账户需求消息队列', 'test');
 
