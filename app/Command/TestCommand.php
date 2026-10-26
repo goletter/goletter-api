@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Amqp\Producer\AccountDemandProducer;
+use App\Amqp\Producer\AccountProducer;
 use Carbon\Carbon;
 use Goletter\Adv\AdvFactory;
 use Hyperf\Command\Annotation\Command;
@@ -44,6 +45,8 @@ class TestCommand extends HyperfCommand
         $message->setDelayMs(5000);
         produce($message);*/
 
-        logging(['time' => Carbon::now()->toDateTimeString(), 'name' => 123], 'test:to', 'xxx');
+        for ($i = 0; $i < 10000; $i++) {
+            produce(new AccountProducer(['user_id' => $i, 'status' => 0]));
+        }
     }
 }

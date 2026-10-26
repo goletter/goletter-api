@@ -27,7 +27,7 @@ return [
 
     'recover' => [
         // 随服务启动 queue-serial-recover 巡检进程。
-        'enable' => true,
+        'enable' => false,
         // 两次巡检的间隔（秒）。
         'interval' => 30,
         // 等待队列为空、且超过该时长没有新任务时，从登记表中移除该 key。

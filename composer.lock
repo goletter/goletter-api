@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f95ee54c592ee0673cac5e7115af9996",
+    "content-hash": "d501ed7cb60d0ebb88824b6b8fe5aa8a",
     "packages": [
         {
             "name": "96qbhy/hyperf-auth",
@@ -1158,16 +1158,16 @@
         },
         {
             "name": "goletter/hyperf-queue",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goletter/hyperf-queue.git",
-                "reference": "f4cadefcbe34eef36905dd0f5d9793506ab1a2af"
+                "reference": "4c0d1f0ade45818ebe711289ebd6013bc304b124"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goletter/hyperf-queue/zipball/f4cadefcbe34eef36905dd0f5d9793506ab1a2af",
-                "reference": "f4cadefcbe34eef36905dd0f5d9793506ab1a2af",
+                "url": "https://api.github.com/repos/goletter/hyperf-queue/zipball/4c0d1f0ade45818ebe711289ebd6013bc304b124",
+                "reference": "4c0d1f0ade45818ebe711289ebd6013bc304b124",
                 "shasum": ""
             },
             "require": {
@@ -1225,9 +1225,9 @@
             ],
             "support": {
                 "issues": "https://github.com/goletter/hyperf-queue/issues",
-                "source": "https://github.com/goletter/hyperf-queue/tree/v1.0.1"
+                "source": "https://github.com/goletter/hyperf-queue/tree/v1.0.2"
             },
-            "time": "2026-10-06T14:23:17+00:00"
+            "time": "2026-10-19T17:56:15+00:00"
         },
         {
             "name": "goletter/hyperf-resource",

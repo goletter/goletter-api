@@ -8,13 +8,13 @@ return [
         'redis' => [
             'pool' => 'default',
         ],
-        'channel' => 'queue',
+        'channel' => '{queue}',
         'timeout' => 10,
         'retry_seconds' => [10, 30, 60],
         'handle_timeout' => 10,
         'processes' => 1,
         'concurrent' => [
-            'limit' => 1,
+            'limit' => 10,
         ],
         'max_messages' => 0,
     ],
@@ -24,13 +24,13 @@ return [
         'redis' => [
             'pool' => 'default',
         ],
-        'channel' => 'queue-ms',
+        'channel' => '{queue-ms}',
         'timeout' => 2,
         'retry_seconds' => [10, 30, 60],
         'handle_timeout' => 10,
-        'processes' => 1,
+        'processes' => 0,
         'concurrent' => [
-            'limit' => 1,
+            'limit' => 10,
         ],
         'max_messages' => 0,
     ],
