@@ -28,6 +28,6 @@ class TestListener implements ListenerInterface
 
     public function process(object $event): void
     {
-        logging([], '333', 'test');
+        //
     }
 }
