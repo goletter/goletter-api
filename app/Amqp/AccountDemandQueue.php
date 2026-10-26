@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace App\Amqp;
 
+use App\Amqp\Consumer\AccountDemandConsumer;
+use App\Amqp\Sharded\ShardedQueue;
 use InvalidArgumentException;
 
 /**
- * 按 tenant_id + busine_id 分片。
- * 同一个组合永远进同一条队列（串行），不同组合落到不同分片（可并行）。
+ * 账户需求：同一 tenant_id + busine_id 串行，不同组合可并行。
  */
-final class AccountDemandQueue
+final class AccountDemandQueue extends ShardedQueue
 {
     public const EXCHANGE = 'accountDemand';
 
-    public const SHARDS = 16;
+    public static function exchange(): string
+    {
+        return self::EXCHANGE;
+    }
 
     public static function serialKey(array $data): string
     {
@@ -27,20 +31,8 @@ final class AccountDemandQueue
         return $tenantId . ':' . $businessId;
     }
 
-    public static function shard(array $data): int
+    public static function consumerClass(): string
     {
-        $hash = (int) sprintf('%u', crc32(self::serialKey($data)));
-
-        return $hash % self::SHARDS;
-    }
-
-    public static function queue(int $shard): string
-    {
-        return self::EXCHANGE . '.' . $shard;
-    }
-
-    public static function routingKey(int $shard): string
-    {
-        return 'shard.' . $shard;
+        return AccountDemandConsumer::class;
     }
 }

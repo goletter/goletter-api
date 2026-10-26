@@ -5,16 +5,14 @@ declare(strict_types=1);
 namespace App\Amqp\Producer;
 
 use App\Amqp\AccountDemandQueue;
+use App\Amqp\Sharded\ShardedProducer;
 use Hyperf\Amqp\Annotation\Producer;
-use Hyperf\Amqp\Message\ProducerMessage;
 
 #[Producer(exchange: AccountDemandQueue::EXCHANGE, routingKey: '')]
-class AccountDemandProducer extends ProducerMessage
+class AccountDemandProducer extends ShardedProducer
 {
-    public function __construct(array $data)
+    protected static function queueClass(): string
     {
-        $this->payload = $data;
-        $this->setExchange(AccountDemandQueue::EXCHANGE);
-        $this->setRoutingKey(AccountDemandQueue::routingKey(AccountDemandQueue::shard($data)));
+        return AccountDemandQueue::class;
     }
 }

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Amqp\AccountDemandQueue;
 use App\Amqp\Producer\AccountDemandProducer;
 use Goletter\Adv\AdvFactory;
 use Hyperf\Command\Annotation\Command;
@@ -38,10 +39,22 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        produce(new AccountDemandProducer(['account_id' => 1, 'tenant_id' => 1, 'busine_id' => 1, 'status' => 1]));
-        produce(new AccountDemandProducer(['account_id' => 2, 'tenant_id' => 1, 'busine_id' => 1, 'status' => 2]));
-
-        produce(new AccountDemandProducer(['account_id' => 3, 'tenant_id' => 2, 'busine_id' => 3, 'status' => 3]));
-        produce(new AccountDemandProducer(['account_id' => 4, 'tenant_id' => 2, 'busine_id' => 3, 'status' => 4]));
+        $messages = [
+            ['account_id' => 1, 'tenant_id' => 1, 'busine_id' => 1, 'status' => 1],
+            ['account_id' => 2, 'tenant_id' => 1, 'busine_id' => 1, 'status' => 2],
+            ['account_id' => 3, 'tenant_id' => 2, 'busine_id' => 3, 'status' => 3],
+            ['account_id' => 4, 'tenant_id' => 2, 'busine_id' => 3, 'status' => 4],
+        ];
+        foreach ($messages as $data) {
+            $shard = AccountDemandQueue::shard($data);
+            $ok = produce(new AccountDemandProducer($data));
+            $this->line(sprintf(
+                'account %d -> %s (%s) %s',
+                $data['account_id'],
+                AccountDemandQueue::queue($shard),
+                AccountDemandQueue::serialKey($data),
+                $ok ? '已发送' : '发送失败'
+            ));
+        }
     }
 }
