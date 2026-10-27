@@ -61,7 +61,7 @@ abstract class ShardedConsumer extends ConsumerMessage
      * 业务处理放在 handle()。
      * - 成功 ACK：按 intervalMs 间隔后再确认
      * - handle 抛异常：按 attempts / maxAttempts 延迟重投；超限 DROP
-     * - handle 主动返回 DROP：不重试
+     * - handle 主动返回 DROP：不重试.
      * @param mixed $data
      */
     final public function consumeMessage($data, AMQPMessage $message): Result
@@ -82,6 +82,22 @@ abstract class ShardedConsumer extends ConsumerMessage
         }
 
         return $result;
+    }
+
+    public function getQueueBuilder(): QueueBuilder
+    {
+        $queueClass = static::queueClass();
+        $arguments = new AMQPTable();
+        $arguments->set('x-queue-type', 'quorum');
+        // 多实例部署时，同一分片只有一个消费者在干活
+        $arguments->set('x-single-active-consumer', true, AMQPAbstractCollection::T_BOOL);
+        // DROP / reject(requeue=false) → 进死信
+        $arguments->set('x-dead-letter-exchange', $queueClass::dlxExchange());
+        $arguments->set('x-dead-letter-routing-key', $queueClass::dlqRoutingKey());
+
+        return (new QueueBuilder())
+            ->setQueue($this->getQueue())
+            ->setArguments($arguments);
     }
 
     /**
@@ -133,22 +149,6 @@ abstract class ShardedConsumer extends ConsumerMessage
         produce(new $producerClass($payload));
 
         return Result::ACK;
-    }
-
-    public function getQueueBuilder(): QueueBuilder
-    {
-        $queueClass = static::queueClass();
-        $arguments = new AMQPTable();
-        $arguments->set('x-queue-type', 'quorum');
-        // 多实例部署时，同一分片只有一个消费者在干活
-        $arguments->set('x-single-active-consumer', true, AMQPAbstractCollection::T_BOOL);
-        // DROP / reject(requeue=false) → 进死信
-        $arguments->set('x-dead-letter-exchange', $queueClass::dlxExchange());
-        $arguments->set('x-dead-letter-routing-key', $queueClass::dlqRoutingKey());
-
-        return (new QueueBuilder())
-            ->setQueue($this->getQueue())
-            ->setArguments($arguments);
     }
 
     abstract protected function handle(mixed $data, AMQPMessage $message): Result;
