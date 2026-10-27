@@ -95,10 +95,12 @@ abstract class ShardedConsumer extends ConsumerMessage
 
         logging([
             'event' => 'retry',
+            'exchange' => $queueClass::exchange(),
             'shard' => $this->getShard(),
             'key' => $queueClass::serialKey($payload),
             'attempts' => $attempts,
             'max_attempts' => $maxAttempts,
+            'exception' => $e::class,
             'error' => $e->getMessage(),
             ...$payload,
         ], '分片队列重试', 'queue');
@@ -106,11 +108,14 @@ abstract class ShardedConsumer extends ConsumerMessage
         if ($attempts >= $maxAttempts) {
             logging([
                 'event' => 'retry_exhausted',
+                'exchange' => $queueClass::exchange(),
+                'dlq' => $queueClass::dlq(),
                 'shard' => $this->getShard(),
                 'key' => $queueClass::serialKey($payload),
                 'attempts' => $attempts,
+                'exception' => $e::class,
                 'error' => $e->getMessage(),
-            ], '分片队列重试耗尽', 'queue');
+            ], '分片队列重试耗尽，将进入死信', 'queue');
 
             return Result::DROP;
         }
@@ -132,10 +137,14 @@ abstract class ShardedConsumer extends ConsumerMessage
 
     public function getQueueBuilder(): QueueBuilder
     {
+        $queueClass = static::queueClass();
         $arguments = new AMQPTable();
         $arguments->set('x-queue-type', 'quorum');
         // 多实例部署时，同一分片只有一个消费者在干活
         $arguments->set('x-single-active-consumer', true, AMQPAbstractCollection::T_BOOL);
+        // DROP / reject(requeue=false) → 进死信
+        $arguments->set('x-dead-letter-exchange', $queueClass::dlxExchange());
+        $arguments->set('x-dead-letter-routing-key', $queueClass::dlqRoutingKey());
 
         return (new QueueBuilder())
             ->setQueue($this->getQueue())

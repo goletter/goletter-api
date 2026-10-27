@@ -33,7 +33,7 @@ class TestCommand extends HyperfCommand
     public function configure(): void
     {
         parent::configure();
-        $this->setDescription('测试');
+        $this->setDescription('测试账户充值分片队列 / 死信');
     }
 
     public function handle()
@@ -43,6 +43,10 @@ class TestCommand extends HyperfCommand
             ['account_id' => 2, 'tenant_id' => 1, 'busine_id' => 1, 'status' => 2],
             ['account_id' => 3, 'tenant_id' => 2, 'busine_id' => 3, 'status' => 3],
             ['account_id' => 4, 'tenant_id' => 2, 'busine_id' => 3, 'status' => 4],
+            // status=998：抛错重试至耗尽后进死信
+            ['account_id' => 5, 'tenant_id' => 1, 'busine_id' => 1, 'status' => 998],
+            // status=999：主动 DROP 进死信
+            ['account_id' => 6, 'tenant_id' => 1, 'busine_id' => 1, 'status' => 999],
         ];
 
         foreach ($messages as $data) {

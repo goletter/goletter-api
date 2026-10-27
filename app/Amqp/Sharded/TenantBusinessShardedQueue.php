@@ -36,9 +36,12 @@ abstract class TenantBusinessShardedQueue extends ShardedQueue
         return $tenantId . ':' . $businessId;
     }
 
-    /** 同组串行：本条处理完后隔 2 秒再拉下一条 */
+    /**
+     * 生产默认无额外间隔；串行仍由 prefetch=1 保证。
+     * 若要对同组限速，子类可覆盖为 >0。
+     */
     public static function intervalMs(): int
     {
-        return 2000;
+        return 0;
     }
 }

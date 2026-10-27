@@ -7,6 +7,7 @@ namespace App\Amqp\Sharded;
 use Hyperf\Amqp\ConnectionFactory;
 use Hyperf\Amqp\Consumer;
 use InvalidArgumentException;
+use PhpAmqpLib\Wire\AMQPTable;
 
 use function Goletter\Utils\di;
 
@@ -42,7 +43,7 @@ abstract class ShardedQueue
 
     /**
      * 同组分片内，本条 ACK 前等待的毫秒数（下一条才会被投递）。
-     * 0 = 无间隔。只影响同一分片串行节奏，不同分片互不影响。
+     * 0 = 无额外间隔（仍由 prefetch=1 保证同片串行）。
      */
     public static function intervalMs(): int
     {
@@ -50,7 +51,7 @@ abstract class ShardedQueue
     }
 
     /**
-     * 失败自动重试的最大执行次数（含首次）。超过后 DROP（有 DLX 则进死信）。
+     * 失败自动重试的最大执行次数（含首次）。超过后 DROP（进死信）。
      */
     public static function maxAttempts(): int
     {
@@ -63,6 +64,21 @@ abstract class ShardedQueue
     public static function retryDelayMs(): int
     {
         return 2000;
+    }
+
+    public static function dlxExchange(): string
+    {
+        return static::exchange() . '.dlx';
+    }
+
+    public static function dlq(): string
+    {
+        return static::exchange() . '.dlq';
+    }
+
+    public static function dlqRoutingKey(): string
+    {
+        return 'dlq';
     }
 
     public static function shard(array $data): int
@@ -83,7 +99,49 @@ abstract class ShardedQueue
     }
 
     /**
+     * 声明死信交换机 + 死信队列。
+     * 业务分片 reject/DROP 且不 requeue 时会进入这里。
+     */
+    public static function declareDeadLetter(string $pool = 'default'): void
+    {
+        $factory = di()->get(ConnectionFactory::class);
+        $connection = $factory->getConnection($pool);
+        $channel = $connection->getChannel();
+        try {
+            $channel->exchange_declare(
+                static::dlxExchange(),
+                'direct',
+                false,
+                true,
+                false,
+                false,
+                false,
+                new AMQPTable(),
+                null
+            );
+
+            $args = new AMQPTable();
+            $args->set('x-queue-type', 'quorum');
+            $channel->queue_declare(
+                static::dlq(),
+                false,
+                true,
+                false,
+                false,
+                false,
+                $args,
+                null
+            );
+            $channel->queue_bind(static::dlq(), static::dlxExchange(), static::dlqRoutingKey());
+        } finally {
+            $connection->releaseChannel($channel);
+        }
+    }
+
+    /**
      * 发送前声明并绑定分片队列。否则交换机上没有匹配队列时，消息会被直接丢弃。
+     *
+     * 注意：给已有队列追加 DLX 等于改定义，需先删旧队列再建，否则 PRECONDITION_FAILED。
      */
     public static function declareShard(int $shard): void
     {
@@ -91,6 +149,8 @@ abstract class ShardedQueue
         if (! is_a($consumerClass, ShardedConsumer::class, true)) {
             throw new InvalidArgumentException($consumerClass . ' 必须继承 ' . ShardedConsumer::class);
         }
+
+        static::declareDeadLetter();
 
         /** @var ShardedConsumer $message */
         $message = new $consumerClass($shard);
