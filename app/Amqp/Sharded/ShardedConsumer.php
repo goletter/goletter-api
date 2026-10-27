@@ -20,6 +20,9 @@ use InvalidArgumentException;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPAbstractCollection;
 use PhpAmqpLib\Wire\AMQPTable;
+use Throwable;
+
+use function Goletter\Utils\logging;
 
 /**
  * 分片消费者：quorum + 单活跃消费者 + prefetch=1。
@@ -55,19 +58,76 @@ abstract class ShardedConsumer extends ConsumerMessage
     }
 
     /**
-     * 业务处理放在 handle()；成功 ACK 前按 Queue::intervalMs() 间隔，保证同组下一条晚一点才进来。
+     * 业务处理放在 handle()。
+     * - 成功 ACK：按 intervalMs 间隔后再确认
+     * - handle 抛异常：按 attempts / maxAttempts 延迟重投；超限 DROP
+     * - handle 主动返回 DROP：不重试
      * @param mixed $data
      */
     final public function consumeMessage($data, AMQPMessage $message): Result
     {
-        $result = $this->handle($data, $message);
-        $intervalMs = max(0, static::queueClass()::intervalMs());
+        $queueClass = static::queueClass();
+        $payload = is_array($data) ? $data : [];
+
+        try {
+            $result = $this->handle($data, $message);
+        } catch (Throwable $e) {
+            return $this->retryOrDrop($payload, $e);
+        }
+
         // prefetch=1：ACK 前等待，同组分片下一条才会被投递
+        $intervalMs = max(0, $queueClass::intervalMs());
         if ($intervalMs > 0 && $result === Result::ACK) {
             usleep($intervalMs * 1000);
         }
 
         return $result;
+    }
+
+    /**
+     * 失败重试：payload.attempts 计数，未超限则延迟后 produce 新消息并 ACK 当前条。
+     */
+    protected function retryOrDrop(array $payload, Throwable $e): Result
+    {
+        $queueClass = static::queueClass();
+        $attempts = (int) ($payload['attempts'] ?? 0) + 1;
+        $maxAttempts = max(1, $queueClass::maxAttempts());
+
+        logging([
+            'event' => 'retry',
+            'shard' => $this->getShard(),
+            'key' => $queueClass::serialKey($payload),
+            'attempts' => $attempts,
+            'max_attempts' => $maxAttempts,
+            'error' => $e->getMessage(),
+            ...$payload,
+        ], '分片队列重试', 'queue');
+
+        if ($attempts >= $maxAttempts) {
+            logging([
+                'event' => 'retry_exhausted',
+                'shard' => $this->getShard(),
+                'key' => $queueClass::serialKey($payload),
+                'attempts' => $attempts,
+                'error' => $e->getMessage(),
+            ], '分片队列重试耗尽', 'queue');
+
+            return Result::DROP;
+        }
+
+        $delayMs = max(0, $queueClass::retryDelayMs());
+        if ($delayMs > 0) {
+            usleep($delayMs * 1000);
+        }
+
+        $payload['attempts'] = $attempts;
+        $producerClass = $queueClass::producerClass();
+        if (! is_a($producerClass, ShardedProducer::class, true)) {
+            throw new InvalidArgumentException($producerClass . ' 必须继承 ' . ShardedProducer::class);
+        }
+        produce(new $producerClass($payload));
+
+        return Result::ACK;
     }
 
     public function getQueueBuilder(): QueueBuilder

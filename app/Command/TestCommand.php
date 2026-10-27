@@ -18,7 +18,6 @@ use Goletter\Adv\AdvFactory;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
-use function Goletter\Utils\logging;
 
 #[Command]
 class TestCommand extends HyperfCommand
@@ -45,14 +44,17 @@ class TestCommand extends HyperfCommand
             ['account_id' => 3, 'tenant_id' => 2, 'busine_id' => 3, 'status' => 3],
             ['account_id' => 4, 'tenant_id' => 2, 'busine_id' => 3, 'status' => 4],
         ];
+
         foreach ($messages as $data) {
             $shard = AccountDemandQueue::shard($data);
             $ok = produce(new AccountDemandProducer($data));
+
             $this->line(sprintf(
-                'account %d -> %s (%s) %s',
+                'account %d -> %s (%s) status=%s %s',
                 $data['account_id'],
                 AccountDemandQueue::queue($shard),
                 AccountDemandQueue::serialKey($data),
+                $data['status'],
                 $ok ? '已发送' : '发送失败'
             ));
         }

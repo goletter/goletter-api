@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Amqp;
 
 use App\Amqp\Consumer\AccountDemandConsumer;
+use App\Amqp\Producer\AccountDemandProducer;
 use App\Amqp\Sharded\ShardedQueue;
 use InvalidArgumentException;
 
@@ -36,8 +37,24 @@ final class AccountDemandQueue extends ShardedQueue
         return AccountDemandConsumer::class;
     }
 
+    public static function producerClass(): string
+    {
+        return AccountDemandProducer::class;
+    }
+
     /** 同组串行：本条处理完后隔 2 秒再拉下一条 */
     public static function intervalMs(): int
+    {
+        return 2000;
+    }
+
+    /** 含首次共 3 次，失败间隔 2 秒再投 */
+    public static function maxAttempts(): int
+    {
+        return 3;
+    }
+
+    public static function retryDelayMs(): int
     {
         return 2000;
     }

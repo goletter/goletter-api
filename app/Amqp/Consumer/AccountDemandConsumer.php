@@ -28,7 +28,7 @@ class AccountDemandConsumer extends ShardedConsumer
             'event' => 'handle',
             'shard' => $this->getShard(),
             'key' => AccountDemandQueue::serialKey($payload),
-            'interval_ms' => AccountDemandQueue::intervalMs(),
+            'attempts' => (int) ($payload['attempts'] ?? 0),
             'at' => date('H:i:s'),
             ...$payload,
         ], '账户需求消息队列', 'test');

@@ -29,6 +29,11 @@ abstract class ShardedQueue
      */
     abstract public static function consumerClass(): string;
 
+    /**
+     * @return class-string<ShardedProducer>
+     */
+    abstract public static function producerClass(): string;
+
     public static function shards(): int
     {
         return 16;
@@ -41,6 +46,22 @@ abstract class ShardedQueue
     public static function intervalMs(): int
     {
         return 0;
+    }
+
+    /**
+     * 失败自动重试的最大执行次数（含首次）。超过后 DROP（有 DLX 则进死信）。
+     */
+    public static function maxAttempts(): int
+    {
+        return 3;
+    }
+
+    /**
+     * 失败后重投前等待的毫秒数（占着当前分片，同组后续消息也会等）。
+     */
+    public static function retryDelayMs(): int
+    {
+        return 2000;
     }
 
     public static function shard(array $data): int
