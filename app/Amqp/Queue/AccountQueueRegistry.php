@@ -10,13 +10,8 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 
-namespace App\Amqp;
+namespace App\Amqp\Queue;
 
-use App\Amqp\Queue\AccountBindQueue;
-use App\Amqp\Queue\AccountDeductionQueue;
-use App\Amqp\Queue\AccountRechargeQueue;
-use App\Amqp\Queue\AccountResetQueue;
-use App\Amqp\Queue\AccountUnBindQueue;
 use App\Amqp\Sharded\ShardedQueue;
 
 /**

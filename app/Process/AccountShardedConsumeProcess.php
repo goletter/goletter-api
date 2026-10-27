@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Process;
 
-use App\Amqp\AccountQueueRegistry;
+use App\Amqp\Queue\AccountQueueRegistry;
 use App\Amqp\Sharded\ShardedConsumeProcess;
 use Hyperf\Process\Annotation\Process;
 

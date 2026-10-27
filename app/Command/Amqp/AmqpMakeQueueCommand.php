@@ -124,7 +124,7 @@ class AmqpMakeQueueCommand extends HyperfCommand
 
     private function register(string $exchange, string $queueClass): bool
     {
-        $registryPath = BASE_PATH . '/app/Amqp/AccountQueueRegistry.php';
+        $registryPath = BASE_PATH . '/app/Amqp/Queue/AccountQueueRegistry.php';
         $code = file_get_contents($registryPath);
         if ($code === false) {
             $this->error('无法读取 AccountQueueRegistry');
@@ -136,18 +136,7 @@ class AmqpMakeQueueCommand extends HyperfCommand
             return false;
         }
 
-        $useLine = "use App\\Amqp\\Queue\\{$queueClass};\n";
-        if (! str_contains($code, $useLine) && ! str_contains($code, "use App\\Amqp\\Queue\\{$queueClass};")) {
-            // 插到最后一个 use App\Amqp\Queue\ 之后；没有则插到 namespace 后第一处 use 前
-            if (preg_match('#(use App\\\\Amqp\\\\Queue\\\\[^;]+;\n)(?!use App\\\\Amqp\\\\Queue\\\\)#', $code, $m, PREG_OFFSET_CAPTURE)) {
-                $pos = $m[0][1] + strlen($m[0][0]);
-                $code = substr($code, 0, $pos) . $useLine . substr($code, $pos);
-            } elseif (preg_match('#namespace App\\\\Amqp;\n\n#', $code, $m, PREG_OFFSET_CAPTURE)) {
-                $pos = $m[0][1] + strlen($m[0][0]);
-                $code = substr($code, 0, $pos) . $useLine . substr($code, $pos);
-            }
-        }
-
+        // 与 Queue 同命名空间，只需往 all() 数组加一行
         $entry = "            '{$exchange}' => {$queueClass}::class,\n";
         $updated = preg_replace(
             '#(return\s*\[\n)#',
