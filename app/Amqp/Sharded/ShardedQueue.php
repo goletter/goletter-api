@@ -139,6 +139,21 @@ abstract class ShardedQueue
     }
 
     /**
+     * 发送到分片队列（自动算 shard、声明队列、路由）。
+     *
+     *   AccountRechargeQueue::produce($data);
+     */
+    public static function produce(array $data): bool
+    {
+        $producerClass = static::producerClass();
+        if (! is_a($producerClass, ShardedProducer::class, true)) {
+            throw new InvalidArgumentException($producerClass . ' 必须继承 ' . ShardedProducer::class);
+        }
+
+        return produce(new $producerClass($data));
+    }
+
+    /**
      * 发送前声明并绑定分片队列。否则交换机上没有匹配队列时，消息会被直接丢弃。
      *
      * 注意：给已有队列追加 DLX 等于改定义，需先删旧队列再建，否则 PRECONDITION_FAILED。

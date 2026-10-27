@@ -15,7 +15,6 @@ class AccountRechargeConsumer extends ShardedConsumer
 {
     protected function handle(mixed $data, AMQPMessage $message): Result
     {
-        return Result::DROP;
         $payload = is_array($data) ? $data : [];
         logging([
             'event' => 'handle',

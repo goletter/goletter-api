@@ -142,11 +142,7 @@ abstract class ShardedConsumer extends ConsumerMessage
         }
 
         $payload['attempts'] = $attempts;
-        $producerClass = $queueClass::producerClass();
-        if (! is_a($producerClass, ShardedProducer::class, true)) {
-            throw new InvalidArgumentException($producerClass . ' 必须继承 ' . ShardedProducer::class);
-        }
-        produce(new $producerClass($payload));
+        $queueClass::produce($payload);
 
         return Result::ACK;
     }

@@ -155,7 +155,7 @@ class AmqpDlqReplayCommand extends HyperfCommand
                     if ($dryRun) {
                         $channel->basic_nack($message->getDeliveryTag(), false, true);
                     } else {
-                        produce(new $producerClass($data));
+                        $queueClass::produce($data);
                         $channel->basic_ack($message->getDeliveryTag());
                     }
                     ++$ok;

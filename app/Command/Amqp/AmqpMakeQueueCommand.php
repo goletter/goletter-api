@@ -89,7 +89,7 @@ class AmqpMakeQueueCommand extends HyperfCommand
         }
 
         $this->info('完成。重启后 account-sharded-consume 会自动拉起该队列。');
-        $this->line(sprintf('发送：produce(new \\App\\Amqp\\Producer\\%s($data));', $producerClass));
+        $this->line(sprintf('发送：\\App\\Amqp\\Queue\\%s::produce($data);', $queueClass));
         $this->line(sprintf('运维：php bin/hyperf.php amqp:dlq-info %s', $exchange));
     }
 
