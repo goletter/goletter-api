@@ -21,7 +21,7 @@ class DocsPlatformConfigService extends BaseService
 {
     public function paginate(array $params): LengthAwarePaginator
     {
-        return DocsPlatformConfig::query()->filter($params)->orderBy('sort')->paginate((int) Arr::get($params, 'pageSize', 20));
+        return DocsPlatformConfig::query()->filter($params)->paginate((int) Arr::get($params, 'pageSize', 20));
     }
 
     public function create(array $data)
