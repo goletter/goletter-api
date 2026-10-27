@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Amqp\AccountDemandQueue;
-use App\Amqp\Producer\AccountDemandProducer;
+use App\Amqp\AccountRechargeQueue;
+use App\Amqp\Producer\AccountRechargeProducer;
 use Goletter\Adv\AdvFactory;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
@@ -46,14 +46,14 @@ class TestCommand extends HyperfCommand
         ];
 
         foreach ($messages as $data) {
-            $shard = AccountDemandQueue::shard($data);
-            $ok = produce(new AccountDemandProducer($data));
+            $shard = AccountRechargeQueue::shard($data);
+            $ok = produce(new AccountRechargeProducer($data));
 
             $this->line(sprintf(
                 'account %d -> %s (%s) status=%s %s',
                 $data['account_id'],
-                AccountDemandQueue::queue($shard),
-                AccountDemandQueue::serialKey($data),
+                AccountRechargeQueue::queue($shard),
+                AccountRechargeQueue::serialKey($data),
                 $data['status'],
                 $ok ? '已发送' : '发送失败'
             ));

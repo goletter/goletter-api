@@ -20,41 +20,43 @@ use InvalidArgumentException;
 use Throwable;
 
 /**
- * 为每个分片起一个协程消费。
+ * 为若干分片队列拉起消费协程（每个队列 × 每个分片一条）。
  *
- * 子类实现 queueClass() / consumerClass()，并加 #[Process]。
+ * 子类实现 queues()，并加 #[Process]。
  */
 abstract class ShardedConsumeProcess extends AbstractProcess
 {
     public function handle(): void
     {
-        $queueClass = $this->queueClass();
-        $consumerClass = $this->consumerClass();
-        if (! is_a($queueClass, ShardedQueue::class, true)) {
-            throw new InvalidArgumentException($queueClass . ' 必须继承 ' . ShardedQueue::class);
-        }
-        if (! is_a($consumerClass, ShardedConsumer::class, true)) {
-            throw new InvalidArgumentException($consumerClass . ' 必须继承 ' . ShardedConsumer::class);
-        }
-
         $consumer = $this->container->get(Consumer::class);
 
-        for ($shard = 0; $shard < $queueClass::shards(); ++$shard) {
-            Coroutine::create(function () use ($consumer, $consumerClass, $shard) {
-                while (ProcessManager::isRunning()) {
-                    try {
-                        $consumer->consume(new $consumerClass($shard));
-                    } catch (Throwable $e) {
-                        $this->logThrowable($e);
-                    }
+        foreach ($this->queues() as $queueClass) {
+            if (! is_a($queueClass, ShardedQueue::class, true)) {
+                throw new InvalidArgumentException($queueClass . ' 必须继承 ' . ShardedQueue::class);
+            }
 
-                    if (! ProcessManager::isRunning()) {
-                        return;
-                    }
+            $consumerClass = $queueClass::consumerClass();
+            if (! is_a($consumerClass, ShardedConsumer::class, true)) {
+                throw new InvalidArgumentException($consumerClass . ' 必须继承 ' . ShardedConsumer::class);
+            }
 
-                    sleep(1);
-                }
-            });
+            for ($shard = 0; $shard < $queueClass::shards(); ++$shard) {
+                Coroutine::create(function () use ($consumer, $consumerClass, $shard) {
+                    while (ProcessManager::isRunning()) {
+                        try {
+                            $consumer->consume(new $consumerClass($shard));
+                        } catch (Throwable $e) {
+                            $this->logThrowable($e);
+                        }
+
+                        if (! ProcessManager::isRunning()) {
+                            return;
+                        }
+
+                        sleep(1);
+                    }
+                });
+            }
         }
 
         while (ProcessManager::isRunning()) {
@@ -63,12 +65,7 @@ abstract class ShardedConsumeProcess extends AbstractProcess
     }
 
     /**
-     * @return class-string<ShardedQueue>
+     * @return list<class-string<ShardedQueue>>
      */
-    abstract protected function queueClass(): string;
-
-    /**
-     * @return class-string<ShardedConsumer>
-     */
-    abstract protected function consumerClass(): string;
+    abstract protected function queues(): array;
 }

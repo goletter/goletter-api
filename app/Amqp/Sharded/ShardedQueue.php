@@ -13,7 +13,8 @@ use function Goletter\Utils\di;
 /**
  * 按业务串行键分片：同一 key 进同一队列串行，不同 key 可并行。
  *
- * 子类只需实现 exchange() / serialKey() / consumerClass()。
+ * 通用分片基类。租户+业务串行场景可继承 TenantBusinessShardedQueue，
+ * 只需声明 EXCHANGE 与 consumerClass() / producerClass()。
  */
 abstract class ShardedQueue
 {
