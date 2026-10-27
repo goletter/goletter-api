@@ -11,36 +11,6 @@ class GoogleController extends AbstractController
     #[Inject]
     protected GoogleAuth $auth;
 
-    public function index()
-    {
-        return $this->success();
-    }
-
-    public function recharge()
-    {
-        return $this->success();
-    }
-
-    public function deduction()
-    {
-        return $this->success();
-    }
-
-    public function reset()
-    {
-        return $this->success();
-    }
-
-    public function bind()
-    {
-        return $this->success();
-    }
-
-    public function unbind()
-    {
-        return $this->success();
-    }
-
     /**
      * 获取 Google OAuth 授权地址.
      *
