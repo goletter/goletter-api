@@ -14,6 +14,7 @@ use Symfony\Component\Console\Input\InputOption;
  *
  *   php bin/hyperf.php amqp:make-queue accountRefund
  *   php bin/hyperf.php amqp:make-queue accountRefund --label=账户退款
+ *   php bin/hyperf.php amqp:make-queue accountRefund --serial=tenant_id,account_id
  *   php bin/hyperf.php amqp:make-queue accountRefund --force
  */
 #[Command]
@@ -30,6 +31,7 @@ class AmqpMakeQueueCommand extends HyperfCommand
         $this->setDescription('生成分片 Queue/Producer/Consumer，并注册到 AccountQueueRegistry');
         $this->addArgument('name', InputArgument::REQUIRED, '业务名，如 accountRefund / AccountRefund');
         $this->addOption('label', null, InputOption::VALUE_REQUIRED, '中文说明（注释与日志用）');
+        $this->addOption('serial', null, InputOption::VALUE_REQUIRED, '串行字段，逗号分隔，默认 tenant_id,busine_id');
         $this->addOption('force', 'f', InputOption::VALUE_NONE, '已存在时覆盖');
         $this->addOption('no-register', null, InputOption::VALUE_NONE, '不写入 AccountQueueRegistry');
     }
@@ -45,13 +47,20 @@ class AmqpMakeQueueCommand extends HyperfCommand
 
         $label = (string) ($this->input->getOption('label') ?: $exchange);
         $force = (bool) $this->input->getOption('force');
+        $serialFields = $this->parseSerialFields(
+            (string) ($this->input->getOption('serial') ?: 'tenant_id,busine_id')
+        );
+        if ($serialFields === []) {
+            $this->error('--serial 不能为空，例如 tenant_id,busine_id');
+            return;
+        }
 
         $queueClass = $studly . 'Queue';
         $producerClass = $studly . 'Producer';
         $consumerClass = $studly . 'Consumer';
 
         $files = [
-            BASE_PATH . '/app/Amqp/' . $queueClass . '.php' => $this->queueStub($queueClass, $producerClass, $consumerClass, $exchange, $label),
+            BASE_PATH . '/app/Amqp/' . $queueClass . '.php' => $this->queueStub($queueClass, $producerClass, $consumerClass, $exchange, $label, $serialFields),
             BASE_PATH . '/app/Amqp/Producer/' . $producerClass . '.php' => $this->producerStub($queueClass, $producerClass),
             BASE_PATH . '/app/Amqp/Consumer/' . $consumerClass . '.php' => $this->consumerStub($queueClass, $consumerClass, $label),
         ];
@@ -153,13 +162,54 @@ class AmqpMakeQueueCommand extends HyperfCommand
             : $path;
     }
 
+    /**
+     * @return list<string>
+     */
+    private function parseSerialFields(string $raw): array
+    {
+        $fields = [];
+        foreach (explode(',', $raw) as $field) {
+            $field = trim($field);
+            if ($field === '') {
+                continue;
+            }
+            $fields[] = $field;
+        }
+
+        return array_values(array_unique($fields));
+    }
+
+    /**
+     * @param list<string> $serialFields
+     */
     private function queueStub(
         string $queueClass,
         string $producerClass,
         string $consumerClass,
         string $exchange,
-        string $label
+        string $label,
+        array $serialFields
     ): string {
+        $serialLabel = implode(' + ', $serialFields);
+        $serialMethod = '';
+        $isDefault = $serialFields === ['tenant_id', 'busine_id'];
+        if (! $isDefault) {
+            $export = implode(",\n            ", array_map(
+                static fn (string $f) => "'" . addslashes($f) . "'",
+                $serialFields
+            ));
+            $serialMethod = <<<PHP
+
+    public static function serialFields(): array
+    {
+        return [
+            {$export},
+        ];
+    }
+
+PHP;
+        }
+
         return <<<PHP
 <?php
 
@@ -171,11 +221,11 @@ use App\\Amqp\\Consumer\\{$consumerClass};
 use App\\Amqp\\Producer\\{$producerClass};
 use App\\Amqp\\Sharded\\TenantBusinessShardedQueue;
 
-/** {$label}：同一 tenant_id + busine_id 串行，不同组合可并行。 */
+/** {$label}：同一 {$serialLabel} 串行，不同组合可并行。 */
 final class {$queueClass} extends TenantBusinessShardedQueue
 {
     public const EXCHANGE = '{$exchange}';
-
+{$serialMethod}
     public static function consumerClass(): string
     {
         return {$consumerClass}::class;
