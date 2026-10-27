@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-namespace App\Command;
+namespace App\Command\Amqp;
 
-use App\Amqp\AccountQueueRegistry;
-use App\Amqp\Sharded\ShardedQueue;
 use Hyperf\Amqp\ConnectionFactory;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
@@ -28,6 +26,8 @@ use function Goletter\Utils\di;
 #[Command]
 class AmqpResetShardsCommand extends HyperfCommand
 {
+    use ResolvesAccountQueues;
+
     public function __construct()
     {
         parent::__construct('amqp:reset-shards');
@@ -45,69 +45,58 @@ class AmqpResetShardsCommand extends HyperfCommand
 
     public function handle()
     {
-        if (! $this->input->getOption('force')) {
-            $this->error('危险操作：会删除分片队列中未消费消息。确认后请加 --force');
-            $this->line('示例：php bin/hyperf.php amqp:reset-shards --all --force');
+        if (! $this->requireForce('会删除业务分片队列中未消费消息；加 --purge-dlq 时还会删除死信队列。')) {
             return;
         }
 
         $name = $this->input->getArgument('name');
-        $queues = $this->resolveQueues($name === null ? null : (string) $name);
+        $queues = $this->resolveAccountQueues($name === null ? null : (string) $name);
         if ($queues === []) {
-            $this->error('未知业务。可选：' . implode(', ', array_keys(AccountQueueRegistry::all())));
             return;
         }
 
-        $factory = di()->get(ConnectionFactory::class);
+        try {
+            $factory = di()->get(ConnectionFactory::class);
+        } catch (Throwable $e) {
+            $this->error('无法初始化 AMQP 连接工厂：' . $e->getMessage());
+            return;
+        }
+
         $purgeDlq = (bool) $this->input->getOption('purge-dlq');
 
         foreach ($queues as $alias => $queueClass) {
             $this->info('重置：' . $alias);
 
-            $connection = $factory->getConnection('default');
-            $channel = $connection->getChannel();
             try {
-                for ($shard = 0; $shard < $queueClass::shards(); ++$shard) {
-                    $queue = $queueClass::queue($shard);
-                    $channel = $this->deleteQueue($connection, $channel, $queue);
-                }
-
-                if ($purgeDlq) {
-                    $channel = $this->deleteQueue($connection, $channel, $queueClass::dlq());
-                }
-
-                // 重建 DLX/DLQ；业务分片由消费进程 / produce 时 declareShard 重建
-                $connection->releaseChannel($channel);
-                $queueClass::declareDeadLetter();
+                $connection = $factory->getConnection('default');
                 $channel = $connection->getChannel();
-                $this->line('  declared ' . $queueClass::dlxExchange() . ' + ' . $queueClass::dlq());
-            } finally {
                 try {
+                    for ($shard = 0; $shard < $queueClass::shards(); ++$shard) {
+                        $queue = $queueClass::queue($shard);
+                        $channel = $this->deleteQueue($connection, $channel, $queue);
+                    }
+
+                    if ($purgeDlq) {
+                        $channel = $this->deleteQueue($connection, $channel, $queueClass::dlq());
+                    }
+
                     $connection->releaseChannel($channel);
-                } catch (Throwable) {
+                    $queueClass::declareDeadLetter();
+                    $channel = $connection->getChannel();
+                    $this->line('  declared ' . $queueClass::dlxExchange() . ' + ' . $queueClass::dlq());
+                } finally {
+                    try {
+                        $connection->releaseChannel($channel);
+                    } catch (Throwable) {
+                    }
                 }
+            } catch (Throwable $e) {
+                $this->error(sprintf('[%s] 重置失败：%s', $alias, $e->getMessage()));
+                $this->line('  排查：AMQP 连通性、权限；若仍报 PRECONDITION_FAILED，确认旧队列是否已删干净。');
             }
         }
 
         $this->info('完成。请重启服务，分片队列会按带 DLX 的新定义自动创建。');
-    }
-
-    /**
-     * @return array<string, class-string<ShardedQueue>>
-     */
-    private function resolveQueues(?string $name): array
-    {
-        $all = AccountQueueRegistry::all();
-        if ($name === null || $name === '' || $this->input->getOption('all')) {
-            return $all;
-        }
-
-        $queueClass = AccountQueueRegistry::get($name);
-        if ($queueClass === null) {
-            return [];
-        }
-
-        return [$name => $queueClass];
     }
 
     private function deleteQueue(mixed $connection, AMQPChannel $channel, string $queue): AMQPChannel

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Command;
+namespace App\Command\Amqp;
 
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
@@ -60,7 +60,7 @@ class AmqpMakeQueueCommand extends HyperfCommand
         $consumerClass = $studly . 'Consumer';
 
         $files = [
-            BASE_PATH . '/app/Amqp/' . $queueClass . '.php' => $this->queueStub($queueClass, $producerClass, $consumerClass, $exchange, $label, $serialFields),
+            BASE_PATH . '/app/Amqp/Queue/' . $queueClass . '.php' => $this->queueStub($queueClass, $producerClass, $consumerClass, $exchange, $label, $serialFields),
             BASE_PATH . '/app/Amqp/Producer/' . $producerClass . '.php' => $this->producerStub($queueClass, $producerClass),
             BASE_PATH . '/app/Amqp/Consumer/' . $consumerClass . '.php' => $this->consumerStub($queueClass, $consumerClass, $label),
         ];
@@ -134,6 +134,18 @@ class AmqpMakeQueueCommand extends HyperfCommand
         if (str_contains($code, "'" . $exchange . "'")) {
             $this->warn('Registry 已包含 ' . $exchange . '，跳过注册');
             return false;
+        }
+
+        $useLine = "use App\\Amqp\\Queue\\{$queueClass};\n";
+        if (! str_contains($code, $useLine) && ! str_contains($code, "use App\\Amqp\\Queue\\{$queueClass};")) {
+            // 插到最后一个 use App\Amqp\Queue\ 之后；没有则插到 namespace 后第一处 use 前
+            if (preg_match('#(use App\\\\Amqp\\\\Queue\\\\[^;]+;\n)(?!use App\\\\Amqp\\\\Queue\\\\)#', $code, $m, PREG_OFFSET_CAPTURE)) {
+                $pos = $m[0][1] + strlen($m[0][0]);
+                $code = substr($code, 0, $pos) . $useLine . substr($code, $pos);
+            } elseif (preg_match('#namespace App\\\\Amqp;\n\n#', $code, $m, PREG_OFFSET_CAPTURE)) {
+                $pos = $m[0][1] + strlen($m[0][0]);
+                $code = substr($code, 0, $pos) . $useLine . substr($code, $pos);
+            }
         }
 
         $entry = "            '{$exchange}' => {$queueClass}::class,\n";
@@ -215,7 +227,7 @@ PHP;
 
 declare(strict_types=1);
 
-namespace App\\Amqp;
+namespace App\\Amqp\\Queue;
 
 use App\\Amqp\\Consumer\\{$consumerClass};
 use App\\Amqp\\Producer\\{$producerClass};
@@ -249,7 +261,7 @@ declare(strict_types=1);
 
 namespace App\\Amqp\\Producer;
 
-use App\\Amqp\\{$queueClass};
+use App\\Amqp\\Queue\\{$queueClass};
 use App\\Amqp\\Sharded\\ShardedProducer;
 use Hyperf\\Amqp\\Annotation\\Producer;
 
@@ -267,8 +279,6 @@ PHP;
 
     private function consumerStub(string $queueClass, string $consumerClass, string $label): string
     {
-        $labelExport = addslashes($label);
-
         return <<<PHP
 <?php
 
@@ -276,12 +286,10 @@ declare(strict_types=1);
 
 namespace App\\Amqp\\Consumer;
 
-use App\\Amqp\\{$queueClass};
+use App\\Amqp\\Queue\\{$queueClass};
 use App\\Amqp\\Sharded\\ShardedConsumer;
 use Hyperf\\Amqp\\Result;
 use PhpAmqpLib\\Message\\AMQPMessage;
-
-use function Goletter\\Utils\\logging;
 
 class {$consumerClass} extends ShardedConsumer
 {

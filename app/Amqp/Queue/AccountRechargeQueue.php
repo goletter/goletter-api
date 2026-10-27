@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Amqp;
+namespace App\Amqp\Queue;
 
 use App\Amqp\Consumer\AccountRechargeConsumer;
 use App\Amqp\Producer\AccountRechargeProducer;

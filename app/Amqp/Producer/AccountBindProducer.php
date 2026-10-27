@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Amqp\Producer;
 
-use App\Amqp\AccountBindQueue;
+use App\Amqp\Queue\AccountBindQueue;
 use App\Amqp\Sharded\ShardedProducer;
 use Hyperf\Amqp\Annotation\Producer;
 

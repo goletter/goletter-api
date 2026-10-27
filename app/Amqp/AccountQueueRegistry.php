@@ -12,6 +12,11 @@ declare(strict_types=1);
 
 namespace App\Amqp;
 
+use App\Amqp\Queue\AccountBindQueue;
+use App\Amqp\Queue\AccountDeductionQueue;
+use App\Amqp\Queue\AccountRechargeQueue;
+use App\Amqp\Queue\AccountResetQueue;
+use App\Amqp\Queue\AccountUnBindQueue;
 use App\Amqp\Sharded\ShardedQueue;
 
 /**

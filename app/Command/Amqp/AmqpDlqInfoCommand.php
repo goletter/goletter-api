@@ -2,15 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Command;
+namespace App\Command\Amqp;
 
-use App\Amqp\AccountQueueRegistry;
-use App\Amqp\Sharded\ShardedQueue;
 use Hyperf\Amqp\ConnectionFactory;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+use Throwable;
 
 use function Goletter\Utils\di;
 use function Goletter\Utils\logging;
@@ -25,6 +24,8 @@ use function Goletter\Utils\logging;
 #[Command]
 class AmqpDlqInfoCommand extends HyperfCommand
 {
+    use ResolvesAccountQueues;
+
     public function __construct()
     {
         parent::__construct('amqp:dlq-info');
@@ -41,33 +42,49 @@ class AmqpDlqInfoCommand extends HyperfCommand
     public function handle()
     {
         $name = $this->input->getArgument('name');
-        $queues = $this->resolveQueues($name === null ? null : (string) $name);
+        // 省略 name 时默认看全部，便于 crontab
+        $queues = $this->resolveAccountQueues(
+            $name === null ? null : (string) $name,
+            allowAllWhenEmpty: true
+        );
         if ($queues === []) {
-            $this->error('未知业务。可选：' . implode(', ', array_keys(AccountQueueRegistry::all())));
             return;
         }
 
-        $factory = di()->get(ConnectionFactory::class);
+        try {
+            $factory = di()->get(ConnectionFactory::class);
+        } catch (Throwable $e) {
+            $this->error('无法初始化 AMQP 连接工厂：' . $e->getMessage());
+            return;
+        }
+
         $totalReady = 0;
+        $failed = 0;
 
         foreach ($queues as $alias => $queueClass) {
-            $queueClass::declareDeadLetter();
-
-            $connection = $factory->getConnection('default');
-            $channel = $connection->getChannel();
+            $dlq = $queueClass::dlq();
             try {
-                [, $messageCount, $consumerCount] = $channel->queue_declare(
-                    $queueClass::dlq(),
-                    true,
-                    true,
-                    false,
-                    false,
-                    false,
-                    [],
-                    null
-                );
-            } finally {
-                $connection->releaseChannel($channel);
+                $queueClass::declareDeadLetter();
+                $connection = $factory->getConnection('default');
+                $channel = $connection->getChannel();
+                try {
+                    [, $messageCount, $consumerCount] = $channel->queue_declare(
+                        $dlq,
+                        true,
+                        true,
+                        false,
+                        false,
+                        false,
+                        [],
+                        null
+                    );
+                } finally {
+                    $connection->releaseChannel($channel);
+                }
+            } catch (Throwable $e) {
+                ++$failed;
+                $this->error(sprintf('[%s] 查询失败 queue=%s：%s', $alias, $dlq, $e->getMessage()));
+                continue;
             }
 
             $messageCount = (int) $messageCount;
@@ -75,9 +92,9 @@ class AmqpDlqInfoCommand extends HyperfCommand
             $totalReady += $messageCount;
 
             $this->line(sprintf(
-                '%s (%s) ready=%d consumers=%d',
+                '[%s] %s ready=%d consumers=%d',
                 $alias,
-                $queueClass::dlq(),
+                $dlq,
                 $messageCount,
                 $consumerCount
             ));
@@ -86,36 +103,22 @@ class AmqpDlqInfoCommand extends HyperfCommand
                 logging([
                     'event' => 'dlq_backlog',
                     'alias' => $alias,
-                    'queue' => $queueClass::dlq(),
+                    'queue' => $dlq,
                     'ready' => $messageCount,
                     'consumers' => $consumerCount,
-                    // 这里可接企微/钉钉告警
                 ], '分片队列死信积压', 'queue');
             }
         }
 
-        if ($totalReady > 0) {
-            $this->warn(sprintf('合计死信积压 %d 条，可用 amqp:dlq-replay 重投', $totalReady));
+        if ($failed > 0) {
+            $this->warn(sprintf('部分业务查询失败 %d 个；当前可见积压 %d 条', $failed, $totalReady));
+        } elseif ($totalReady > 0) {
+            $this->warn(sprintf(
+                '合计死信积压 %d 条。重投：php bin/hyperf.php amqp:dlq-replay <业务名>；清空：php bin/hyperf.php amqp:dlq-purge <业务名> --force',
+                $totalReady
+            ));
         } else {
             $this->info('无死信积压');
         }
-    }
-
-    /**
-     * @return array<string, class-string<ShardedQueue>>
-     */
-    private function resolveQueues(?string $name): array
-    {
-        $all = AccountQueueRegistry::all();
-        if ($name === null || $name === '' || $this->input->getOption('all')) {
-            return $all;
-        }
-
-        $queueClass = AccountQueueRegistry::get($name);
-        if ($queueClass === null) {
-            return [];
-        }
-
-        return [$name => $queueClass];
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Amqp;
+namespace App\Amqp\Queue;
 
 use App\Amqp\Consumer\AccountDeductionConsumer;
 use App\Amqp\Producer\AccountDeductionProducer;

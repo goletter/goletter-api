@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Amqp\Consumer;
 
-use App\Amqp\AccountRechargeQueue;
+use App\Amqp\Queue\AccountRechargeQueue;
 use App\Amqp\Sharded\ShardedConsumer;
 use Hyperf\Amqp\Result;
 use PhpAmqpLib\Message\AMQPMessage;
@@ -15,6 +15,7 @@ class AccountRechargeConsumer extends ShardedConsumer
 {
     protected function handle(mixed $data, AMQPMessage $message): Result
     {
+        return Result::DROP;
         $payload = is_array($data) ? $data : [];
         logging([
             'event' => 'handle',
@@ -25,6 +26,7 @@ class AccountRechargeConsumer extends ShardedConsumer
             ...$payload,
         ], '账户充值消息队列', 'queue');
 
+        /*
         $status = (int) ($payload['status'] ?? 0);
         // 仅测试：999 主动进死信；998 抛错触发重试耗尽进死信
         if ($status === 999) {
@@ -32,7 +34,7 @@ class AccountRechargeConsumer extends ShardedConsumer
         }
         if ($status === 998) {
             throw new \RuntimeException('模拟失败，用于验证重试与死信');
-        }
+        }*/
 
         return Result::ACK;
     }

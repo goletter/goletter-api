@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Amqp\Consumer;
 
-use App\Amqp\AccountBindQueue;
+use App\Amqp\Queue\AccountBindQueue;
 use App\Amqp\Sharded\ShardedConsumer;
 use Hyperf\Amqp\Result;
 use PhpAmqpLib\Message\AMQPMessage;

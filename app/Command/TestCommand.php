@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Amqp\AccountRechargeQueue;
+use App\Amqp\Queue\AccountRechargeQueue;
 use App\Amqp\Producer\AccountRechargeProducer;
 use Goletter\Adv\AdvFactory;
 use Hyperf\Command\Annotation\Command;
