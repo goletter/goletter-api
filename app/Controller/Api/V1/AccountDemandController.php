@@ -9,29 +9,4 @@ class AccountDemandController extends AbstractController
     {
         return $this->success();
     }
-
-    public function recharge()
-    {
-        return $this->success();
-    }
-
-    public function deduction()
-    {
-        return $this->success();
-    }
-
-    public function reset()
-    {
-        return $this->success();
-    }
-
-    public function bind()
-    {
-        return $this->success();
-    }
-
-    public function unbind()
-    {
-        return $this->success();
-    }
 }
