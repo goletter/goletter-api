@@ -10,19 +10,14 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 
-namespace App\Service;
+namespace App\Model\Filters;
 
-use Goletter\Server\BaseService;
+use Goletter\ModelFilter\ModelFilter;
 
-class AccountService extends BaseService
+class DocsPlatformConfigFilter extends ModelFilter
 {
-    public function create($data)
+    public function name($name)
     {
-        //
-    }
-
-    public function update($data)
-    {
-        //
+        $this->where('name', 'like', "$name%");
     }
 }

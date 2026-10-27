@@ -12,8 +12,11 @@ declare(strict_types=1);
 
 namespace App\Model;
 
+use Goletter\Traits\FillDbColumns;
 use Hyperf\DbConnection\Model\Model as BaseModel;
 
 abstract class Model extends BaseModel
 {
+    use FillDbColumns;
+    protected array $guarded = [];
 }
