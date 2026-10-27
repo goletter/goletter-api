@@ -1,6 +1,14 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
 
 namespace App\Amqp;
 
@@ -34,7 +42,7 @@ final class AccountQueueRegistry
     }
 
     /**
-     * @return class-string<ShardedQueue>|null
+     * @return null|class-string<ShardedQueue>
      */
     public static function get(string $name): ?string
     {
