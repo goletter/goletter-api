@@ -14,6 +14,8 @@ namespace App\Command;
 
 use App\Amqp\Queue\AccountRechargeQueue;
 use Goletter\Adv\AdvFactory;
+use Goletter\Docs\DocsManager;
+use Hyperf\Collection\Arr;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
@@ -23,6 +25,9 @@ class TestCommand extends HyperfCommand
 {
     #[Inject]
     protected AdvFactory $advFactory;
+
+    #[Inject]
+    protected DocsManager $docs;
 
     public function __construct()
     {
