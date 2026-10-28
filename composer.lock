@@ -1178,25 +1178,30 @@
         },
         {
             "name": "goletter/hyperf-docs",
-            "version": "v2.0.7",
+            "version": "v2.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goletter/hyperf-docs.git",
-                "reference": "dd1a1489a32c9d4a41294c6dd0db6e80b426b2e9"
+                "reference": "797b5d8e2870b4217425a927598af1183890c64b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goletter/hyperf-docs/zipball/dd1a1489a32c9d4a41294c6dd0db6e80b426b2e9",
-                "reference": "dd1a1489a32c9d4a41294c6dd0db6e80b426b2e9",
+                "url": "https://api.github.com/repos/goletter/hyperf-docs/zipball/797b5d8e2870b4217425a927598af1183890c64b",
+                "reference": "797b5d8e2870b4217425a927598af1183890c64b",
                 "shasum": ""
             },
             "require": {
                 "google/apiclient": "^2.19",
                 "guzzlehttp/guzzle": "^7.0",
                 "hyperf/command": "~3.1.0",
+                "hyperf/context": "~3.1.0",
                 "hyperf/contract": "~3.1.0",
                 "hyperf/di": "~3.1.0",
                 "php": ">=8.1"
+            },
+            "suggest": {
+                "hyperf/database": "Required when docs.config_source=database",
+                "hyperf/db-connection": "Required when docs.config_source=database"
             },
             "type": "library",
             "extra": {
@@ -1236,9 +1241,9 @@
             ],
             "support": {
                 "issues": "https://github.com/goletter/hyperf-docs/issues",
-                "source": "https://github.com/goletter/hyperf-docs/tree/v2.0.7"
+                "source": "https://github.com/goletter/hyperf-docs/tree/v2.0.9"
             },
-            "time": "2026-10-15T06:55:17+00:00"
+            "time": "2026-10-28T05:10:13+00:00"
         },
         {
             "name": "goletter/hyperf-modelfilter",

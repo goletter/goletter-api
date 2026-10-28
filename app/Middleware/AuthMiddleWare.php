@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
+use Goletter\Utils\TenantContext;
 use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,7 +21,7 @@ class AuthMiddleWare implements MiddlewareInterface
 {
     /** 需要鉴权的路径前缀 */
     protected array $only = [
-        '/api/admin',
+        // '/api/admin',
     ];
 
     /** 公开接口（即使在 $only 下也不鉴权），支持精确路径或前缀* */
