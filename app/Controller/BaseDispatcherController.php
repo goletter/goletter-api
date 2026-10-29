@@ -1,12 +1,24 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
 
 namespace App\Controller;
 
+use Hyperf\DbConnection\Model\Model;
+use Hyperf\HttpMessage\Exception\NotFoundHttpException;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\Stringable\Str;
+use Hyperf\Validation\Request\FormRequest;
 use Psr\Container\ContainerInterface;
+use ReflectionClass;
 use ReflectionMethod;
 use ReflectionNamedType;
 
@@ -33,12 +45,12 @@ abstract class BaseDispatcherController
     /**
      * 版本实现所在命名空间前缀。
      * - API：App\Controller          → App\Controller\V1\UserController
-     * - Admin：App\Controller\Admin  → App\Controller\Admin\V1\UserController
+     * - Admin：App\Controller\Admin  → App\Controller\Admin\V1\UserController.
      */
-    protected string $controllerNamespace = 'App\\Controller';
+    protected string $controllerNamespace = 'App\Controller';
 
     /**
-     * HTTP 方法 => [集合动作, 单资源动作]（主动作名，别名由 $actionGroups 展开）
+     * HTTP 方法 => [集合动作, 单资源动作]（主动作名，别名由 $actionGroups 展开）.
      *
      * @var array<string, array{0: string, 1: string}>
      */
@@ -72,7 +84,7 @@ abstract class BaseDispatcherController
 
     /**
      * 统一资源网关入口：/api/{resource}/... → Vn\{Resource}Controller
-     * users → User，order-items → OrderItem
+     * users → User，order-items → OrderItem.
      */
     protected function handleResource(
         RequestInterface $request,
@@ -91,7 +103,7 @@ abstract class BaseDispatcherController
      * - /resource/{id}             REST 单资源（id 默认可为数字）
      * - /resource/{action}         自定义动作
      * - /resource/{id}/{action}    带 id 的自定义动作
-     * - /resource/{action}/{id}    同上（动作在前）
+     * - /resource/{action}/{id}    同上（动作在前）.
      */
     protected function dispatch(RequestInterface $request, ?string $seg1 = null, ?string $seg2 = null): mixed
     {
@@ -248,7 +260,7 @@ abstract class BaseDispatcherController
     protected function controllerClass(string $version): string
     {
         return sprintf(
-            '%s\\%s\\%sController',
+            '%s\%s\%sController',
             rtrim($this->controllerNamespace, '\\'),
             strtoupper($version),
             $this->resourceName
@@ -257,7 +269,7 @@ abstract class BaseDispatcherController
 
     protected function guessResourceName(): string
     {
-        $short = (new \ReflectionClass($this))->getShortName();
+        $short = (new ReflectionClass($this))->getShortName();
 
         return str_ends_with($short, 'Controller')
             ? substr($short, 0, -10)
@@ -278,8 +290,25 @@ abstract class BaseDispatcherController
             $typeName = $type instanceof ReflectionNamedType ? $type->getName() : null;
             $name = $param->getName();
 
+            // FormRequest 也实现 RequestInterface，须先于通用 Request 注入
+            if ($typeName && is_a($typeName, FormRequest::class, true)) {
+                $args[] = $this->container->get($typeName);
+                continue;
+            }
+
             if ($name === 'request' || ($typeName && is_a($typeName, RequestInterface::class, true))) {
                 $args[] = $request;
+                continue;
+            }
+
+            if ($typeName && is_a($typeName, Model::class, true) && $id !== null && ! $idUsed) {
+                /** @var class-string<Model> $typeName */
+                $model = $typeName::query()->find($id);
+                if (! $model) {
+                    throw new NotFoundHttpException(sprintf('%s not found for id %s', $typeName, $id));
+                }
+                $args[] = $model;
+                $idUsed = true;
                 continue;
             }
 
@@ -290,6 +319,11 @@ abstract class BaseDispatcherController
             )) {
                 $args[] = $typeName === 'int' ? (int) $id : $id;
                 $idUsed = true;
+                continue;
+            }
+
+            if ($typeName && class_exists($typeName) && $this->container->has($typeName)) {
+                $args[] = $this->container->get($typeName);
                 continue;
             }
 

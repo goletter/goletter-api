@@ -45,6 +45,7 @@ class TestCommand extends HyperfCommand
     {
         $docsPlatformConfig = DocsPlatformConfig::query()->first();
         $accountDemands = AccountDemand::query()->where('status', 0)->get();
+
         foreach ($accountDemands as $index => $accountDemand) {
             $data = [
                 'name' => $accountDemand->name,
@@ -58,7 +59,7 @@ class TestCommand extends HyperfCommand
             $ok = AccountRechargeQueue::produce($data);
             $nameLine = $ok ? '已发送' : '发送失败';
 
-            $this->line("{$index}========{$accountDemand->name}========={$nameLine}");
+            $this->line("{$index}========{$accountDemand->money}========={$nameLine}");
         }
     }
 }

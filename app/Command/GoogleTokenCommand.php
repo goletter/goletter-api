@@ -49,7 +49,6 @@ class GoogleTokenCommand extends HyperfCommand
             // $minutesDiff = Carbon::now()->diffInMinutes(Carbon::parse($docsPlatformConfig->expire_at), true);
 
             try {
-
                 $platform = $this->docs->make('google', [
                     'client_id' => $docsPlatformConfig->client_id,
                     'client_secret' => $docsPlatformConfig->client_secret,
@@ -62,7 +61,7 @@ class GoogleTokenCommand extends HyperfCommand
                     'refresh_token' => $token['refresh_token'] ?? '',
                     'expire_at' => Carbon::now()->toDateTimeString(),
                 ]);
-                $this->line("{$index}==============={$token}");
+                $this->line('更新成功');
             } catch (Exception $e) {
                 $this->error($e->getMessage());
             }
