@@ -1178,22 +1178,21 @@
         },
         {
             "name": "goletter/hyperf-docs",
-            "version": "v2.0.9",
+            "version": "v2.0.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goletter/hyperf-docs.git",
-                "reference": "797b5d8e2870b4217425a927598af1183890c64b"
+                "reference": "99a12051ca9b0420943bc96f7425d7f07b3af33d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goletter/hyperf-docs/zipball/797b5d8e2870b4217425a927598af1183890c64b",
-                "reference": "797b5d8e2870b4217425a927598af1183890c64b",
+                "url": "https://api.github.com/repos/goletter/hyperf-docs/zipball/99a12051ca9b0420943bc96f7425d7f07b3af33d",
+                "reference": "99a12051ca9b0420943bc96f7425d7f07b3af33d",
                 "shasum": ""
             },
             "require": {
                 "google/apiclient": "^2.19",
                 "guzzlehttp/guzzle": "^7.0",
-                "hyperf/command": "~3.1.0",
                 "hyperf/context": "~3.1.0",
                 "hyperf/contract": "~3.1.0",
                 "hyperf/di": "~3.1.0",
@@ -1201,7 +1200,8 @@
             },
             "suggest": {
                 "hyperf/database": "Required when docs.config_source=database",
-                "hyperf/db-connection": "Required when docs.config_source=database"
+                "hyperf/db-connection": "Required when docs.config_source=database",
+                "hyperf/logger": "Required when docs.logging.enabled=true"
             },
             "type": "library",
             "extra": {
@@ -1241,9 +1241,9 @@
             ],
             "support": {
                 "issues": "https://github.com/goletter/hyperf-docs/issues",
-                "source": "https://github.com/goletter/hyperf-docs/tree/v2.0.9"
+                "source": "https://github.com/goletter/hyperf-docs/tree/v2.0.12"
             },
-            "time": "2026-10-28T05:10:13+00:00"
+            "time": "2026-10-28T12:08:54+00:00"
         },
         {
             "name": "goletter/hyperf-modelfilter",

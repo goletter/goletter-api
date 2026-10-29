@@ -13,9 +13,10 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Amqp\Queue\AccountRechargeQueue;
+use App\Model\AccountDemand;
+use App\Model\DocsPlatformConfig;
 use Goletter\Adv\AdvFactory;
 use Goletter\Docs\DocsManager;
-use Hyperf\Collection\Arr;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
@@ -42,8 +43,22 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        $data = ['account_id' => 1, 'tenant_id' => 1, 'busine_id' => 1, 'status' => 1];
-        $ok = AccountRechargeQueue::produce($data);
-        $this->line($ok ? '已发送' : '发送失败');
+        $docsPlatformConfig = DocsPlatformConfig::query()->first();
+        $accountDemands = AccountDemand::query()->where('status', 0)->get();
+        foreach ($accountDemands as $index => $accountDemand) {
+            $data = [
+                'name' => $accountDemand->name,
+                'money' => $accountDemand->money,
+                'tenant_id' => $accountDemand->tenant_id,
+                'busine_id' => $accountDemand->tenant_id,
+                'sheet_url' => $docsPlatformConfig->recharge_url,
+                'access_token' => $docsPlatformConfig->token,
+            ];
+
+            $ok = AccountRechargeQueue::produce($data);
+            $nameLine = $ok ? '已发送' : '发送失败';
+
+            $this->line("{$index}========{$accountDemand->name}========={$nameLine}");
+        }
     }
 }
