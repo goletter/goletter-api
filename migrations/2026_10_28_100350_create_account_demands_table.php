@@ -20,8 +20,11 @@ return new class extends Migration
             $table->string('order_no', 100)->unique()->index()->comment('需求单号');
             $table->string('name', 100)->default('')->comment('账户名称');
             $table->string('code', 100)->default('')->comment('账户ID');
+            $table->string('busine_code', 100)->default('')->comment('BMID');
             $table->tinyInteger('type')->default(0)->comment('类型；1：入户，2：充值，3：减款；4：清零；6：绑定,  7：解绑');
             $table->tinyInteger('step')->default(0)->comment('步骤');
+            $table->string('currency', 50)->default('')->nullable()->comment('货币');
+            $table->string('timezone', 20)->default('')->nullable()->comment('时区');
             $table->bigInteger('money')->default(0)->comment('金额');
             $table->string('email', 500)->default('')->nullable()->comment('邮箱/Bm/Bc');
             $table->string('transaction_id', 100)->default('')->nullable()->index()->comment('第三方单号');

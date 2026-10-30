@@ -7,6 +7,7 @@ namespace App\Service\Adv;
 use Goletter\Resource\Exception\BusinessException;
 use Hyperf\Collection\Arr;
 use Throwable;
+use function Goletter\Utils\logging;
 
 class AdvException extends BusinessException
 {
@@ -24,6 +25,8 @@ class AdvException extends BusinessException
         ?string $platform = null,
         string $category = 'adv',
     ) {
+        logging(['platform' => $platform, 'code' => $accountId, 'message' => $message], '第三方平台接口异常', $category);
+
         $advMessage = json_decode((string) $message, true);
         $errorUserMsg = Arr::get($advMessage, 'error.error_user_msg', '');
         $errorMessage = Arr::get($advMessage, 'error.message', $message);  // 修正参数

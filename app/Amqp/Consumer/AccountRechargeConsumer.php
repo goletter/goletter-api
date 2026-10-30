@@ -14,54 +14,38 @@ namespace App\Amqp\Consumer;
 
 use App\Amqp\Queue\AccountRechargeQueue;
 use App\Amqp\Sharded\ShardedConsumer;
-use Goletter\Docs\DocsManager;
+use App\Model\AccountDemand;
+use App\Service\Adv\AdvResolver;
 use Hyperf\Amqp\Result;
 use Hyperf\Collection\Arr;
 use Hyperf\Di\Annotation\Inject;
 use PhpAmqpLib\Message\AMQPMessage;
-use RuntimeException;
-
+use Throwable;
 use function Goletter\Utils\logging;
 
 class AccountRechargeConsumer extends ShardedConsumer
 {
-    #[Inject]
-    protected DocsManager $docs;
-
     protected function handle(mixed $data, AMQPMessage $message): Result
     {
-        $payload = is_array($data) ? $data : [];
-        $name = Arr::get($payload, 'name');
-        $money = Arr::get($payload, 'money');
-        $sheetUrl = Arr::get($payload, 'sheet_url');
+        logging(['333'], 'xxx', 'eee');
+        /*$accountDemandId = Arr::get($data, 'account_demand_id');
+        $accountDemand = AccountDemand::query()->where('id', $accountDemandId)->where('status', 0)->first();
 
-        $sheets = $this->docs->platform('google')->sheets();
-        $parsed = $sheets->parseSpreadsheetUrl($sheetUrl);
-        $spreadsheetId = (string) Arr::get($parsed, 'spreadsheet_id', '');
-        $gid = Arr::get($parsed, 'gid', 0);
-        if ($spreadsheetId === '') {
-            throw new RuntimeException('无法解析 Google Spreadsheet URL');
+        if (! $accountDemand) {
+            return Result::ACK;
         }
 
-        $token = [
-            'access_token' => (string) Arr::get($payload, 'access_token', ''),
-        ];
+        try {
+            $accountDemand->update(['status' => 1]);
+            $token = Arr::get($data, 'access_token');
+            $adv = $this->advResolver->resolveAdv('docs', $token);
+            $adv->account()->recharge($accountDemand);
+        } catch (Throwable $exception) {
+            $data = ['status' => 0, 'remark' => $exception->getMessage()];
+            $accountDemand->update($data);
 
-        $sheets->appendCells(
-            $token,
-            $spreadsheetId,
-            'gid:' . $gid,
-            $this->buildSheetRow($name, $money)
-        );
-
-        logging([
-            'event' => 'appended',
-            'shard' => $this->getShard(),
-            'name' => $name,
-            'money' => $money,
-            'spreadsheet_id' => $spreadsheetId,
-            'gid' => $gid,
-        ], '账户充值已写入表格', 'queue');
+            return Result::DROP;
+        }*/
 
         return Result::ACK;
     }
@@ -69,24 +53,5 @@ class AccountRechargeConsumer extends ShardedConsumer
     protected static function queueClass(): string
     {
         return AccountRechargeQueue::class;
-    }
-
-    /**
-     * 表格列位：E=name，G=money，H=标记；其余留空.
-     *
-     * @return list<null|bool|float|int|string>
-     */
-    private function buildSheetRow(mixed $name, mixed $money): array
-    {
-        return [
-            null,
-            null,
-            null,
-            null,
-            $name,
-            null,
-            $money,
-            true,
-        ];
     }
 }

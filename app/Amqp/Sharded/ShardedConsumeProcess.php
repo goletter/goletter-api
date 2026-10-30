@@ -22,7 +22,7 @@ use Throwable;
 /**
  * 为若干分片队列拉起消费协程（每个队列 × 每个分片一条）。
  *
- * 子类实现 queues()，并加 #[Process]。
+ * 子类实现 queues()，并在 config/autoload/processes.php 注册（不要再用 #[Process]，防双重启动）。
  */
 abstract class ShardedConsumeProcess extends AbstractProcess
 {

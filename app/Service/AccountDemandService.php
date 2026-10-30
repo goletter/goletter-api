@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Amqp\Queue\AccountRechargeQueue;
 use App\Model\AccountDemand;
+use App\Model\DocsPlatformConfig;
 use Goletter\Server\BaseService;
 use Hyperf\Collection\Arr;
 use Hyperf\Paginator\LengthAwarePaginator;
@@ -26,7 +28,20 @@ class AccountDemandService extends BaseService
 
     public function create(array $data)
     {
-        return $this->save(new AccountDemand(), $data);
+        $data['tenant_id'] = uniqid();
+        $data['order_no'] = setOrderNo(AccountDemand::class);
+
+        $accountDemand = $this->save(new AccountDemand(), $data);
+
+        $docsPlatformConfig = DocsPlatformConfig::query()->first();
+        AccountRechargeQueue::produce([
+            'account_demand_id' => $accountDemand->id,
+            'tenant_id' => $accountDemand->tenant_id,
+            'busine_id' => $accountDemand->busine_code,
+            'access_token' => $docsPlatformConfig->token,
+        ]);
+
+        return $accountDemand;
     }
 
     public function update(AccountDemand $accountDemand, array $data)

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace App\Service\Adv;
 
 use App\Service\Adv\Facebook\FacebookService;
+use App\Service\Adv\GoogleDoc\GoogleDocService;
 use Hyperf\Collection\Arr;
 use InvalidArgumentException;
 
@@ -35,6 +36,7 @@ class AdvResolver
 
         return match ($platform) {
             'facebook', 'fb', '0' => new FacebookService((string) $token, $busineId, $platformId),
+            'googledoc', 'google_doc', 'docs' => new GoogleDocService((string) $token),
             default => throw new InvalidArgumentException(sprintf('Unsupported adv platform: %s', $platform)),
         };
     }

@@ -30,7 +30,7 @@ interface AccountApi
      * 账户开户.
      * @param mixed $account
      */
-    public function open($account, bool $updateCurrency = false, bool $updateBusinessInfo = false): void;
+    public function open(AccountDemand $accountDemand): void;
 
     /**
      * 账户充值
@@ -69,20 +69,20 @@ interface AccountApi
 
     /**
      * 修改广告系列状态
-     * @param mixed $account
+     * @param mixed $accountDemand
      * @param mixed $status
      */
-    public function updateAdCampaignStatus($account, $status): void;
+    public function updateAdCampaignStatus(AccountDemand $accountDemand, $status): void;
 
     /**
      * 授权.
-     * @param mixed $account
+     * @param mixed $accountDemand
      */
-    public function addAssignedUser($account);
+    public function addAssignedUser(AccountDemand $accountDemand);
 
     /**
      * 解除授权（DELETE /act_{ad_account_id}/assigned_users）.
-     * @param mixed $account
+     * @param mixed $accountDemand
      */
-    public function removeAssignedUser($account);
+    public function removeAssignedUser(AccountDemand $accountDemand);
 }

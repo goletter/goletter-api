@@ -11,4 +11,6 @@ declare(strict_types=1);
  */
 return [
     Hyperf\Crontab\Process\CrontabDispatcherProcess::class,
+    // 分片 AMQP 消费（不依赖 #[Process] 扫描，避免 runtime 缓存漏扫导致不消费）
+    App\Process\AccountShardedConsumeProcess::class,
 ];

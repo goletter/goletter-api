@@ -16,14 +16,14 @@ class AccountDemandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'platform' => 'required',
+            // 'platform' => 'required',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'platform' => '平台',
+            // 'platform' => '平台',
         ];
     }
 }

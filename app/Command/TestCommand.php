@@ -20,6 +20,7 @@ use Goletter\Docs\DocsManager;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
+use function Goletter\Utils\logging;
 
 #[Command]
 class TestCommand extends HyperfCommand
@@ -61,5 +62,12 @@ class TestCommand extends HyperfCommand
 
             $this->line("{$index}========{$accountDemand->money}========={$nameLine}");
         }*/
+
+        $ok = AccountRechargeQueue::produce([
+            'tenant_id' => 1,
+            'busine_id' => 1,
+        ]);
+        $nameLine = $ok ? '已发送' : '发送失败';
+        dd($nameLine);
     }
 }
