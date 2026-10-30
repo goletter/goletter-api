@@ -15,7 +15,7 @@ namespace App\Command;
 use App\Amqp\Queue\AccountRechargeQueue;
 use App\Model\AccountDemand;
 use App\Model\DocsPlatformConfig;
-use Goletter\Adv\AdvFactory;
+use App\Service\Adv\AdvResolver;
 use Goletter\Docs\DocsManager;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
@@ -25,10 +25,10 @@ use Hyperf\Di\Annotation\Inject;
 class TestCommand extends HyperfCommand
 {
     #[Inject]
-    protected AdvFactory $advFactory;
+    protected DocsManager $docs;
 
     #[Inject]
-    protected DocsManager $docs;
+    private AdvResolver $advResolver;
 
     public function __construct()
     {
@@ -43,7 +43,7 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        $docsPlatformConfig = DocsPlatformConfig::query()->first();
+        /*$docsPlatformConfig = DocsPlatformConfig::query()->first();
         $accountDemands = AccountDemand::query()->where('status', 0)->get();
 
         foreach ($accountDemands as $index => $accountDemand) {
@@ -60,6 +60,6 @@ class TestCommand extends HyperfCommand
             $nameLine = $ok ? '已发送' : '发送失败';
 
             $this->line("{$index}========{$accountDemand->money}========={$nameLine}");
-        }
+        }*/
     }
 }

@@ -16,7 +16,6 @@
         "96qbhy/hyperf-auth": "^3.1",
         "duncan3dc/blade": "^4.17",
         "friendsofhyperf/cache": "^3.1",
-        "goletter/hyperf-adv": "^1.0",
         "goletter/hyperf-cache": "^1.0",
         "goletter/hyperf-docs": "^2.0",
         "goletter/hyperf-queue": "^1.0",
@@ -59,7 +58,9 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/"
+            "App\\": "app/",
+            "Goletter\\Adv\\": "packages/goletter/hyperf-adv/src/",
+            "Goletter\\Akm\\": "packages/goletter/hyperf-akm/src/"
         },
         "files": [
             "app/Helpers/Helper.php"
