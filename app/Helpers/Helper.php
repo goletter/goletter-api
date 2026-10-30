@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Hyperf\Amqp\Message\ProducerMessage;
 use Hyperf\Amqp\Producer;
 
+use Hyperf\Collection\Arr;
 use function Goletter\Utils\di;
 
 /**
@@ -37,6 +38,21 @@ function setOrderNo($class, $prefix = 'PO')
     $orderCount = $orderCount + 1;
 
     return $prefix . substr((string) now()->year, 2) . date('md') . mt_rand(10000, 99999) . str_pad((string) $orderCount, 5, '0', STR_PAD_LEFT);
+}
+
+/**
+ * 获取时区
+ * @param $iana
+ * @return mixed|null
+ * @throws DateInvalidTimeZoneException
+ */
+function getTimeZone($iana)
+{
+    $tz = new \DateTimeZone($iana);
+    $utc = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+    $offsetSeconds = $tz->getOffset($utc);
+    $offsetHours = $offsetSeconds / 3600; // 例如布宜诺斯艾利斯常为 -3
+    return Arr::get(\Hyperf\Config\config('wewallads.TIME_ZONE'), $offsetHours, '');
 }
 
 /**

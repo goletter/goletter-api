@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace App\Service\Adv;
 
+use App\Service\Adv\Akm\AkmService;
 use App\Service\Adv\Facebook\FacebookService;
 use App\Service\Adv\GoogleDoc\GoogleDocService;
+use App\Service\Adv\TikTok\TikTokService;
 use Hyperf\Collection\Arr;
 use InvalidArgumentException;
 
@@ -36,6 +38,8 @@ class AdvResolver
 
         return match ($platform) {
             'facebook', 'fb', '0' => new FacebookService((string) $token, $busineId, $platformId),
+            'tiktok', 'tt', '1' => new TikTokService((string) $token),
+            'akm', 'ak' => new AkmService((string) $token),
             'googledoc', 'google_doc', 'docs' => new GoogleDocService((string) $token),
             default => throw new InvalidArgumentException(sprintf('Unsupported adv platform: %s', $platform)),
         };
