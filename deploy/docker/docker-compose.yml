@@ -22,10 +22,11 @@ x-app: &app
     retries: 3
     start_period: 5s
 
+# 不写死 container_name，避免与旧项目（wewall-cluster 等）抢 /app_a、/app_b、/nginx
+# 网络内仍用服务名 app_a / app_b 访问（见 nginx.conf）
 services:
   app_a:
     <<: *app
-    container_name: app_a
     ports:
       - '8501:8501'
     volumes:
@@ -36,7 +37,6 @@ services:
 
   app_b:
     <<: *app
-    container_name: app_b
     ports:
       - '8502:8501'
     volumes:
@@ -47,7 +47,6 @@ services:
 
   nginx:
     image: nginx:latest
-    container_name: nginx
     volumes:
       - ../..:/var/www
       - ./nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
