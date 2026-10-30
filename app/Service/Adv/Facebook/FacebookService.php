@@ -30,9 +30,21 @@ class FacebookService
 
     protected FacebookAdApi $adApi;
 
-    public function __construct(string $token, int $busineId = 0, int $platformId = 0)
-    {
-        $client = new FacebookClient($token, (string) $busineId, $platformId);
+    protected int|string $busineId;
+
+    protected int|string $platformId;
+
+    public function __construct(
+        string $token,
+        int|string $busineId = 0,
+        int|string $platformId = 0,
+        string $apiVersion = 'v24.0',
+    ) {
+        // busineId/platformId 仅业务侧使用，不可传入 FacebookClient（第 2 参是 apiVersion）
+        $this->busineId = $busineId;
+        $this->platformId = $platformId;
+
+        $client = new FacebookClient($token, $apiVersion);
         $this->accountApi = new FacebookAccountApi($client);
         $this->reportApi = new FacebookReportApi($client);
         $this->businessApi = new FacebookBusinessApi($client);
