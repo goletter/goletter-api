@@ -27,8 +27,7 @@ class AccountRechargeConsumer extends ShardedConsumer
 {
     protected function handle(mixed $data, AMQPMessage $message): Result
     {
-        logging(['333'], 'xxx', 'eee');
-        /*$accountDemandId = Arr::get($data, 'account_demand_id');
+        $accountDemandId = Arr::get($data, 'account_demand_id');
         $accountDemand = AccountDemand::query()->where('id', $accountDemandId)->where('status', 0)->first();
 
         if (! $accountDemand) {
@@ -45,7 +44,7 @@ class AccountRechargeConsumer extends ShardedConsumer
             $accountDemand->update($data);
 
             return Result::DROP;
-        }*/
+        }
 
         return Result::ACK;
     }
