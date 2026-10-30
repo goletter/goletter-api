@@ -21,7 +21,7 @@ return [
         Goletter\Server\Middleware\IdempotencyMiddleware::class,
         Goletter\Server\Middleware\ModelBindingMiddleware::class,
         // 其它项目访问本子模块：向平台校验 Token / 应用凭证
-        App\Middleware\PlatformAuthMiddleware::class,
+        // App\Middleware\PlatformAuthMiddleware::class,
         // 本模块 Admin：/api/admin/*
         App\Middleware\AuthMiddleWare::class,
     ],

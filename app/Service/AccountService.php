@@ -13,15 +13,28 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Model\Account;
+use App\Service\Adv\AdvResolver;
 use Goletter\Server\BaseService;
 use Hyperf\Collection\Arr;
+use Hyperf\Di\Annotation\Inject;
 use Hyperf\Paginator\LengthAwarePaginator;
 
 class AccountService extends BaseService
 {
+    #[Inject]
+    private AdvResolver $advResolver;
+
     public function paginate(array $params): LengthAwarePaginator
     {
         return Account::query()->filter($params)->paginate((int) Arr::get($params, 'pageSize', 20));
+    }
+
+    public function detail(array $data)
+    {
+        $token = Arr::get($data, 'token');
+        $code = Arr::get($data, 'code');
+        $adv = $this->advResolver->resolveAdv(0, $token);
+        return $adv->account()->getAccount($code);
     }
 
     public function create(array $data)
