@@ -6,8 +6,6 @@ namespace App\Controller\Api\V1;
 
 use App\Controller\AbstractController;
 use App\Service\AccountService;
-use App\Service\Adv\AdvResolver;
-use Goletter\Resource\Resource;
 use Hyperf\Di\Annotation\Inject;
 
 class AccountController extends AbstractController
