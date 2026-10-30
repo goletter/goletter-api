@@ -20,6 +20,6 @@ class AccountCrontab
 {
     public function isEnable(): bool
     {
-        return true;
+        return false;
     }
 }
