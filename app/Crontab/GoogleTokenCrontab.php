@@ -14,7 +14,7 @@ use Hyperf\Crontab\Annotation\Crontab;
         '--disable-event-dispatcher' => true,
     ],
     memo: 'Google Token 刷新',
-    enable: true,   // 或仍写 enable: 'isEnable'
+    enable: true,
 )]
 class GoogleTokenCrontab
 {
