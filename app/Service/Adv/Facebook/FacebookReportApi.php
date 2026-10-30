@@ -68,7 +68,7 @@ class FacebookReportApi extends AdvException
                 $endAt,
                 $fields
             ) as $item) {
-                $items[] = [...$item, 'spend' => $item['spend'], 'dollar' => $item['spend'], 'start_at' => $item['date_start'], 'end_at' => $item['date_stop']];
+                $items[] = $item;
             }
             return $items;
         } catch (Exception $e) {
@@ -104,14 +104,12 @@ class FacebookReportApi extends AdvException
                 'action_values',
                 'cost_per_action_type',
             ];
-            $level = 'campaign';
 
             foreach ($this->facebookReport->iterateDailyReport(
                 $accountId,
                 $startAt,
                 $endAt,
                 $fields,
-                $level,
             ) as $item) {
                 $items[] = $item;
             }
