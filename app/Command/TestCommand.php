@@ -45,7 +45,7 @@ class TestCommand extends HyperfCommand
     public function handle()
     {
         $docsPlatformConfig = DocsPlatformConfig::query()->first();
-        $accountDemands = AccountDemand::query()->get();
+        $accountDemands = AccountDemand::query()->where('status', 0)->get();
 
         foreach ($accountDemands as $index => $accountDemand) {
             $data = [
