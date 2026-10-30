@@ -25,6 +25,9 @@ use function Goletter\Utils\logging;
 
 class AccountRechargeConsumer extends ShardedConsumer
 {
+    #[Inject]
+    private AdvResolver $advResolver;
+
     protected function handle(mixed $data, AMQPMessage $message): Result
     {
         $accountDemandId = Arr::get($data, 'account_demand_id');
