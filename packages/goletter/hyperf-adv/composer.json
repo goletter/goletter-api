@@ -1,0 +1,44 @@
+{
+    "name": "goletter/hyperf-adv",
+    "description": "多平台广告 API SDK（内置 Facebook / TikTok / Google）。",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "goletter",
+            "email": "goletter@outlook.com"
+        }
+    ],
+    "keywords": [
+        "php",
+        "hyperf",
+        "ads",
+        "facebook",
+        "tiktok",
+        "google-ads",
+        "hyperf-adv"
+    ],
+    "require": {
+        "php": ">=8.1",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "suggest": {
+        "hyperf/framework": "在 Hyperf 中使用 ConfigProvider / DI 时需要。",
+        "goletter/hyperf-utils": "提供 logging() 辅助函数时，可自动写入调用日志。"
+    },
+    "autoload": {
+        "psr-4": {
+            "Goletter\\Adv\\": "src/"
+        }
+    },
+    "extra": {
+        "hyperf": {
+            "config": "Goletter\\Adv\\ConfigProvider"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true
+    }
+}
