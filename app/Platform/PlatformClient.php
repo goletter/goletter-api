@@ -12,7 +12,7 @@ use Throwable;
 use function Goletter\Utils\cache;
 
 /**
- * 调用平台端内部鉴权接口。
+ * 调用平台端内部接口（鉴权、租户 Webhook 配置等）。
  */
 class PlatformClient
 {
@@ -38,7 +38,7 @@ class PlatformClient
         $body = array_merge($payload, ['module' => $module]);
 
         $ttl = (int) $this->config->get('platform.cache_ttl', 60);
-        $cacheKey = $this->cacheKey($body);
+        $cacheKey = $this->authCacheKey($body);
 
         if ($ttl > 0) {
             $cached = cache()->get($cacheKey);
@@ -47,7 +47,7 @@ class PlatformClient
             }
         }
 
-        $result = $this->requestVerify($body);
+        $result = $this->requestJson('POST', (string) $this->config->get('platform.verify_path', '/internal/auth/verify'), $body);
 
         if ($ttl > 0 && ($result['ok'] ?? false)) {
             cache()->set($cacheKey, $result, $ttl);
@@ -57,17 +57,37 @@ class PlatformClient
     }
 
     /**
-     * @param array<string, mixed> $body
-     * @return array{ok: bool, message?: string, tenant_id?: int|string, user_id?: int|string, permissions?: array}
+     * 按租户拉取出站 Webhook 配置（配置表在平台端）。
+     *
+     * 期望平台响应（可包在 data 内）：
+     * - found=false：该租户未配置
+     * - enable / url / secret / retry_delay_ms / events
+     *
+     * @return array{ok: bool, found?: bool, enable?: bool, url?: string, secret?: string, retry_delay_ms?: int, events?: array, message?: string}
      */
-    protected function requestVerify(array $body): array
+    public function getWebhookConfig(int|string $tenantId): array
+    {
+        $module = (string) $this->config->get('platform.module', 'goletter-api');
+        $path = (string) $this->config->get('platform.webhook_config_path', '/internal/webhook/config');
+
+        return $this->requestJson('GET', $path, [], [
+            'tenant_id' => (string) $tenantId,
+            'module' => $module,
+        ]);
+    }
+
+    /**
+     * @param array<string, mixed> $jsonBody
+     * @param array<string, scalar> $query
+     * @return array<string, mixed>
+     */
+    protected function requestJson(string $method, string $path, array $jsonBody = [], array $query = []): array
     {
         $baseUri = (string) $this->config->get('platform.base_uri', '');
         if ($baseUri === '') {
             return ['ok' => false, 'message' => 'PLATFORM_BASE_URI is not configured'];
         }
 
-        $path = (string) $this->config->get('platform.verify_path', '/internal/auth/verify');
         $appId = (string) $this->config->get('platform.app_id', '');
         $appSecret = (string) $this->config->get('platform.app_secret', '');
 
@@ -78,16 +98,23 @@ class PlatformClient
             'http_errors' => false,
         ]);
 
+        $options = [
+            'headers' => array_filter([
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'X-Module-App-Id' => $appId !== '' ? $appId : null,
+                'X-Module-App-Secret' => $appSecret !== '' ? $appSecret : null,
+            ]),
+        ];
+        if ($query !== []) {
+            $options['query'] = $query;
+        }
+        if ($jsonBody !== [] && strtoupper($method) !== 'GET') {
+            $options['json'] = $jsonBody;
+        }
+
         try {
-            $response = $client->post(ltrim($path, '/'), [
-                'headers' => array_filter([
-                    'Accept' => 'application/json',
-                    'Content-Type' => 'application/json',
-                    'X-Module-App-Id' => $appId !== '' ? $appId : null,
-                    'X-Module-App-Secret' => $appSecret !== '' ? $appSecret : null,
-                ]),
-                'json' => $body,
-            ]);
+            $response = $client->request(strtoupper($method), ltrim($path, '/'), $options);
         } catch (GuzzleException|Throwable $e) {
             return ['ok' => false, 'message' => 'Platform unreachable: ' . $e->getMessage()];
         }
@@ -104,10 +131,14 @@ class PlatformClient
             $data = array_merge($data, $data['data']);
         }
 
+        if ($status === 404) {
+            return array_merge(['ok' => true, 'found' => false], $data);
+        }
+
         if ($status >= 400) {
             return [
                 'ok' => false,
-                'message' => (string) ($data['message'] ?? $data['msg'] ?? 'Unauthorized'),
+                'message' => (string) ($data['message'] ?? $data['msg'] ?? 'Platform request failed'),
             ];
         }
 
@@ -115,18 +146,14 @@ class PlatformClient
             return $data;
         }
 
-        // 无 ok 字段时：2xx 且带 tenant_id 视为通过
-        if (isset($data['tenant_id'])) {
-            return array_merge(['ok' => true], $data);
-        }
-
-        return ['ok' => false, 'message' => (string) ($data['message'] ?? 'Verify failed')];
+        // 无 ok 字段时：2xx 视为成功
+        return array_merge(['ok' => true], $data);
     }
 
     /**
      * @param array<string, mixed> $body
      */
-    protected function cacheKey(array $body): string
+    protected function authCacheKey(array $body): string
     {
         $token = (string) ($body['token'] ?? '');
         $appId = (string) ($body['app_id'] ?? '');

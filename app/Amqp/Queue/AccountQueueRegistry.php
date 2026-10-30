@@ -30,6 +30,7 @@ final class AccountQueueRegistry
             'accountRecharge' => AccountRechargeQueue::class,
             'accountReset' => AccountResetQueue::class,
             'accountUnBind' => AccountUnBindQueue::class,
+            'notifyWebhook' => NotifyWebhookQueue::class,
         ];
     }
 

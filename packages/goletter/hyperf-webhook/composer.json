@@ -1,0 +1,42 @@
+{
+    "name": "goletter/hyperf-webhook",
+    "description": "Hyperf 出站/入站 Webhook：HMAC 签名与 HTTP 推送客户端。",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "goletter",
+            "email": "goletter@outlook.com"
+        }
+    ],
+    "keywords": [
+        "php",
+        "hyperf",
+        "webhook",
+        "hmac",
+        "goletter"
+    ],
+    "require": {
+        "php": ">=8.1",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "suggest": {
+        "hyperf/framework": "在 Hyperf 中使用 ConfigProvider / DI 时需要。",
+        "hyperf/guzzle": "推荐用 Hyperf\\Guzzle\\ClientFactory 创建协程安全的 HTTP 客户端。"
+    },
+    "autoload": {
+        "psr-4": {
+            "Goletter\\Webhook\\": "src/"
+        }
+    },
+    "extra": {
+        "hyperf": {
+            "config": "Goletter\\Webhook\\ConfigProvider"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true
+    }
+}

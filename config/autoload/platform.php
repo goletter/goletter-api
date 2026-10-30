@@ -23,6 +23,9 @@ return [
     // 平台校验接口路径
     'verify_path' => env('PLATFORM_VERIFY_PATH', '/internal/auth/verify'),
 
+    // 租户出站 Webhook 配置（表在平台；GET ?tenant_id=&module=）
+    'webhook_config_path' => env('PLATFORM_WEBHOOK_CONFIG_PATH', '/internal/webhook/config'),
+
     // 子模块调平台的服务凭证（平台校验调用方身份）
     'app_id' => env('PLATFORM_APP_ID', ''),
     'app_secret' => env('PLATFORM_APP_SECRET', ''),
