@@ -28,9 +28,7 @@ class AccountDemandController extends AbstractController
 
     public function store(AccountDemandRequest $request): Resource
     {
-        $this->service->create($request->all());
-
-        return $this->success();
+        return $this->success($this->service->create($request->all()), AccountDemandResource::class);
     }
 
     public function update(AccountDemand $accountDemand, AccountDemandRequest $request): Resource

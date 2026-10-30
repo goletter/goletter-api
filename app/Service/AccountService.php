@@ -31,9 +31,10 @@ class AccountService extends BaseService
 
     public function detail(array $data)
     {
+        $platform = Arr::get($data, 'platform', 0);
         $token = Arr::get($data, 'token');
         $code = Arr::get($data, 'code');
-        $adv = $this->advResolver->resolveAdv(0, $token);
+        $adv = $this->advResolver->resolveAdv($platform, $token);
         return $adv->account()->getAccount($code);
     }
 

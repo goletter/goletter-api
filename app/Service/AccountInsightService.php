@@ -25,6 +25,7 @@ class AccountInsightService extends BaseService
 
     public function paginate(array $params)
     {
+        $platform = Arr::get($params, 'platform', 0);
         $token = Arr::get($params, 'token');
         $code = Arr::get($params, 'code');
         $startAt = Arr::get($params, 'start_at');
@@ -33,7 +34,7 @@ class AccountInsightService extends BaseService
         $startAt = Carbon::now()->subDays(7)->toDateString();
         $endAt = Carbon::now()->toDateString();
 
-        $adv = $this->advResolver->resolveAdv(0, $token);
+        $adv = $this->advResolver->resolveAdv($platform, $token);
         return $adv->report()->iterateDailyReport([
             'code' => $code,
             'start_at' => $startAt,

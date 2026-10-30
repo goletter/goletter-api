@@ -28,7 +28,7 @@ class AccountDemandService extends BaseService
 
     public function create(array $data)
     {
-        $data['tenant_id'] = uniqid();
+        $data['tenant_id'] = 654123;
         $data['order_no'] = setOrderNo(AccountDemand::class);
 
         $accountDemand = $this->save(new AccountDemand(), $data);
@@ -41,7 +41,7 @@ class AccountDemandService extends BaseService
             'access_token' => $docsPlatformConfig->token,
         ]);
 
-        return $accountDemand;
+        return ['order_no' => $accountDemand->order_no];
     }
 
     public function update(AccountDemand $accountDemand, array $data)

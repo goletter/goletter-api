@@ -50,7 +50,7 @@ class TestCommand extends HyperfCommand
         foreach ($accountDemands as $index => $accountDemand) {
             $data = [
                 'account_demand_id' => $accountDemand->id,
-                'tenant_id' => 1,
+                'tenant_id' => $accountDemand->tenant_id,
                 'busine_id' => $accountDemand->busine_code,
                 'access_token' => $docsPlatformConfig->token,
             ];
