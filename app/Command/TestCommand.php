@@ -44,16 +44,14 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        /*$docsPlatformConfig = DocsPlatformConfig::query()->first();
-        $accountDemands = AccountDemand::query()->where('status', 0)->get();
+        $docsPlatformConfig = DocsPlatformConfig::query()->first();
+        $accountDemands = AccountDemand::query()->get();
 
         foreach ($accountDemands as $index => $accountDemand) {
             $data = [
-                'name' => $accountDemand->name,
-                'money' => $accountDemand->money,
+                'account_demand_id' => $accountDemand->id,
                 'tenant_id' => $accountDemand->tenant_id,
-                'busine_id' => $accountDemand->tenant_id,
-                'sheet_url' => $docsPlatformConfig->recharge_url,
+                'busine_id' => $accountDemand->busine_code,
                 'access_token' => $docsPlatformConfig->token,
             ];
 
@@ -61,13 +59,6 @@ class TestCommand extends HyperfCommand
             $nameLine = $ok ? '已发送' : '发送失败';
 
             $this->line("{$index}========{$accountDemand->money}========={$nameLine}");
-        }*/
-
-        $ok = AccountRechargeQueue::produce([
-            'tenant_id' => 1,
-            'busine_id' => 1,
-        ]);
-        $nameLine = $ok ? '已发送' : '发送失败';
-        dd($nameLine);
+        }
     }
 }
