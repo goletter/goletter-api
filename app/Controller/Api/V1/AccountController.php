@@ -22,7 +22,6 @@ class AccountController extends AbstractController
 
     public function detail()
     {
-        // $this->service->detail($this->request->all())
-        return $this->success($this->request->all());
+        return $this->success($this->service->detail($this->request->all()));
     }
 }
