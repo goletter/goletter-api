@@ -44,7 +44,6 @@ class FacebookAccountApi extends AdvException
 
         try {
             $item = $this->facebookAccount->getAccount($accountId);
-            return $item;
             $amountSpent = Arr::get($item, 'amount_spent', 0);
             $spendCap = Arr::get($item, 'spend_cap', 0);
             $timezone = Arr::get($item, 'timezone_offset_hours_utc', '');
