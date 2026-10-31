@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace App\Service\Webhook;
 
 use App\Amqp\Queue\NotifyWebhookQueue;
-use App\Model\AccountDemand;
+use App\Model\Model;
 use App\Service\TenantWebhookConfigService;
 use Hyperf\Contract\ConfigInterface;
+use Hyperf\Stringable\Str;
 use Throwable;
 
 use function Goletter\Utils\logging;
@@ -31,31 +32,28 @@ class WebhookNotifier
     }
 
     /**
-     * 推送账户需求单结果（成功 / 失败）。
+     * 推送业务模型结果（成功 / 失败等）。
+     *
+     * payload 取模型 toArray()；若有 busine_code 则补 busine_id；
+     * 并附带 {singular_table}_id 主键别名（如 account_demand_id）。
      */
-    public function notifyAccountDemand(AccountDemand $demand, string $event): bool
+    public function notify(Model $model, string $event): bool
     {
-        $extend = $this->normalizeExtend($demand->extend ?? null);
+        $extend = $this->normalizeExtend($model->getAttribute('extend'));
         $url = $this->firstNonEmptyString([
             $extend['callback_url'] ?? null,
             $extend['webhook_url'] ?? null,
         ]);
 
-        return $this->dispatch($event, [
-            'account_demand_id' => $demand->id,
-            'tenant_id' => $demand->tenant_id,
-            'busine_id' => $demand->busine_code,
-            'platform' => $demand->platform,
-            'order_no' => $demand->order_no,
-            'type' => $demand->type,
-            'code' => $demand->code,
-            'name' => $demand->name,
-            'money' => $demand->money,
-            'currency' => $demand->currency,
-            'status' => $demand->status,
-            'transaction_id' => $demand->transaction_id,
-            'remark' => $demand->remark,
-        ], $url);
+        $payload = $model->toArray();
+        unset($payload['extend']);
+
+        $payload[Str::singular($model->getTable()) . '_id'] = $model->getKey();
+        if (! isset($payload['busine_id']) && isset($payload['busine_code'])) {
+            $payload['busine_id'] = $payload['busine_code'];
+        }
+
+        return $this->dispatch($event, $payload, $url);
     }
 
     /**

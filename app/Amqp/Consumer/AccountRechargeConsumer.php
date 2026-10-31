@@ -65,7 +65,7 @@ class AccountRechargeConsumer extends ShardedConsumer
     protected function safeNotify(AccountDemand $accountDemand, string $event): void
     {
         try {
-            $this->webhookNotifier->notifyAccountDemand($accountDemand, $event);
+            $this->webhookNotifier->notify($accountDemand, $event);
         } catch (Throwable $e) {
             logging([
                 'event' => 'webhook_notify_error',
