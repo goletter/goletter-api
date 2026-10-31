@@ -15,7 +15,8 @@ class AccountController extends AbstractController
 
     public function index()
     {
-        return $this->success();
+        $data = ['status' => 123456];
+        return $this->success($data);
     }
 
     public function detail()
