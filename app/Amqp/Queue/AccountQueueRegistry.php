@@ -25,6 +25,7 @@ final class AccountQueueRegistry
     public static function all(): array
     {
         return [
+            'accountInsight' => AccountInsightQueue::class,
             'accountBind' => AccountBindQueue::class,
             'accountDeduction' => AccountDeductionQueue::class,
             'accountRecharge' => AccountRechargeQueue::class,
