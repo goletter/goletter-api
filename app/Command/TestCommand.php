@@ -31,7 +31,7 @@ class TestCommand extends HyperfCommand
     public function configure(): void
     {
         parent::configure();
-        $this->setDescription('测试账户充值分片队列 / 死信');
+        $this->setDescription('测试');
     }
 
     public function handle()

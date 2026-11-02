@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eb0d574c2bb0ab666a310f25b2a96c3f",
+    "content-hash": "4487bc14b4bb0fefa54e3a8c8ea51eed",
     "packages": [
         {
             "name": "96qbhy/hyperf-auth",
@@ -1052,6 +1052,64 @@
                 }
             ],
             "time": "2026-06-07T13:37:26+00:00"
+        },
+        {
+            "name": "goletter/hyperf-amqp",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "packages/goletter/hyperf-amqp",
+                "reference": "4fcf87e1a5e21e3f44b1709a3f1934f320ca85a0"
+            },
+            "require": {
+                "hyperf/amqp": "~3.1.0",
+                "hyperf/command": "~3.1.0",
+                "hyperf/context": "~3.1.0",
+                "hyperf/contract": "~3.1.0",
+                "hyperf/coroutine": "~3.1.0",
+                "hyperf/process": "~3.1.0",
+                "php": ">=8.1",
+                "psr/container": "^1.0 || ^2.0"
+            },
+            "suggest": {
+                "goletter/hyperf-utils": "提供 logging() 时 AmqpLogger 会优先使用。",
+                "hyperf/framework": "在 Hyperf 中使用 ConfigProvider / DI 时需要。",
+                "hyperf/logger": "无 logging() 时回落到 LoggerFactory。"
+            },
+            "type": "library",
+            "extra": {
+                "hyperf": {
+                    "config": "Goletter\\Amqp\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Goletter\\Amqp\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "goletter",
+                    "email": "goletter@outlook.com"
+                }
+            ],
+            "description": "Hyperf 分片 AMQP：串行键分片、重试、死信与运维命令。",
+            "keywords": [
+                "amqp",
+                "dlq",
+                "goletter",
+                "hyperf",
+                "php",
+                "rabbitmq",
+                "sharded"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "goletter/hyperf-cache",
@@ -13562,7 +13620,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": {},
+    "stability-flags": {
+        "goletter/hyperf-amqp": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
