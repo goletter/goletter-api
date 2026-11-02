@@ -25,6 +25,6 @@ final class AccountInsightQueue extends TenantBusinessShardedQueue
 
     public static function shards(): int
     {
-        return 32;
+        return 48;
     }
 }
