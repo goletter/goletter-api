@@ -2,6 +2,7 @@
     "name": "goletter/hyperf-amqp",
     "description": "Hyperf 分片 AMQP：串行键分片、重试、死信与运维命令。",
     "type": "library",
+    "version": "1.0.0",
     "license": "MIT",
     "authors": [
         {

@@ -61,8 +61,9 @@ RUN set -ex \
 
 WORKDIR /opt/www
 
-# 先复制 composer 文件，利用 Docker 层缓存
+# 先复制 composer 文件与本地 path 包，利用 Docker 层缓存
 COPY ./composer.json ./composer.lock /opt/www/
+COPY ./packages /opt/www/packages
 
 # 校验 lock 是否同步，然后按 lock 安装生产依赖
 RUN composer validate --no-check-publish --strict \
@@ -75,7 +76,7 @@ RUN composer validate --no-check-publish --strict \
         --no-autoloader \
         --ignore-platform-reqs
 
-# 复制业务源码
+# 复制业务源码（含 app/config/bin；packages 已在上层复制）
 COPY . /opt/www
 
 # 生成优化 autoload

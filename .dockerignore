@@ -3,3 +3,6 @@
 !bin/
 !config/
 !composer.*
+!packages/
+!packages/goletter/
+!packages/goletter/**
