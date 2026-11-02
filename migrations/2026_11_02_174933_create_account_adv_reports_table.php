@@ -35,7 +35,7 @@ return new class extends Migration
             $table->date('end_at')->nullable()->comment('结束日期');
             $table->datetimes();
 
-            $table->unique(['code', 'campaign_id', 'start_at']);
+            $table->unique(['tenant_id', 'code', 'campaign_id', 'start_at']);
         });
     }
 

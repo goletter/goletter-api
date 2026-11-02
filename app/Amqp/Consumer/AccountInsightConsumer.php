@@ -109,7 +109,7 @@ class AccountInsightConsumer extends ShardedConsumer
             AccountInsight::batchUpdateOrCreate(
                 'account_insights',
                 $newAccountInsights,
-                ['code', 'start_at', 'end_at'], // 唯一键
+                ['tenant_id', 'code', 'start_at', 'end_at'], // 唯一键
                 ['spend', 'updated_at']  // 重复更新字段
             );
         }
@@ -118,7 +118,7 @@ class AccountInsightConsumer extends ShardedConsumer
             AccountAdvReport::batchUpdateOrCreate(
                 'account_adv_reports',
                 $newReports,
-                ['code', 'campaign_id', 'start_at'], // 唯一键
+                ['tenant_id', 'code', 'campaign_id', 'start_at'], // 唯一键
                 ['spend', 'dollar', 'reach', 'impressions', 'frequency', 'clicks', 'cpc', 'purchase', 'cost_per_purchase', 'roas', 'cost_per_reg', 'updated_at']  // 重复更新字段
             );
         }
