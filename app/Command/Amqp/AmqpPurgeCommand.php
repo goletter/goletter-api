@@ -92,17 +92,21 @@ class AmqpPurgeCommand extends HyperfCommand
                     }
 
                     if ($alsoDlq) {
-                        $dlq = $queueClass::dlq();
-                        try {
-                            $queueClass::declareDeadLetter();
-                            $purged = (int) $channel->queue_purge($dlq);
-                            $aliasPurged += $purged;
-                            $this->line(sprintf('  %s purged=%d', $dlq, $purged));
-                        } catch (Throwable $e) {
-                            if (! str_contains($e->getMessage(), 'NOT_FOUND') && ! str_contains($e->getMessage(), '404')) {
-                                throw $e;
+                        if (! $queueClass::useDeadLetter()) {
+                            $this->line('  skip dlq（useDeadLetter=false）');
+                        } else {
+                            $dlq = $queueClass::dlq();
+                            try {
+                                $queueClass::declareDeadLetter();
+                                $purged = (int) $channel->queue_purge($dlq);
+                                $aliasPurged += $purged;
+                                $this->line(sprintf('  %s purged=%d', $dlq, $purged));
+                            } catch (Throwable $e) {
+                                if (! str_contains($e->getMessage(), 'NOT_FOUND') && ! str_contains($e->getMessage(), '404')) {
+                                    throw $e;
+                                }
+                                $this->line(sprintf('  skip %s（不存在）', $dlq));
                             }
-                            $this->line(sprintf('  skip %s（不存在）', $dlq));
                         }
                     }
                 } finally {

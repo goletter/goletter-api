@@ -41,4 +41,9 @@ final class AccountInsightQueue extends TenantBusinessShardedQueue
     {
         return 128;
     }
+
+    public static function useDeadLetter(): bool
+    {
+        return false;
+    }
 }

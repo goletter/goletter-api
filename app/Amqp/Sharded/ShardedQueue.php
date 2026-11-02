@@ -51,11 +51,21 @@ abstract class ShardedQueue
     }
 
     /**
-     * 失败自动重试的最大执行次数（含首次）。超过后 DROP（进死信）。
+     * 失败自动重试的最大执行次数（含首次）。超过后 DROP。
+     * 若 useDeadLetter() 为 true 则进死信，否则直接丢弃。
      */
     public static function maxAttempts(): int
     {
         return 3;
+    }
+
+    /**
+     * 是否挂死信交换机/队列。
+     * false 时 DROP / reject(requeue=false) 直接丢弃，不声明 DLX/DLQ。
+     */
+    public static function useDeadLetter(): bool
+    {
+        return true;
     }
 
     /**
@@ -101,9 +111,14 @@ abstract class ShardedQueue
     /**
      * 声明死信交换机 + 死信队列。
      * 业务分片 reject/DROP 且不 requeue 时会进入这里。
+     * useDeadLetter() 为 false 时为 no-op。
      */
     public static function declareDeadLetter(string $pool = 'default'): void
     {
+        if (! static::useDeadLetter()) {
+            return;
+        }
+
         $factory = di()->get(ConnectionFactory::class);
         $connection = $factory->getConnection($pool);
         $channel = $connection->getChannel();
@@ -162,7 +177,7 @@ abstract class ShardedQueue
     /**
      * 发送前声明并绑定分片队列。否则交换机上没有匹配队列时，消息会被直接丢弃。
      *
-     * 注意：给已有队列追加 DLX 等于改定义，需先删旧队列再建，否则 PRECONDITION_FAILED。
+     * 注意：给已有队列追加/去掉 DLX 等于改定义，需先删旧队列再建，否则 PRECONDITION_FAILED。
      */
     public static function declareShard(int $shard): void
     {
@@ -171,7 +186,9 @@ abstract class ShardedQueue
             throw new InvalidArgumentException($consumerClass . ' 必须继承 ' . ShardedConsumer::class);
         }
 
-        static::declareDeadLetter();
+        if (static::useDeadLetter()) {
+            static::declareDeadLetter();
+        }
 
         /** @var ShardedConsumer $message */
         $message = new $consumerClass($shard);

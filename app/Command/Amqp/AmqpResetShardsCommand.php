@@ -76,14 +76,19 @@ class AmqpResetShardsCommand extends HyperfCommand
                         $channel = $this->deleteQueue($connection, $channel, $queue);
                     }
 
-                    if ($purgeDlq) {
+                    if ($purgeDlq && $queueClass::useDeadLetter()) {
                         $channel = $this->deleteQueue($connection, $channel, $queueClass::dlq());
                     }
 
                     $connection->releaseChannel($channel);
-                    $queueClass::declareDeadLetter();
-                    $channel = $connection->getChannel();
-                    $this->line('  declared ' . $queueClass::dlxExchange() . ' + ' . $queueClass::dlq());
+                    if ($queueClass::useDeadLetter()) {
+                        $queueClass::declareDeadLetter();
+                        $channel = $connection->getChannel();
+                        $this->line('  declared ' . $queueClass::dlxExchange() . ' + ' . $queueClass::dlq());
+                    } else {
+                        $channel = $connection->getChannel();
+                        $this->line('  skip DLX/DLQ（useDeadLetter=false）');
+                    }
                 } finally {
                     try {
                         $connection->releaseChannel($channel);
@@ -96,7 +101,7 @@ class AmqpResetShardsCommand extends HyperfCommand
             }
         }
 
-        $this->info('完成。请重启服务，分片队列会按带 DLX 的新定义自动创建。');
+        $this->info('完成。请重启服务，分片队列会按新定义（含是否挂 DLX）自动创建。');
     }
 
     private function deleteQueue(mixed $connection, AMQPChannel $channel, string $queue): AMQPChannel

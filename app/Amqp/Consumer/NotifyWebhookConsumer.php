@@ -92,16 +92,18 @@ class NotifyWebhookConsumer extends ShardedConsumer
         ], 'Webhook 分片队列重试', 'webhook');
 
         if ($attempts >= $maxAttempts) {
+            $useDeadLetter = $queueClass::useDeadLetter();
             logging([
                 'event' => 'retry_exhausted',
                 'exchange' => $queueClass::exchange(),
-                'dlq' => $queueClass::dlq(),
+                'use_dead_letter' => $useDeadLetter,
+                'dlq' => $useDeadLetter ? $queueClass::dlq() : null,
                 'shard' => $this->getShard(),
                 'key' => $queueClass::serialKey($payload),
                 'attempts' => $attempts,
                 'exception' => $e::class,
                 'error' => $e->getMessage(),
-            ], 'Webhook 重试耗尽，将进入死信', 'webhook');
+            ], $useDeadLetter ? 'Webhook 重试耗尽，将进入死信' : 'Webhook 重试耗尽，直接丢弃', 'webhook');
 
             return Result::DROP;
         }

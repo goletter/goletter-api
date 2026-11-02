@@ -40,8 +40,10 @@ abstract class ShardedConsumeProcess extends AbstractProcess
                 throw new InvalidArgumentException($consumerClass . ' 必须继承 ' . ShardedConsumer::class);
             }
 
-            // 先建 DLX/DLQ，再拉起分片消费（声明业务队列时会挂上死信参数）
-            $queueClass::declareDeadLetter();
+            // 启用死信时先建 DLX/DLQ，再拉起分片消费（声明业务队列时会挂上死信参数）
+            if ($queueClass::useDeadLetter()) {
+                $queueClass::declareDeadLetter();
+            }
 
             for ($shard = 0; $shard < $queueClass::shards(); ++$shard) {
                 Coroutine::create(function () use ($consumer, $consumerClass, $shard) {

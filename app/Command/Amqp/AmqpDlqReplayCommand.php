@@ -55,6 +55,11 @@ class AmqpDlqReplayCommand extends HyperfCommand
         /** @var class-string<ShardedQueue> $queueClass */
         $queueClass = $queues[$name];
 
+        if (! $queueClass::useDeadLetter()) {
+            $this->error(sprintf('业务 %s 未启用死信（useDeadLetter=false），无法重投。', $name));
+            return;
+        }
+
         $producerClass = $queueClass::producerClass();
         if (! is_a($producerClass, ShardedProducer::class, true)) {
             $this->error(sprintf(

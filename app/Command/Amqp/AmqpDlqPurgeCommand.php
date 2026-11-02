@@ -63,6 +63,11 @@ class AmqpDlqPurgeCommand extends HyperfCommand
         $failed = 0;
 
         foreach ($queues as $alias => $queueClass) {
+            if (! $queueClass::useDeadLetter()) {
+                $this->line(sprintf('[%s] skip（useDeadLetter=false）', $alias));
+                continue;
+            }
+
             $dlq = $queueClass::dlq();
             try {
                 $queueClass::declareDeadLetter();
