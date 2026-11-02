@@ -75,6 +75,10 @@ else
     log '[1/5] 跳过构建（代码 volume 挂载）'
 fi
 
+# 镜像已在 [1/5] 单独 build（或本步不构建）。关闭 Compose Bake，
+# 避免 up 时再跑空构建并刷 WARN "No services to build"。
+export COMPOSE_BAKE=false
+
 log '[2/5] 重启备份节点 app_b...'
 "${DC[@]}" up -d "${UP_ARGS[@]}" app_b
 wait_for_healthy app_b
