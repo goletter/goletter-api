@@ -56,14 +56,14 @@ abstract class ShardedConsumeProcess extends AbstractProcess
                             return;
                         }
 
-                        sleep(1);
+                        Coroutine::sleep(1);
                     }
                 });
             }
         }
 
         while (ProcessManager::isRunning()) {
-            sleep(1);
+            Coroutine::sleep(1);
         }
     }
 
