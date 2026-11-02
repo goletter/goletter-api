@@ -47,13 +47,25 @@ class AccountInsightService extends BaseService
     {
         $token = Arr::get($data, 'token');
         $code = Arr::get($data, 'code');
-        $busineCode = Arr::get($data, 'busine_code');
+        $tenantId = Arr::get($data, 'tenant_id', 1);
+        $platform = Arr::get($data, 'platform', 0);
+        $startAt = Arr::get($data, 'start_at');
+        $endAt = Arr::get($data, 'end_at');
 
-        AccountInsightQueue::produce([
-            'tenant_id' => 1,
-            'busine_id' => $busineCode,
+        $payload = [
+            'tenant_id' => $tenantId,
             'code' => $code,
             'access_token' => $token,
-        ]);
+            'platform' => $platform,
+        ];
+        if ($startAt) {
+            $payload['start_at'] = $startAt;
+        }
+        if ($endAt) {
+            $payload['end_at'] = $endAt;
+        }
+
+        // serialKey = tenant_id + code，不同账户进不同分片并行
+        AccountInsightQueue::produce($payload);
     }
 }

@@ -32,11 +32,13 @@ class AccountInsightConsumer extends ShardedConsumer
         $tenantId = Arr::get($data, 'tenant_id');
         $token = Arr::get($data, 'access_token');
         $code = Arr::get($data, 'code');
+        $platform = Arr::get($data, 'platform', 0);
 
-        $startAt = Carbon::now()->subDays(7)->toDateString();
-        $endAt = Carbon::now()->toDateString();
+        // 可由生产方传入；默认近 3 天，减轻 Graph 耗时
+        $startAt = Arr::get($data, 'start_at') ?: Carbon::now()->subDays(3)->toDateString();
+        $endAt = Arr::get($data, 'end_at') ?: Carbon::now()->toDateString();
 
-        $adv = $this->advResolver->resolveAdv(0, $token);
+        $adv = $this->advResolver->resolveAdv($platform, $token);
         $accountInsights = $adv->report()->iterateDailyReport([
             'code' => $code,
             'start_at' => $startAt,

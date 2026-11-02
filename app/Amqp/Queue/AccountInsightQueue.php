@@ -8,7 +8,10 @@ use App\Amqp\Consumer\AccountInsightConsumer;
 use App\Amqp\Producer\AccountInsightProducer;
 use App\Amqp\Sharded\TenantBusinessShardedQueue;
 
-/** accountInsight：同一 tenant_id + busine_id 串行，不同组合可并行。 */
+/**
+ * accountInsight：同一 tenant_id + code（广告账户）串行，不同账户可并行。
+ * 勿用 tenant+busine：同一 BM 下多账户会挤进同一分片，吞吐被锁死。
+ */
 final class AccountInsightQueue extends TenantBusinessShardedQueue
 {
     public const EXCHANGE = 'accountInsight';
@@ -21,6 +24,11 @@ final class AccountInsightQueue extends TenantBusinessShardedQueue
     public static function producerClass(): string
     {
         return AccountInsightProducer::class;
+    }
+
+    public static function serialFields(): array
+    {
+        return ['tenant_id', 'code'];
     }
 
     public static function shards(): int
