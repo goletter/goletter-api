@@ -26,11 +26,6 @@ final class AccountInsightQueue extends TenantBusinessShardedQueue
         return AccountInsightProducer::class;
     }
 
-    public static function serialFields(): array
-    {
-        return ['tenant_id', 'code'];
-    }
-
     public static function shards(): int
     {
         return 48;

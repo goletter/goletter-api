@@ -47,6 +47,7 @@ class AccountInsightService extends BaseService
     {
         $token = Arr::get($data, 'token');
         $code = Arr::get($data, 'code');
+        $busineCode = Arr::get($data, 'busine_code');
         $tenantId = Arr::get($data, 'tenant_id', 1);
         $platform = Arr::get($data, 'platform', 0);
         $startAt = Arr::get($data, 'start_at');
@@ -55,6 +56,7 @@ class AccountInsightService extends BaseService
         $payload = [
             'tenant_id' => $tenantId,
             'code' => $code,
+            'busine_id' => $busineCode,
             'access_token' => $token,
             'platform' => $platform,
         ];
@@ -64,8 +66,6 @@ class AccountInsightService extends BaseService
         if ($endAt) {
             $payload['end_at'] = $endAt;
         }
-
-        // serialKey = tenant_id + code，不同账户进不同分片并行
         AccountInsightQueue::produce($payload);
     }
 }

@@ -34,8 +34,8 @@ class AccountInsightConsumer extends ShardedConsumer
         $code = Arr::get($data, 'code');
         $platform = Arr::get($data, 'platform', 0);
 
-        // 可由生产方传入；默认近 3 天，减轻 Graph 耗时
-        $startAt = Arr::get($data, 'start_at') ?: Carbon::now()->subDays(3)->toDateString();
+        // 可由生产方传入；默认近 7 天，减轻 Graph 耗时
+        $startAt = Arr::get($data, 'start_at') ?: Carbon::now()->subDays(7)->toDateString();
         $endAt = Arr::get($data, 'end_at') ?: Carbon::now()->toDateString();
 
         $adv = $this->advResolver->resolveAdv($platform, $token);
