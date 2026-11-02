@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Amqp\Queue\AccountInsightQueue;
 use App\Service\Adv\AdvResolver;
 use Carbon\Carbon;
 use Goletter\Server\BaseService;
@@ -39,6 +40,19 @@ class AccountInsightService extends BaseService
             'code' => $code,
             'start_at' => $startAt,
             'end_at' => $endAt,
+        ]);
+    }
+
+    public function create(array $data)
+    {
+        $token = Arr::get($data, 'token');
+        $code = Arr::get($data, 'code');
+
+        AccountInsightQueue::produce([
+            'tenant_id' => 1,
+            'busine_id' => 1,
+            'code' => $code,
+            'access_token' => $token,
         ]);
     }
 }
