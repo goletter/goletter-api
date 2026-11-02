@@ -52,7 +52,7 @@ class AccountInsightConsumer extends ShardedConsumer
         foreach ($accountInsights as $item) {
             $newAccountInsights[] = [
                 'tenant_id' => $tenantId,
-                'code' => $code,
+                'code' => Arr::get($item, 'account_id'),
                 'spend' => Arr::get($item, 'spend', 0),
                 'start_at' => Arr::get($item, 'date_start'),
                 'end_at' => Arr::get($item, 'date_stop'),
@@ -83,7 +83,7 @@ class AccountInsightConsumer extends ShardedConsumer
 
             $newReports[] = [
                 'tenant_id' => $tenantId,
-                'code' => $code,
+                'code' => Arr::get($item, 'account_id'),
                 'spend' => (string) ($item['spend'] ?? '0'),
                 'dollar' => (string) ($item['spend'] ?? '0'),
                 'campaign_name' => $item['campaign_name'] ?? null,
