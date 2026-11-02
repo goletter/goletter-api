@@ -62,6 +62,7 @@
             "App\\": "app/",
             "Goletter\\Adv\\": "packages/goletter/hyperf-adv/src/",
             "Goletter\\Akm\\": "packages/goletter/hyperf-akm/src/",
+            "Goletter\\Amqp\\": "packages/goletter/hyperf-amqp/src/",
             "Goletter\\Webhook\\": "packages/goletter/hyperf-webhook/src/"
         },
         "files": [
@@ -78,7 +79,7 @@
             "type": "path",
             "url": "packages/goletter/hyperf-amqp",
             "options": {
-                "symlink": true
+                "symlink": false
             }
         }
     ],

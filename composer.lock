@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "661a268ef7ed9c014e43278fd17621ac",
+    "content-hash": "0d15cd3dcb796a566dff1a69bbf3373e",
     "packages": [
         {
             "name": "96qbhy/hyperf-auth",
@@ -1059,7 +1059,7 @@
             "dist": {
                 "type": "path",
                 "url": "packages/goletter/hyperf-amqp",
-                "reference": "be4732606f856116fd17ca0e91ae3e27d51a4ae3"
+                "reference": "dedc9d32f7816e710c05ed3923490986791788b2"
             },
             "require": {
                 "hyperf/amqp": "~3.1.0",
@@ -1107,7 +1107,7 @@
                 "sharded"
             ],
             "transport-options": {
-                "symlink": true,
+                "symlink": false,
                 "relative": true
             }
         },
