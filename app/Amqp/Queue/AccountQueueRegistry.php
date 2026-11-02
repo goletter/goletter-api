@@ -1,28 +1,21 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of Hyperf.
- *
- * @link     https://www.hyperf.io
- * @document https://hyperf.wiki
- * @contact  group@hyperf.io
- * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
- */
 
 namespace App\Amqp\Queue;
 
-use App\Amqp\Sharded\ShardedQueue;
+use Goletter\Amqp\Contract\QueueRegistryInterface;
+use Goletter\Amqp\Sharded\ShardedQueue;
 
 /**
  * 账户分片队列注册表：消费进程与运维命令共用。
  */
-final class AccountQueueRegistry
+final class AccountQueueRegistry implements QueueRegistryInterface
 {
     /**
      * @return array<string, class-string<ShardedQueue>>
      */
-    public static function all(): array
+    public function all(): array
     {
         return [
             'accountInsight' => AccountInsightQueue::class,
@@ -38,16 +31,16 @@ final class AccountQueueRegistry
     /**
      * @return list<class-string<ShardedQueue>>
      */
-    public static function classes(): array
+    public function classes(): array
     {
-        return array_values(self::all());
+        return array_values($this->all());
     }
 
     /**
      * @return null|class-string<ShardedQueue>
      */
-    public static function get(string $name): ?string
+    public function get(string $name): ?string
     {
-        return self::all()[$name] ?? null;
+        return $this->all()[$name] ?? null;
     }
 }

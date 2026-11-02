@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Amqp\Sharded;
+namespace Goletter\Amqp\Sharded;
 
 use Hyperf\Amqp\ConnectionFactory;
 use Hyperf\Amqp\Consumer;
+use Hyperf\Amqp\Producer;
+use Hyperf\Context\ApplicationContext;
 use InvalidArgumentException;
 use PhpAmqpLib\Wire\AMQPTable;
-
-use function Goletter\Utils\di;
 
 /**
  * 按业务串行键分片：同一 key 进同一队列串行，不同 key 可并行。
@@ -119,7 +119,7 @@ abstract class ShardedQueue
             return;
         }
 
-        $factory = di()->get(ConnectionFactory::class);
+        $factory = ApplicationContext::getContainer()->get(ConnectionFactory::class);
         $connection = $factory->getConnection($pool);
         $channel = $connection->getChannel();
         try {
@@ -171,7 +171,7 @@ abstract class ShardedQueue
             $data['produced_at'] = (int) round(microtime(true) * 1000);
         }
 
-        return produce(new $producerClass($data));
+        return ApplicationContext::getContainer()->get(Producer::class)->produce(new $producerClass($data));
     }
 
     /**
@@ -192,11 +192,12 @@ abstract class ShardedQueue
 
         /** @var ShardedConsumer $message */
         $message = new $consumerClass($shard);
-        $factory = di()->get(ConnectionFactory::class);
+        $container = ApplicationContext::getContainer();
+        $factory = $container->get(ConnectionFactory::class);
         $connection = $factory->getConnection($message->getPoolName());
         $channel = $connection->getChannel();
         try {
-            di()->get(Consumer::class)->declare($message, $channel);
+            $container->get(Consumer::class)->declare($message, $channel);
         } finally {
             $connection->releaseChannel($channel);
         }

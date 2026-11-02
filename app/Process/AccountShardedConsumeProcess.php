@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Process;
 
-use App\Amqp\Queue\AccountQueueRegistry;
-use App\Amqp\Sharded\ShardedConsumeProcess;
+use Goletter\Amqp\Contract\QueueRegistryInterface;
+use Goletter\Amqp\Sharded\ShardedConsumeProcess;
 
 /**
  * 账户相关分片队列统一消费进程。
@@ -21,6 +21,6 @@ class AccountShardedConsumeProcess extends ShardedConsumeProcess
 
     protected function queues(): array
     {
-        return AccountQueueRegistry::classes();
+        return $this->container->get(QueueRegistryInterface::class)->classes();
     }
 }

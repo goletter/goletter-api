@@ -6,7 +6,7 @@ namespace App\Amqp\Queue;
 
 use App\Amqp\Consumer\AccountUnBindConsumer;
 use App\Amqp\Producer\AccountUnBindProducer;
-use App\Amqp\Sharded\TenantBusinessShardedQueue;
+use Goletter\Amqp\Sharded\TenantBusinessShardedQueue;
 
 /** 账户解绑：同一 tenant_id + busine_id 串行，不同组合可并行。 */
 final class AccountUnBindQueue extends TenantBusinessShardedQueue

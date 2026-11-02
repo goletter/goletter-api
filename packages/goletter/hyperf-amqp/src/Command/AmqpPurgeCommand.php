@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Command\Amqp;
+namespace Goletter\Amqp\Command;
 
 use Hyperf\Amqp\ConnectionFactory;
 use Hyperf\Command\Annotation\Command;
@@ -11,8 +11,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Throwable;
 
-use function Goletter\Utils\di;
-use function Goletter\Utils\logging;
+use Hyperf\Context\ApplicationContext;
+use Goletter\Amqp\Support\AmqpLogger;
 
 /**
  * 清空业务分片队列中的消息（保留队列定义，不删队列）。
@@ -24,7 +24,7 @@ use function Goletter\Utils\logging;
 #[Command]
 class AmqpPurgeCommand extends HyperfCommand
 {
-    use ResolvesAccountQueues;
+    use ResolvesShardedQueues;
 
     public function __construct()
     {
@@ -48,7 +48,7 @@ class AmqpPurgeCommand extends HyperfCommand
         }
 
         $name = $this->input->getArgument('name');
-        $queues = $this->resolveAccountQueues($name === null ? null : (string) $name);
+        $queues = $this->resolveShardedQueues($name === null ? null : (string) $name);
         if ($queues === []) {
             return;
         }
@@ -56,7 +56,7 @@ class AmqpPurgeCommand extends HyperfCommand
         $alsoDlq = (bool) $this->input->getOption('dlq');
 
         try {
-            $factory = di()->get(ConnectionFactory::class);
+            $factory = ApplicationContext::getContainer()->get(ConnectionFactory::class);
         } catch (Throwable $e) {
             $this->error('无法初始化 AMQP 连接工厂：' . $e->getMessage());
 
@@ -126,7 +126,7 @@ class AmqpPurgeCommand extends HyperfCommand
             $this->info(sprintf('[%s] 共清空 %d 条', $alias, $aliasPurged));
 
             if ($aliasPurged > 0) {
-                logging([
+                AmqpLogger::log([
                     'event' => 'shards_purged',
                     'alias' => $alias,
                     'purged' => $aliasPurged,

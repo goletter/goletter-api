@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 
-namespace App\Amqp\Sharded;
+namespace Goletter\Amqp\Sharded;
 
 use Hyperf\Amqp\Builder\QueueBuilder;
 use Hyperf\Amqp\Message\ConsumerMessage;
@@ -22,7 +22,7 @@ use PhpAmqpLib\Wire\AMQPAbstractCollection;
 use PhpAmqpLib\Wire\AMQPTable;
 use Throwable;
 
-use function Goletter\Utils\logging;
+use Goletter\Amqp\Support\AmqpLogger;
 
 /**
  * 分片消费者：quorum + 单活跃消费者 + prefetch=1。
@@ -114,7 +114,7 @@ abstract class ShardedConsumer extends ConsumerMessage
         } catch (Throwable) {
         }
 
-        logging([
+        AmqpLogger::log([
             'event' => 'consume_timing',
             'exchange' => $queueClass::exchange(),
             'shard' => $this->getShard(),
@@ -156,7 +156,7 @@ abstract class ShardedConsumer extends ConsumerMessage
         $maxAttempts = max(1, $queueClass::maxAttempts());
         $useDeadLetter = $queueClass::useDeadLetter();
 
-        logging([
+        AmqpLogger::log([
             'event' => 'retry',
             'exchange' => $queueClass::exchange(),
             'shard' => $this->getShard(),
@@ -169,7 +169,7 @@ abstract class ShardedConsumer extends ConsumerMessage
         ], '分片队列重试', 'queue');
 
         if ($attempts >= $maxAttempts) {
-            logging([
+            AmqpLogger::log([
                 'event' => 'retry_exhausted',
                 'exchange' => $queueClass::exchange(),
                 'use_dead_letter' => $useDeadLetter,

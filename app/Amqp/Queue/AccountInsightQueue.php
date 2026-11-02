@@ -6,7 +6,7 @@ namespace App\Amqp\Queue;
 
 use App\Amqp\Consumer\AccountInsightConsumer;
 use App\Amqp\Producer\AccountInsightProducer;
-use App\Amqp\Sharded\TenantBusinessShardedQueue;
+use Goletter\Amqp\Sharded\TenantBusinessShardedQueue;
 
 /**
  * accountInsight：同一 tenant_id + code（广告账户）串行，不同账户可并行。

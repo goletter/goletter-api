@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Command\Amqp;
+namespace Goletter\Amqp\Command;
 
-use App\Amqp\Sharded\ShardedProducer;
-use App\Amqp\Sharded\ShardedQueue;
+use Goletter\Amqp\Sharded\ShardedProducer;
+use Goletter\Amqp\Sharded\ShardedQueue;
 use Hyperf\Amqp\ConnectionFactory;
 use Hyperf\Amqp\Packer\Packer;
 use Hyperf\Command\Annotation\Command;
@@ -14,7 +14,7 @@ use PhpAmqpLib\Message\AMQPMessage;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Throwable;
-use function Goletter\Utils\di;
+use Hyperf\Context\ApplicationContext;
 
 /**
  * 将死信消息重投回业务分片队列（重置 attempts）。
@@ -27,7 +27,7 @@ use function Goletter\Utils\di;
 #[Command]
 class AmqpDlqReplayCommand extends HyperfCommand
 {
-    use ResolvesAccountQueues;
+    use ResolvesShardedQueues;
 
     public function __construct()
     {
@@ -48,7 +48,7 @@ class AmqpDlqReplayCommand extends HyperfCommand
     public function handle()
     {
         $name = (string) $this->input->getArgument('name');
-        $queues = $this->resolveAccountQueues($name);
+        $queues = $this->resolveShardedQueues($name);
         if ($queues === []) {
             return;
         }
@@ -85,8 +85,8 @@ class AmqpDlqReplayCommand extends HyperfCommand
 
         try {
             $queueClass::declareDeadLetter();
-            $factory = di()->get(ConnectionFactory::class);
-            $packer = di()->get(Packer::class);
+            $factory = ApplicationContext::getContainer()->get(ConnectionFactory::class);
+            $packer = ApplicationContext::getContainer()->get(Packer::class);
             $connection = $factory->getConnection('default');
             $channel = $connection->getChannel();
         } catch (Throwable $e) {

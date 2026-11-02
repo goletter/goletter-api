@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Amqp\Producer;
 
 use App\Amqp\Queue\AccountInsightQueue;
-use App\Amqp\Sharded\ShardedProducer;
+use Goletter\Amqp\Sharded\ShardedProducer;
 use Hyperf\Amqp\Annotation\Producer;
 
 #[Producer(exchange: AccountInsightQueue::EXCHANGE, routingKey: '')]

@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace App\Amqp\Consumer;
 
 use App\Amqp\Queue\AccountRechargeQueue;
-use App\Amqp\Sharded\ShardedConsumer;
+use Goletter\Amqp\Sharded\ShardedConsumer;
 use App\Model\AccountDemand;
 use App\Service\Adv\AdvResolver;
 use App\Service\Webhook\WebhookNotifier;

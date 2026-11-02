@@ -6,7 +6,7 @@ namespace App\Amqp\Queue;
 
 use App\Amqp\Consumer\AccountBindConsumer;
 use App\Amqp\Producer\AccountBindProducer;
-use App\Amqp\Sharded\TenantBusinessShardedQueue;
+use Goletter\Amqp\Sharded\TenantBusinessShardedQueue;
 
 /** 账户绑定：同一 tenant_id + busine_id 串行，不同组合可并行。 */
 final class AccountBindQueue extends TenantBusinessShardedQueue

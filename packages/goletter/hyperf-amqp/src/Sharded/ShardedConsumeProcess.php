@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 
-namespace App\Amqp\Sharded;
+namespace Goletter\Amqp\Sharded;
 
 use Hyperf\Amqp\Consumer;
 use Hyperf\Coroutine\Coroutine;

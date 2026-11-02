@@ -2,15 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Command\Amqp;
+namespace Goletter\Amqp\Command;
 
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
+use Hyperf\Context\ApplicationContext;
+use Hyperf\Contract\ConfigInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * 一键生成分片队列三件套，并写入 AccountQueueRegistry。
+ * 一键生成分片队列三件套，并写入应用侧队列注册表。
  *
  *   php bin/hyperf.php amqp:make-queue accountRefund
  *   php bin/hyperf.php amqp:make-queue accountRefund --label=账户退款
@@ -28,12 +30,12 @@ class AmqpMakeQueueCommand extends HyperfCommand
     public function configure(): void
     {
         parent::configure();
-        $this->setDescription('生成分片 Queue/Producer/Consumer，并注册到 AccountQueueRegistry');
+        $this->setDescription('生成分片 Queue/Producer/Consumer，并注册到应用侧队列注册表');
         $this->addArgument('name', InputArgument::REQUIRED, '业务名，如 accountRefund / AccountRefund');
         $this->addOption('label', null, InputOption::VALUE_REQUIRED, '中文说明（注释与日志用）');
         $this->addOption('serial', null, InputOption::VALUE_REQUIRED, '串行字段，逗号分隔，默认 tenant_id,busine_id');
         $this->addOption('force', 'f', InputOption::VALUE_NONE, '已存在时覆盖');
-        $this->addOption('no-register', null, InputOption::VALUE_NONE, '不写入 AccountQueueRegistry');
+        $this->addOption('no-register', null, InputOption::VALUE_NONE, '不写入队列注册表');
     }
 
     public function handle()
@@ -58,11 +60,12 @@ class AmqpMakeQueueCommand extends HyperfCommand
         $queueClass = $studly . 'Queue';
         $producerClass = $studly . 'Producer';
         $consumerClass = $studly . 'Consumer';
+        $paths = $this->generatePaths();
 
         $files = [
-            BASE_PATH . '/app/Amqp/Queue/' . $queueClass . '.php' => $this->queueStub($queueClass, $producerClass, $consumerClass, $exchange, $label, $serialFields),
-            BASE_PATH . '/app/Amqp/Producer/' . $producerClass . '.php' => $this->producerStub($queueClass, $producerClass),
-            BASE_PATH . '/app/Amqp/Consumer/' . $consumerClass . '.php' => $this->consumerStub($queueClass, $consumerClass, $label),
+            $paths['queue_path'] . '/' . $queueClass . '.php' => $this->queueStub($queueClass, $producerClass, $consumerClass, $exchange, $label, $serialFields, $paths),
+            $paths['producer_path'] . '/' . $producerClass . '.php' => $this->producerStub($queueClass, $producerClass, $paths),
+            $paths['consumer_path'] . '/' . $consumerClass . '.php' => $this->consumerStub($queueClass, $consumerClass, $label, $paths),
         ];
 
         foreach ($files as $path => $contents) {
@@ -88,9 +91,36 @@ class AmqpMakeQueueCommand extends HyperfCommand
             }
         }
 
-        $this->info('完成。重启后 account-sharded-consume 会自动拉起该队列。');
-        $this->line(sprintf('发送：\\App\\Amqp\\Queue\\%s::produce($data);', $queueClass));
+        $this->info('完成。重启消费进程后会自动拉起该队列。');
+        $this->line(sprintf('发送：\\%s\\%s::produce($data);', $paths['queue_namespace'], $queueClass));
         $this->line(sprintf('运维：php bin/hyperf.php amqp:dlq-info %s', $exchange));
+    }
+
+    /**
+     * @return array{
+     *   queue_namespace: string,
+     *   producer_namespace: string,
+     *   consumer_namespace: string,
+     *   queue_path: string,
+     *   producer_path: string,
+     *   consumer_path: string,
+     *   registry_file: string
+     * }
+     */
+    private function generatePaths(): array
+    {
+        $config = ApplicationContext::getContainer()->get(ConfigInterface::class);
+        $generate = (array) $config->get('amqp_sharded.generate', []);
+
+        return [
+            'queue_namespace' => (string) ($generate['queue_namespace'] ?? 'App\\Amqp\\Queue'),
+            'producer_namespace' => (string) ($generate['producer_namespace'] ?? 'App\\Amqp\\Producer'),
+            'consumer_namespace' => (string) ($generate['consumer_namespace'] ?? 'App\\Amqp\\Consumer'),
+            'queue_path' => (string) ($generate['queue_path'] ?? BASE_PATH . '/app/Amqp/Queue'),
+            'producer_path' => (string) ($generate['producer_path'] ?? BASE_PATH . '/app/Amqp/Producer'),
+            'consumer_path' => (string) ($generate['consumer_path'] ?? BASE_PATH . '/app/Amqp/Consumer'),
+            'registry_file' => (string) ($generate['registry_file'] ?? BASE_PATH . '/app/Amqp/Queue/AccountQueueRegistry.php'),
+        ];
     }
 
     /**
@@ -124,10 +154,16 @@ class AmqpMakeQueueCommand extends HyperfCommand
 
     private function register(string $exchange, string $queueClass): bool
     {
-        $registryPath = BASE_PATH . '/app/Amqp/Queue/AccountQueueRegistry.php';
+        $registryPath = $this->generatePaths()['registry_file'];
+        if (! is_file($registryPath)) {
+            $this->error('注册表文件不存在：' . $registryPath);
+            $this->line('请在 config/autoload/amqp_sharded.php 配置 generate.registry_file');
+            return false;
+        }
+
         $code = file_get_contents($registryPath);
         if ($code === false) {
-            $this->error('无法读取 AccountQueueRegistry');
+            $this->error('无法读取注册表：' . $registryPath);
             return false;
         }
 
@@ -182,6 +218,7 @@ class AmqpMakeQueueCommand extends HyperfCommand
 
     /**
      * @param list<string> $serialFields
+     * @param array<string, string> $paths
      */
     private function queueStub(
         string $queueClass,
@@ -189,7 +226,8 @@ class AmqpMakeQueueCommand extends HyperfCommand
         string $consumerClass,
         string $exchange,
         string $label,
-        array $serialFields
+        array $serialFields,
+        array $paths
     ): string {
         $serialLabel = implode(' + ', $serialFields);
         $serialMethod = '';
@@ -211,16 +249,20 @@ class AmqpMakeQueueCommand extends HyperfCommand
 PHP;
         }
 
+        $queueNs = $paths['queue_namespace'];
+        $consumerNs = $paths['consumer_namespace'];
+        $producerNs = $paths['producer_namespace'];
+
         return <<<PHP
 <?php
 
 declare(strict_types=1);
 
-namespace App\\Amqp\\Queue;
+namespace {$queueNs};
 
-use App\\Amqp\\Consumer\\{$consumerClass};
-use App\\Amqp\\Producer\\{$producerClass};
-use App\\Amqp\\Sharded\\TenantBusinessShardedQueue;
+use {$consumerNs}\\{$consumerClass};
+use {$producerNs}\\{$producerClass};
+use Goletter\\Amqp\\Sharded\\TenantBusinessShardedQueue;
 
 /** {$label}：同一 {$serialLabel} 串行，不同组合可并行。 */
 final class {$queueClass} extends TenantBusinessShardedQueue
@@ -241,17 +283,23 @@ final class {$queueClass} extends TenantBusinessShardedQueue
 PHP;
     }
 
-    private function producerStub(string $queueClass, string $producerClass): string
+    /**
+     * @param array<string, string> $paths
+     */
+    private function producerStub(string $queueClass, string $producerClass, array $paths): string
     {
+        $producerNs = $paths['producer_namespace'];
+        $queueNs = $paths['queue_namespace'];
+
         return <<<PHP
 <?php
 
 declare(strict_types=1);
 
-namespace App\\Amqp\\Producer;
+namespace {$producerNs};
 
-use App\\Amqp\\Queue\\{$queueClass};
-use App\\Amqp\\Sharded\\ShardedProducer;
+use {$queueNs}\\{$queueClass};
+use Goletter\\Amqp\\Sharded\\ShardedProducer;
 use Hyperf\\Amqp\\Annotation\\Producer;
 
 #[Producer(exchange: {$queueClass}::EXCHANGE, routingKey: '')]
@@ -266,17 +314,23 @@ class {$producerClass} extends ShardedProducer
 PHP;
     }
 
-    private function consumerStub(string $queueClass, string $consumerClass, string $label): string
+    /**
+     * @param array<string, string> $paths
+     */
+    private function consumerStub(string $queueClass, string $consumerClass, string $label, array $paths): string
     {
+        $consumerNs = $paths['consumer_namespace'];
+        $queueNs = $paths['queue_namespace'];
+
         return <<<PHP
 <?php
 
 declare(strict_types=1);
 
-namespace App\\Amqp\\Consumer;
+namespace {$consumerNs};
 
-use App\\Amqp\\Queue\\{$queueClass};
-use App\\Amqp\\Sharded\\ShardedConsumer;
+use {$queueNs}\\{$queueClass};
+use Goletter\\Amqp\\Sharded\\ShardedConsumer;
 use Hyperf\\Amqp\\Result;
 use PhpAmqpLib\\Message\\AMQPMessage;
 

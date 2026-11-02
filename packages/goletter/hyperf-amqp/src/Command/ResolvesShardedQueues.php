@@ -2,22 +2,29 @@
 
 declare(strict_types=1);
 
-namespace App\Command\Amqp;
+namespace Goletter\Amqp\Command;
 
-use App\Amqp\Queue\AccountQueueRegistry;
-use App\Amqp\Sharded\ShardedQueue;
+use Goletter\Amqp\Contract\QueueRegistryInterface;
+use Goletter\Amqp\Sharded\ShardedQueue;
+use Hyperf\Context\ApplicationContext;
 
 /**
- * 解析 AccountQueueRegistry 业务名，统一未知业务 / 缺参报错文案。
+ * 解析注册表业务名，统一未知业务 / 缺参报错文案。
  */
-trait ResolvesAccountQueues
+trait ResolvesShardedQueues
 {
+    protected function queueRegistry(): QueueRegistryInterface
+    {
+        return ApplicationContext::getContainer()->get(QueueRegistryInterface::class);
+    }
+
     /**
      * @return array<string, class-string<ShardedQueue>>
      */
-    protected function resolveAccountQueues(?string $name, bool $allowAllWhenEmpty = false): array
+    protected function resolveShardedQueues(?string $name, bool $allowAllWhenEmpty = false): array
     {
-        $all = AccountQueueRegistry::all();
+        $registry = $this->queueRegistry();
+        $all = $registry->all();
         $wantAll = $this->input->hasOption('all') && (bool) $this->input->getOption('all');
 
         if ($wantAll) {
@@ -36,11 +43,11 @@ trait ResolvesAccountQueues
             return [];
         }
 
-        $queueClass = AccountQueueRegistry::get($name);
+        $queueClass = $registry->get($name);
         if ($queueClass === null) {
             $this->error(sprintf('未知业务「%s」。', $name));
             $this->line('可选业务：' . $this->availableQueueNames());
-            $this->line('提示：业务名需与 AccountQueueRegistry 中的 key 一致（如 accountRecharge）。');
+            $this->line('提示：业务名需与队列注册表中的 key 一致（如 accountRecharge）。');
 
             return [];
         }
@@ -50,7 +57,7 @@ trait ResolvesAccountQueues
 
     protected function availableQueueNames(): string
     {
-        $names = array_keys(AccountQueueRegistry::all());
+        $names = array_keys($this->queueRegistry()->all());
 
         return $names === [] ? '(注册表为空)' : implode(', ', $names);
     }

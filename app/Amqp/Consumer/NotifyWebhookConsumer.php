@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Amqp\Consumer;
 
 use App\Amqp\Queue\NotifyWebhookQueue;
-use App\Amqp\Sharded\ShardedConsumer;
+use Goletter\Amqp\Sharded\ShardedConsumer;
 use Goletter\Webhook\WebhookClient;
 use Hyperf\Amqp\Result;
 use Hyperf\Collection\Arr;

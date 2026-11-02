@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace App\Amqp\Consumer;
 
 use App\Amqp\Queue\AccountInsightQueue;
-use App\Amqp\Sharded\ShardedConsumer;
+use Goletter\Amqp\Sharded\ShardedConsumer;
 use App\Model\AccountAdvReport;
 use App\Model\AccountInsight;
 use App\Service\Adv\AdvResolver;

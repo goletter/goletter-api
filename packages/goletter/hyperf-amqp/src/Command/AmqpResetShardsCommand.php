@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Command\Amqp;
+namespace Goletter\Amqp\Command;
 
 use Hyperf\Amqp\ConnectionFactory;
 use Hyperf\Command\Annotation\Command;
@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Throwable;
 
-use function Goletter\Utils\di;
+use Hyperf\Context\ApplicationContext;
 
 /**
  * 删除旧分片队列以便按新参数（含 DLX）重建。
@@ -26,7 +26,7 @@ use function Goletter\Utils\di;
 #[Command]
 class AmqpResetShardsCommand extends HyperfCommand
 {
-    use ResolvesAccountQueues;
+    use ResolvesShardedQueues;
 
     public function __construct()
     {
@@ -50,13 +50,13 @@ class AmqpResetShardsCommand extends HyperfCommand
         }
 
         $name = $this->input->getArgument('name');
-        $queues = $this->resolveAccountQueues($name === null ? null : (string) $name);
+        $queues = $this->resolveShardedQueues($name === null ? null : (string) $name);
         if ($queues === []) {
             return;
         }
 
         try {
-            $factory = di()->get(ConnectionFactory::class);
+            $factory = ApplicationContext::getContainer()->get(ConnectionFactory::class);
         } catch (Throwable $e) {
             $this->error('无法初始化 AMQP 连接工厂：' . $e->getMessage());
             return;

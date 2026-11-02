@@ -6,7 +6,7 @@ namespace App\Amqp\Queue;
 
 use App\Amqp\Consumer\NotifyWebhookConsumer;
 use App\Amqp\Producer\NotifyWebhookProducer;
-use App\Amqp\Sharded\TenantBusinessShardedQueue;
+use Goletter\Amqp\Sharded\TenantBusinessShardedQueue;
 use Hyperf\Contract\ConfigInterface;
 
 use function Hyperf\Support\make;

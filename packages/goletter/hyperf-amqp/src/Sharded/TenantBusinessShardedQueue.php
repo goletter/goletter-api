@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Amqp\Sharded;
+namespace Goletter\Amqp\Sharded;
 
 use InvalidArgumentException;
 

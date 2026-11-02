@@ -6,7 +6,7 @@ namespace App\Amqp\Queue;
 
 use App\Amqp\Consumer\AccountResetConsumer;
 use App\Amqp\Producer\AccountResetProducer;
-use App\Amqp\Sharded\TenantBusinessShardedQueue;
+use Goletter\Amqp\Sharded\TenantBusinessShardedQueue;
 
 /** 账户重置：同一 tenant_id + busine_id 串行，不同组合可并行。 */
 final class AccountResetQueue extends TenantBusinessShardedQueue

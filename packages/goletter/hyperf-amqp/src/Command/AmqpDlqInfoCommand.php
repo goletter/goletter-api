@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Command\Amqp;
+namespace Goletter\Amqp\Command;
 
 use Hyperf\Amqp\ConnectionFactory;
 use Hyperf\Command\Annotation\Command;
@@ -11,8 +11,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Throwable;
 
-use function Goletter\Utils\di;
-use function Goletter\Utils\logging;
+use Hyperf\Context\ApplicationContext;
+use Goletter\Amqp\Support\AmqpLogger;
 
 /**
  * 查看死信积压（可挂 crontab 做定时告警）。
@@ -24,7 +24,7 @@ use function Goletter\Utils\logging;
 #[Command]
 class AmqpDlqInfoCommand extends HyperfCommand
 {
-    use ResolvesAccountQueues;
+    use ResolvesShardedQueues;
 
     public function __construct()
     {
@@ -43,7 +43,7 @@ class AmqpDlqInfoCommand extends HyperfCommand
     {
         $name = $this->input->getArgument('name');
         // 省略 name 时默认看全部，便于 crontab
-        $queues = $this->resolveAccountQueues(
+        $queues = $this->resolveShardedQueues(
             $name === null ? null : (string) $name,
             allowAllWhenEmpty: true
         );
@@ -52,7 +52,7 @@ class AmqpDlqInfoCommand extends HyperfCommand
         }
 
         try {
-            $factory = di()->get(ConnectionFactory::class);
+            $factory = ApplicationContext::getContainer()->get(ConnectionFactory::class);
         } catch (Throwable $e) {
             $this->error('无法初始化 AMQP 连接工厂：' . $e->getMessage());
             return;
@@ -105,7 +105,7 @@ class AmqpDlqInfoCommand extends HyperfCommand
             ));
 
             if ($messageCount > 0) {
-                logging([
+                AmqpLogger::log([
                     'event' => 'dlq_backlog',
                     'alias' => $alias,
                     'queue' => $dlq,
