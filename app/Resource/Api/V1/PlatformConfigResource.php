@@ -6,6 +6,6 @@ namespace App\Resource\Api\V1;
 
 use Goletter\Resource\Resource;
 
-class DocsPlatformConfigResource extends Resource
+class PlatformConfigResource extends Resource
 {
 }

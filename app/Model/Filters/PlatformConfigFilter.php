@@ -14,10 +14,10 @@ namespace App\Model\Filters;
 
 use Goletter\ModelFilter\ModelFilter;
 
-class DocsPlatformConfigFilter extends ModelFilter
+class PlatformConfigFilter extends ModelFilter
 {
     public function name($name)
     {
-        $this->where('name', 'like', "$name%");
+        $this->where('name', 'like', "%$name%");
     }
 }

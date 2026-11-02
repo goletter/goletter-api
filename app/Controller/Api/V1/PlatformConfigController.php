@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace App\Controller\Api\V1;
 
 use App\Controller\AbstractController;
-use App\Model\DocsPlatformConfig;
-use App\Request\Api\V1\DocsPlatformConfigRequest;
-use App\Resource\Api\V1\DocsPlatformConfigResource;
+use App\Model\PlatformConfig;
+use App\Request\Api\V1\PlatformConfigRequest;
+use App\Resource\Api\V1\PlatformConfigResource;
 use App\Service\DocsPlatformConfigService;
 use Goletter\Resource\Collection;
 use Goletter\Resource\Resource;
 use Hyperf\Di\Annotation\Inject;
 
-class DocsPlatformConfigController extends AbstractController
+class PlatformConfigController extends AbstractController
 {
     #[Inject]
     private DocsPlatformConfigService $service;
@@ -22,23 +22,23 @@ class DocsPlatformConfigController extends AbstractController
     {
         return $this->collection(
             $this->service->paginate($this->request->all()),
-            DocsPlatformConfigResource::class
+            PlatformConfigResource::class
         );
     }
 
-    public function store(DocsPlatformConfigRequest $request): Resource
+    public function store(PlatformConfigResource $request): Resource
     {
         return $this->success(
             $this->service->create($request->validated()),
-            DocsPlatformConfigResource::class
+            PlatformConfigResource::class
         );
     }
 
-    public function update(DocsPlatformConfig $docsPlatformConfig, DocsPlatformConfigRequest $request): Resource
+    public function update(PlatformConfig $platformConfig, PlatformConfigRequest $request): Resource
     {
         return $this->success(
-            $this->service->update($docsPlatformConfig, $request->validated()),
-            DocsPlatformConfigResource::class
+            $this->service->update($platformConfig, $request->validated()),
+            PlatformConfigResource::class
         );
     }
 }

@@ -6,7 +6,7 @@ namespace App\Request\Api\V1;
 
 use Hyperf\Validation\Request\FormRequest;
 
-class DocsPlatformConfigRequest extends FormRequest
+class PlatformConfigRequest extends FormRequest
 {
     public function authorize(): bool
     {

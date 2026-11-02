@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Model\DocsPlatformConfig;
+use App\Model\PlatformConfig;
 use Carbon\Carbon;
 use Exception;
 use Goletter\Docs\DocsManager;
@@ -40,7 +40,7 @@ class GoogleTokenCommand extends HyperfCommand
 
     public function handle()
     {
-        $docsPlatformConfigs = DocsPlatformConfig::query()->get();
+        $docsPlatformConfigs = PlatformConfig::query()->get();
 
         foreach ($docsPlatformConfigs as $index => $docsPlatformConfig) {
             if (! $docsPlatformConfig->refresh_token) {

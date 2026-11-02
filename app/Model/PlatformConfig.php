@@ -6,7 +6,7 @@ namespace App\Model;
 
 use Goletter\ModelFilter\Filterable;
 
-class DocsPlatformConfig extends Model
+class PlatformConfig extends Model
 {
     use Filterable;
 }
