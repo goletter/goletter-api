@@ -24,8 +24,7 @@ class AccountInsightController extends AbstractController
 
     public function store(AccountInsightRequest $request): Resource
     {
-        logging([...$request->all()], 'xxx', 'xxx');
-        // $this->service->create($request->all());
+        $this->service->create($request->all());
 
         return $this->success();
     }
