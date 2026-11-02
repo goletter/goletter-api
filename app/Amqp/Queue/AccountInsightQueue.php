@@ -22,4 +22,9 @@ final class AccountInsightQueue extends TenantBusinessShardedQueue
     {
         return AccountInsightProducer::class;
     }
+
+    public static function shards(): int
+    {
+        return 32;
+    }
 }
