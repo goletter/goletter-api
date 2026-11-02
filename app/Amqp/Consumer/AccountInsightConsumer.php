@@ -44,7 +44,6 @@ class AccountInsightConsumer extends ShardedConsumer
             'code' => $code,
             'start_at' => $startAt,
             'end_at' => $endAt,
-            'is_report' => 1,
         ]);
 
         $newAccountInsights = [];
@@ -52,7 +51,7 @@ class AccountInsightConsumer extends ShardedConsumer
         foreach ($accountInsights as $item) {
             $newAccountInsights[] = [
                 'tenant_id' => $tenantId,
-                'code' => Arr::get($item, 'account_id'),
+                'code' => $code,
                 'spend' => Arr::get($item, 'spend', 0),
                 'start_at' => Arr::get($item, 'date_start'),
                 'end_at' => Arr::get($item, 'date_stop'),
@@ -60,7 +59,7 @@ class AccountInsightConsumer extends ShardedConsumer
                 'updated_at' => Carbon::now()->toDateTimeString(),
             ];
 
-            $purchase = $this->extractActionValue(
+            /*$purchase = $this->extractActionValue(
                 (array) ($item['actions'] ?? []),
                 ['purchase', 'omni_purchase', 'offsite_conversion.fb_pixel_purchase']
             );
@@ -102,7 +101,7 @@ class AccountInsightConsumer extends ShardedConsumer
                 'end_at' => $item['date_stop'] ?? null,
                 'created_at' => Carbon::now()->toDateTimeString(),
                 'updated_at' => Carbon::now()->toDateTimeString(),
-            ];
+            ];*/
         }
 
         if (count($newAccountInsights) > 0) {
