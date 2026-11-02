@@ -4,13 +4,6 @@ declare(strict_types=1);
 
 namespace Goletter\Amqp;
 
-use Goletter\Amqp\Command\AmqpDlqInfoCommand;
-use Goletter\Amqp\Command\AmqpDlqPurgeCommand;
-use Goletter\Amqp\Command\AmqpDlqReplayCommand;
-use Goletter\Amqp\Command\AmqpMakeQueueCommand;
-use Goletter\Amqp\Command\AmqpPurgeCommand;
-use Goletter\Amqp\Command\AmqpResetShardsCommand;
-
 class ConfigProvider
 {
     public function __invoke(): array
@@ -18,13 +11,8 @@ class ConfigProvider
         return [
             'dependencies' => [
             ],
+            // 命令由应用 config/autoload/commands.php 注册
             'commands' => [
-                AmqpDlqInfoCommand::class,
-                AmqpDlqPurgeCommand::class,
-                AmqpDlqReplayCommand::class,
-                AmqpMakeQueueCommand::class,
-                AmqpPurgeCommand::class,
-                AmqpResetShardsCommand::class,
             ],
             'annotations' => [
                 'scan' => [

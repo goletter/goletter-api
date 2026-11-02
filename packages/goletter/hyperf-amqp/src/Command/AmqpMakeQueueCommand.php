@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Goletter\Amqp\Command;
 
-use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Context\ApplicationContext;
 use Hyperf\Contract\ConfigInterface;
@@ -19,7 +18,6 @@ use Symfony\Component\Console\Input\InputOption;
  *   php bin/hyperf.php amqp:make-queue accountRefund --serial=tenant_id,account_id
  *   php bin/hyperf.php amqp:make-queue accountRefund --force
  */
-#[Command]
 class AmqpMakeQueueCommand extends HyperfCommand
 {
     public function __construct()

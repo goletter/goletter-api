@@ -16,6 +16,7 @@
         "96qbhy/hyperf-auth": "^3.1",
         "duncan3dc/blade": "^4.17",
         "friendsofhyperf/cache": "^3.1",
+        "goletter/hyperf-amqp": "^1.0",
         "goletter/hyperf-cache": "^1.0",
         "goletter/hyperf-docs": "^2.0",
         "goletter/hyperf-queue": "^1.0",
@@ -61,7 +62,6 @@
             "App\\": "app/",
             "Goletter\\Adv\\": "packages/goletter/hyperf-adv/src/",
             "Goletter\\Akm\\": "packages/goletter/hyperf-akm/src/",
-            "Goletter\\Amqp\\": "packages/goletter/hyperf-amqp/src/",
             "Goletter\\Webhook\\": "packages/goletter/hyperf-webhook/src/"
         },
         "files": [
@@ -73,15 +73,6 @@
             "HyperfTest\\": "./test/"
         }
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "packages/goletter/hyperf-amqp",
-            "options": {
-                "symlink": false
-            }
-        }
-    ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "config": {

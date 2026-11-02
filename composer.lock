@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0d15cd3dcb796a566dff1a69bbf3373e",
+    "content-hash": "067fcb3f2a731e6ca9bb29ea5188402b",
     "packages": [
         {
             "name": "96qbhy/hyperf-auth",
@@ -1056,10 +1056,16 @@
         {
             "name": "goletter/hyperf-amqp",
             "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/goletter/hyperf-amqp.git",
+                "reference": "d41065125e61b3ad818185f014d32d2925ba06c3"
+            },
             "dist": {
-                "type": "path",
-                "url": "packages/goletter/hyperf-amqp",
-                "reference": "dedc9d32f7816e710c05ed3923490986791788b2"
+                "type": "zip",
+                "url": "https://api.github.com/repos/goletter/hyperf-amqp/zipball/d41065125e61b3ad818185f014d32d2925ba06c3",
+                "reference": "d41065125e61b3ad818185f014d32d2925ba06c3",
+                "shasum": ""
             },
             "require": {
                 "hyperf/amqp": "~3.1.0",
@@ -1087,6 +1093,7 @@
                     "Goletter\\Amqp\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1098,7 +1105,7 @@
             ],
             "description": "Hyperf 分片 AMQP：串行键分片、重试、死信与运维命令。",
             "keywords": [
-                "amqp",
+                "AMQP",
                 "dlq",
                 "goletter",
                 "hyperf",
@@ -1106,10 +1113,11 @@
                 "rabbitmq",
                 "sharded"
             ],
-            "transport-options": {
-                "symlink": false,
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/goletter/hyperf-amqp/issues",
+                "source": "https://github.com/goletter/hyperf-amqp/tree/v1.0.0"
+            },
+            "time": "2026-11-02T17:11:20+00:00"
         },
         {
             "name": "goletter/hyperf-cache",
