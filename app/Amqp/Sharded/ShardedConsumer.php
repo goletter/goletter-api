@@ -68,12 +68,16 @@ abstract class ShardedConsumer extends ConsumerMessage
     {
         $queueClass = static::queueClass();
         $payload = is_array($data) ? $data : [];
+        $startedAt = microtime(true);
 
         try {
             $result = $this->handle($data, $message);
         } catch (Throwable $e) {
+            $this->logTiming($queueClass, $payload, $startedAt, 'exception');
             return $this->retryOrDrop($payload, $e);
         }
+
+        $this->logTiming($queueClass, $payload, $startedAt, $result->value ?? (string) $result);
 
         // prefetch=1：ACK 前等待，同组分片下一条才会被投递
         $intervalMs = max(0, $queueClass::intervalMs());
@@ -82,6 +86,46 @@ abstract class ShardedConsumer extends ConsumerMessage
         }
 
         return $result;
+    }
+
+    /**
+     * 排队 / 处理 / 端到端耗时（依赖 produce 写入的 produced_at 毫秒戳）.
+     *
+     * @param class-string<ShardedQueue> $queueClass
+     */
+    protected function logTiming(string $queueClass, array $payload, float $startedAt, string $result): void
+    {
+        $doneAt = microtime(true);
+        $handleMs = (int) round(($doneAt - $startedAt) * 1000);
+        $producedAt = (int) ($payload['produced_at'] ?? 0);
+
+        $waitMs = null;
+        $totalMs = null;
+        if ($producedAt > 0) {
+            $startMs = (int) round($startedAt * 1000);
+            $doneMs = (int) round($doneAt * 1000);
+            $waitMs = max(0, $startMs - $producedAt);
+            $totalMs = max(0, $doneMs - $producedAt);
+        }
+
+        $key = null;
+        try {
+            $key = $queueClass::serialKey($payload);
+        } catch (Throwable) {
+        }
+
+        logging([
+            'event' => 'consume_timing',
+            'exchange' => $queueClass::exchange(),
+            'shard' => $this->getShard(),
+            'key' => $key,
+            'result' => $result,
+            'wait_ms' => $waitMs,
+            'handle_ms' => $handleMs,
+            'total_ms' => $totalMs,
+            'produced_at' => $producedAt > 0 ? $producedAt : null,
+            'attempts' => (int) ($payload['attempts'] ?? 0),
+        ], '分片队列消费耗时', 'queue');
     }
 
     public function getQueueBuilder(): QueueBuilder

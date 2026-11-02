@@ -142,12 +142,18 @@ abstract class ShardedQueue
      * 发送到分片队列（自动算 shard、声明队列、路由）。
      *
      *   AccountRechargeQueue::produce($data);
+     *
+     * 自动写入 produced_at（毫秒时间戳），供消费侧算排队/端到端耗时；已有则保留（重试不覆盖）。
      */
     public static function produce(array $data): bool
     {
         $producerClass = static::producerClass();
         if (! is_a($producerClass, ShardedProducer::class, true)) {
             throw new InvalidArgumentException($producerClass . ' 必须继承 ' . ShardedProducer::class);
+        }
+
+        if (! isset($data['produced_at']) || $data['produced_at'] === '' || $data['produced_at'] === null) {
+            $data['produced_at'] = (int) round(microtime(true) * 1000);
         }
 
         return produce(new $producerClass($data));
