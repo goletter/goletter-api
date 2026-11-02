@@ -10,6 +10,7 @@ use App\Service\AccountInsightService;
 use Goletter\Resource\Collection;
 use Goletter\Resource\Resource;
 use Hyperf\Di\Annotation\Inject;
+use function Goletter\Utils\logging;
 
 class AccountInsightController extends AbstractController
 {
@@ -23,7 +24,8 @@ class AccountInsightController extends AbstractController
 
     public function store(AccountInsightRequest $request): Resource
     {
-        $this->service->create($request->all());
+        logging([...$request->all()], 'xxx', 'xxx');
+        // $this->service->create($request->all());
 
         return $this->success();
     }
