@@ -117,7 +117,7 @@ class AccountInsightConsumer extends ShardedConsumer
         if (count($newReports) > 0) {
             AccountAdvReport::batchUpdateOrCreate(
                 'account_adv_reports',
-                $data,
+                $newReports,
                 ['code', 'campaign_id', 'start_at'], // 唯一键
                 ['spend', 'dollar', 'reach', 'impressions', 'frequency', 'clicks', 'cpc', 'purchase', 'cost_per_purchase', 'roas', 'cost_per_reg', 'updated_at']  // 重复更新字段
             );
