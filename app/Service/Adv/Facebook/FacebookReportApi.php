@@ -29,7 +29,7 @@ class FacebookReportApi extends AdvException
     }
 
     /**
-     * 获取消耗.
+     * 获取消耗（一次 time_range + time_increment=1，避免按天拆成多次 Graph）.
      * @return array
      */
     public function iterateDailyReport(array $params)
@@ -40,9 +40,10 @@ class FacebookReportApi extends AdvException
         $endAt = $params['end_at'] ?? Carbon::now()->toDateString();
 
         try {
-            $items = [];
             $fields = ['date_start', 'spend', 'impressions', 'clicks', 'date_stop'];
+            $level = 'account';
             if ($isReport) {
+                $level = 'campaign';
                 $fields = [
                     'account_name',
                     'account_id',
@@ -62,22 +63,22 @@ class FacebookReportApi extends AdvException
                 ];
             }
 
-            foreach ($this->facebookReport->iterateDailyReport(
-                $accountId,
+            return $this->facebookReport->getAllInsights(
+                (string) $accountId,
                 $startAt,
                 $endAt,
-                $fields
-            ) as $item) {
-                $items[] = $item;
-            }
-            return $items;
+                $fields,
+                $level,
+                1,
+                100
+            );
         } catch (Exception $e) {
             throw new AdvException(500, $e->getMessage(), $e, $accountId, 0, 'facebook', 'adv');
         }
     }
 
     /**
-     * 获取账户报告.
+     * 获取账户报告（campaign 级，一次拉取）.
      */
     public function insightDailyReport(array $params): array
     {
@@ -86,7 +87,6 @@ class FacebookReportApi extends AdvException
         $endAt = $params['end_at'] ?? Carbon::now()->toDateString();
 
         try {
-            $items = [];
             $fields = [
                 'account_name',
                 'account_id',
@@ -105,15 +105,15 @@ class FacebookReportApi extends AdvException
                 'cost_per_action_type',
             ];
 
-            foreach ($this->facebookReport->iterateDailyReport(
-                $accountId,
+            return $this->facebookReport->getAllInsights(
+                (string) $accountId,
                 $startAt,
                 $endAt,
                 $fields,
-            ) as $item) {
-                $items[] = $item;
-            }
-            return $items;
+                'campaign',
+                1,
+                100
+            );
         } catch (Exception $e) {
             throw new AdvException(500, $e->getMessage(), $e, $accountId, 0, 'facebook', 'adv');
         }

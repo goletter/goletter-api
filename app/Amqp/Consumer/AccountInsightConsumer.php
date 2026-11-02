@@ -23,8 +23,6 @@ use Hyperf\Collection\Arr;
 use Hyperf\Di\Annotation\Inject;
 use PhpAmqpLib\Message\AMQPMessage;
 
-use function Goletter\Utils\logging;
-
 class AccountInsightConsumer extends ShardedConsumer
 {
     #[Inject]
@@ -108,37 +106,21 @@ class AccountInsightConsumer extends ShardedConsumer
         }
 
         if (count($newAccountInsights) > 0) {
-            $t0 = microtime(true);
             AccountInsight::batchUpdateOrCreate(
                 'account_insights',
                 $newAccountInsights,
                 ['code', 'start_at', 'end_at'], // 唯一键
                 ['spend', 'updated_at']  // 重复更新字段
             );
-            logging([
-                'event' => 'batch_upsert_timing',
-                'table' => 'account_insights',
-                'code' => $code,
-                'rows' => count($newAccountInsights),
-                'duration_ms' => (int) round((microtime(true) - $t0) * 1000),
-            ], 'account_insights 批量写入耗时', 'queue-insert');
         }
 
         if (count($newReports) > 0) {
-            $t0 = microtime(true);
             AccountAdvReport::batchUpdateOrCreate(
                 'account_adv_reports',
                 $newReports,
                 ['code', 'campaign_id', 'start_at'], // 唯一键
                 ['spend', 'dollar', 'reach', 'impressions', 'frequency', 'clicks', 'cpc', 'purchase', 'cost_per_purchase', 'roas', 'cost_per_reg', 'updated_at']  // 重复更新字段
             );
-            logging([
-                'event' => 'batch_upsert_timing',
-                'table' => 'account_adv_reports',
-                'code' => $code,
-                'rows' => count($newReports),
-                'duration_ms' => (int) round((microtime(true) - $t0) * 1000),
-            ], 'account_adv_reports 批量写入耗时', 'queue-insert');
         }
 
         return Result::ACK;
