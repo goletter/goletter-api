@@ -16,14 +16,18 @@ class AccountInsightRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'platform' => 'required',
+            'code' => 'required',
+            'token' => 'required',
+            'busine_code' => 'required',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            // 'platform' => '平台',
+            'code' => '账户ID',
+            'token' => 'Token',
+            'busine_code' => 'Bm ID',
         ];
     }
 }

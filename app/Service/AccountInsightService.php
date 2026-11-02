@@ -47,10 +47,11 @@ class AccountInsightService extends BaseService
     {
         $token = Arr::get($data, 'token');
         $code = Arr::get($data, 'code');
+        $busineCode = Arr::get($data, 'busine_code');
 
         AccountInsightQueue::produce([
             'tenant_id' => 1,
-            'busine_id' => 1,
+            'busine_id' => $busineCode,
             'code' => $code,
             'access_token' => $token,
         ]);
