@@ -49,15 +49,18 @@ class AccountInsightConsumer extends ShardedConsumer
         $newAccountInsights = [];
         $newReports = [];
         foreach ($accountInsights as $item) {
-            $newAccountInsights[] = [
-                'tenant_id' => $tenantId,
-                'code' => $code,
-                'spend' => Arr::get($item, 'spend', 0),
-                'start_at' => Arr::get($item, 'date_start'),
-                'end_at' => Arr::get($item, 'date_stop'),
-                'created_at' => Carbon::now()->toDateTimeString(),
-                'updated_at' => Carbon::now()->toDateTimeString(),
-            ];
+            $spend = Arr::get($item, 'spend', 0);
+            if ($spend > 0) {
+                $newAccountInsights[] = [
+                    'tenant_id' => $tenantId,
+                    'code' => $code,
+                    'spend' => Arr::get($item, 'spend', 0),
+                    'start_at' => Arr::get($item, 'date_start'),
+                    'end_at' => Arr::get($item, 'date_stop'),
+                    'created_at' => Carbon::now()->toDateTimeString(),
+                    'updated_at' => Carbon::now()->toDateTimeString(),
+                ];
+            }
 
             $purchase = $this->extractActionValue(
                 (array) ($item['actions'] ?? []),
@@ -85,18 +88,18 @@ class AccountInsightConsumer extends ShardedConsumer
                 'code' => Arr::get($item, 'account_id'),
                 'spend' => (string) ($item['spend'] ?? '0'),
                 'dollar' => (string) ($item['spend'] ?? '0'),
-                'campaign_name' => $item['campaign_name'] ?? null,
-                'campaign_id' => $item['campaign_id'] ?? null,
+                'campaign_name' => (string) ($item['campaign_name'] ?? ''),
+                'campaign_id' => (string) ($item['campaign_id'] ?? ''),
                 'reach' => (string) ($item['reach'] ?? ''),
                 'impressions' => (string) ($item['impressions'] ?? ''),
                 'frequency' => (string) ($item['frequency'] ?? ''),
                 'clicks' => (string) ($item['clicks'] ?? ''),
                 'cpc' => (string) ($item['cpc'] ?? ''),
-                'purchase' => $purchase,
-                'cost_per_purchase' => $costPerPurchase,
-                'roas' => $roas,
-                'reg' => $reg,
-                'cost_per_reg' => $costPerReg,
+                'purchase' => (string) ($purchase ?? ''),
+                'cost_per_purchase' => (string) ($costPerPurchase ?? ''),
+                'roas' => (string) ($roas ?? ''),
+                'reg' => (string) ($reg ?? ''),
+                'cost_per_reg' => (string) ($costPerReg ?? ''),
                 'start_at' => $item['date_start'] ?? null,
                 'end_at' => $item['date_stop'] ?? null,
                 'created_at' => Carbon::now()->toDateTimeString(),
