@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5a7cb675d2847be14ad858a6f75791b7",
+    "content-hash": "1a57ef7239a3c7cf439678f65b4ab44b",
     "packages": [
         {
             "name": "96qbhy/hyperf-auth",
@@ -1309,10 +1309,16 @@
         {
             "name": "goletter/hyperf-openapi",
             "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/goletter/hyperf-openapi.git",
+                "reference": "5a0230246ba4dfe5a3211829d759499bafed8cca"
+            },
             "dist": {
-                "type": "path",
-                "url": "packages/goletter/hyperf-openapi",
-                "reference": "41c4a9b26dd773e126ef50ad90e9909a3589f00a"
+                "type": "zip",
+                "url": "https://api.github.com/repos/goletter/hyperf-openapi/zipball/5a0230246ba4dfe5a3211829d759499bafed8cca",
+                "reference": "5a0230246ba4dfe5a3211829d759499bafed8cca",
+                "shasum": ""
             },
             "require": {
                 "hyperf/command": "~3.1.0",
@@ -1338,6 +1344,7 @@
                     "Goletter\\OpenApi\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1356,10 +1363,11 @@
                 "php",
                 "swagger"
             ],
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/goletter/hyperf-openapi/issues",
+                "source": "https://github.com/goletter/hyperf-openapi/tree/v1.0.0"
+            },
+            "time": "2026-11-03T13:17:38+00:00"
         },
         {
             "name": "goletter/hyperf-queue",
