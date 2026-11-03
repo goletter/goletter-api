@@ -35,7 +35,6 @@ class AccountInsightConsumer extends ShardedConsumer
         $code = Arr::get($data, 'code');
         $platform = Arr::get($data, 'platform', 0);
 
-        // 可由生产方传入；默认近 3 天，减轻 Graph 耗时
         $startAt = Arr::get($data, 'start_at') ?: Carbon::now()->subDays(3)->toDateString();
         $endAt = Arr::get($data, 'end_at') ?: Carbon::now()->toDateString();
 
@@ -44,6 +43,7 @@ class AccountInsightConsumer extends ShardedConsumer
             'code' => $code,
             'start_at' => $startAt,
             'end_at' => $endAt,
+            'is_report' => 1
         ]);
 
         $newAccountInsights = [];
@@ -59,7 +59,7 @@ class AccountInsightConsumer extends ShardedConsumer
                 'updated_at' => Carbon::now()->toDateTimeString(),
             ];
 
-            /*$purchase = $this->extractActionValue(
+            $purchase = $this->extractActionValue(
                 (array) ($item['actions'] ?? []),
                 ['purchase', 'omni_purchase', 'offsite_conversion.fb_pixel_purchase']
             );
@@ -101,7 +101,7 @@ class AccountInsightConsumer extends ShardedConsumer
                 'end_at' => $item['date_stop'] ?? null,
                 'created_at' => Carbon::now()->toDateTimeString(),
                 'updated_at' => Carbon::now()->toDateTimeString(),
-            ];*/
+            ];
         }
 
         if (count($newAccountInsights) > 0) {
