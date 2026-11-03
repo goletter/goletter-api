@@ -41,9 +41,7 @@ class FacebookReportApi extends AdvException
 
         try {
             $fields = ['date_start', 'spend', 'impressions', 'clicks', 'date_stop'];
-            $level = 'account';
             if ($isReport) {
-                $level = 'campaign';
                 $fields = [
                     'account_name',
                     'account_id',
@@ -67,10 +65,7 @@ class FacebookReportApi extends AdvException
                 (string) $accountId,
                 $startAt,
                 $endAt,
-                $fields,
-                $level,
-                1,
-                100
+                $fields
             );
         } catch (Exception $e) {
             throw new AdvException(500, $e->getMessage(), $e, $accountId, 0, 'facebook', 'adv');
