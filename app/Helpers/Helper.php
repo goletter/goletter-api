@@ -10,19 +10,7 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 use Carbon\Carbon;
-use Hyperf\Amqp\Message\ProducerMessage;
-use Hyperf\Amqp\Producer;
-
 use Hyperf\Collection\Arr;
-use function Goletter\Utils\di;
-
-/**
- * 推送消息到 AMQP.
- */
-function produce(ProducerMessage $message): bool
-{
-    return di()->get(Producer::class)->produce($message);
-}
 
 /**
  * @return Carbon

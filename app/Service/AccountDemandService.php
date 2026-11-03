@@ -14,7 +14,7 @@ namespace App\Service;
 
 use App\Amqp\Queue\AccountRechargeQueue;
 use App\Model\AccountDemand;
-use App\Model\DocsPlatformConfig;
+use App\Model\PlatformConfig;
 use Goletter\Server\BaseService;
 use Hyperf\Collection\Arr;
 use Hyperf\Paginator\LengthAwarePaginator;
@@ -33,12 +33,12 @@ class AccountDemandService extends BaseService
 
         $accountDemand = $this->save(new AccountDemand(), $data);
 
-        $docsPlatformConfig = DocsPlatformConfig::query()->first();
+        $platformConfig = PlatformConfig::query()->first();
         AccountRechargeQueue::produce([
             'account_demand_id' => $accountDemand->id,
             'tenant_id' => 1,
             'busine_id' => $accountDemand->busine_code,
-            'access_token' => $docsPlatformConfig->token,
+            'access_token' => $platformConfig->token,
         ]);
 
         return ['order_no' => $accountDemand->order_no];

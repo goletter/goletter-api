@@ -40,23 +40,23 @@ class GoogleTokenCommand extends HyperfCommand
 
     public function handle()
     {
-        $docsPlatformConfigs = PlatformConfig::query()->get();
+        $platformConfigs = PlatformConfig::query()->get();
 
-        foreach ($docsPlatformConfigs as $index => $docsPlatformConfig) {
-            if (! $docsPlatformConfig->refresh_token) {
+        foreach ($platformConfigs as $index => $platformConfig) {
+            if (! $platformConfig->refresh_token) {
                 return;
             }
-            // $minutesDiff = Carbon::now()->diffInMinutes(Carbon::parse($docsPlatformConfig->expire_at), true);
+            // $minutesDiff = Carbon::now()->diffInMinutes(Carbon::parse($platformConfig->expire_at), true);
 
             try {
                 $platform = $this->docs->make('google', [
-                    'client_id' => $docsPlatformConfig->client_id,
-                    'client_secret' => $docsPlatformConfig->client_secret,
-                    'redirect_uri' => $docsPlatformConfig->redirect_uri,
+                    'client_id' => $platformConfig->client_id,
+                    'client_secret' => $platformConfig->client_secret,
+                    'redirect_uri' => $platformConfig->redirect_uri,
                     'drive_root_folder' => 'Goletter',
                 ]);
-                $token = $platform->refreshToken($docsPlatformConfig->refresh_token);
-                $docsPlatformConfig->update([
+                $token = $platform->refreshToken($platformConfig->refresh_token);
+                $platformConfig->update([
                     'token' => $token['access_token'] ?? '',
                     'refresh_token' => $token['refresh_token'] ?? '',
                     'expire_at' => Carbon::now()->toDateTimeString(),

@@ -8,7 +8,7 @@ use App\Controller\AbstractController;
 use App\Model\PlatformConfig;
 use App\Request\Api\V1\PlatformConfigRequest;
 use App\Resource\Api\V1\PlatformConfigResource;
-use App\Service\DocsPlatformConfigService;
+use App\Service\PlatformConfigService;
 use Goletter\Resource\Collection;
 use Goletter\Resource\Resource;
 use Hyperf\Di\Annotation\Inject;
@@ -16,7 +16,7 @@ use Hyperf\Di\Annotation\Inject;
 class PlatformConfigController extends AbstractController
 {
     #[Inject]
-    private DocsPlatformConfigService $service;
+    private PlatformConfigService $service;
 
     public function index(): Collection
     {
