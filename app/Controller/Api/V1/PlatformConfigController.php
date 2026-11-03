@@ -13,11 +13,19 @@ use Goletter\Resource\Collection;
 use Goletter\Resource\Resource;
 use Hyperf\Di\Annotation\Inject;
 
+/**
+  * @desc 平台配置
+  * @author yong 2026-11-03
+  */
 class PlatformConfigController extends AbstractController
 {
     #[Inject]
     private PlatformConfigService $service;
 
+    /**
+      * @desc 配置列表
+      * @author yong 2026-11-03
+      */
     public function index(): Collection
     {
         return $this->collection(
@@ -26,6 +34,10 @@ class PlatformConfigController extends AbstractController
         );
     }
 
+    /**
+      * @desc 配置新增
+      * @author yong 2026-11-03
+      */
     public function store(PlatformConfigResource $request): Resource
     {
         return $this->success(
@@ -34,6 +46,10 @@ class PlatformConfigController extends AbstractController
         );
     }
 
+    /**
+      * @desc 配置更新
+      * @author yong 2026-11-03
+      */
     public function update(PlatformConfig $platformConfig, PlatformConfigRequest $request): Resource
     {
         return $this->success(

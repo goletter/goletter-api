@@ -1,4 +1,15 @@
 <?php
+
+declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
+
 namespace App\Controller\Api\V1;
 
 use App\Controller\AbstractController;
@@ -6,16 +17,19 @@ use Goletter\Docs\Tencent\Exceptions\TencentApiException;
 use Goletter\Docs\Tencent\TencentAuth;
 use Hyperf\Di\Annotation\Inject;
 
+/**
+  * @desc 腾讯文档
+  * @author yong 2026-11-03
+  */
 class TencentController extends AbstractController
 {
     #[Inject]
     protected TencentAuth $auth;
 
     /**
-     * 获取腾讯文档 OAuth 授权地址.
-     *
-     * GET /api/tencent/auth-url
-     */
+      * @desc 获取腾讯文档 OAuth 授权地址.
+      * @author yong 2026-11-03
+      */
     public function authUrl()
     {
         try {
@@ -29,10 +43,9 @@ class TencentController extends AbstractController
         ]);
     }
 
-    /**
-     * 腾讯文档 OAuth 回调，用 code 换取 token.
-     *
-     * GET /api/tencent/callback?code=xxx
+   /**
+     * @desc 腾讯文档 OAuth 回调，用 code 换取 token.
+     * @author yong 2026-11-03
      */
     public function callback()
     {

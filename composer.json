@@ -12,13 +12,13 @@
     ],
     "description": "A coroutine framework that focuses on hyperspeed and flexible, specifically use for build microservices and middlewares.",
     "require": {
-        "php": ">=8.1",
         "96qbhy/hyperf-auth": "^3.1",
         "duncan3dc/blade": "^4.17",
         "friendsofhyperf/cache": "^3.1",
         "goletter/hyperf-amqp": "^1.0",
         "goletter/hyperf-cache": "^1.0",
         "goletter/hyperf-docs": "^2.0",
+        "goletter/hyperf-openapi": "1.0.0",
         "goletter/hyperf-queue": "^1.0",
         "goletter/hyperf-server": "^2.0",
         "guzzlehttp/guzzle": "^7.15",
@@ -40,7 +40,9 @@
         "hyperf/memory": "~3.1.0",
         "hyperf/process": "~3.1.0",
         "hyperf/redis": "~3.1.0",
-        "hyperf/validation": "^3.1"
+        "hyperf/validation": "^3.1",
+        "php": ">=8.1",
+        "symfony/yaml": "^6.4"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.0",
@@ -62,6 +64,7 @@
             "App\\": "app/",
             "Goletter\\Adv\\": "packages/goletter/hyperf-adv/src/",
             "Goletter\\Akm\\": "packages/goletter/hyperf-akm/src/",
+            "Goletter\\OpenApi\\": "packages/goletter/hyperf-openapi/src/",
             "Goletter\\Webhook\\": "packages/goletter/hyperf-webhook/src/"
         },
         "files": [
@@ -79,6 +82,18 @@
         "optimize-autoloader": true,
         "sort-packages": true
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "packages/goletter/hyperf-openapi",
+            "options": {
+                "symlink": true,
+                "versions": {
+                    "goletter/hyperf-openapi": "1.0.0"
+                }
+            }
+        }
+    ],
     "extra": [],
     "scripts": {
         "post-root-package-install": [

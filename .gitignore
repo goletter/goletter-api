@@ -9,6 +9,7 @@ runtime/
 vendor/
 cert/
 public/
+storage/openapi
 .phpintel/
 .env
 .env.test

@@ -9,4 +9,9 @@ use Goletter\ModelFilter\Filterable;
 class AccountDemand extends Model
 {
     use Filterable;
+
+    public function platformConfig()
+    {
+        return $this->belongsTo(PlatformConfig::class);
+    }
 }

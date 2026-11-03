@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Resource\Api\V1;
+namespace App\Resource\Admin\V1;
 
 use Goletter\Resource\Resource;
 use Hyperf\Database\Model\Relations\BelongsTo;

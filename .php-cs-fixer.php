@@ -50,11 +50,19 @@ return (new PhpCsFixer\Config())
                 'declare',
             ],
         ],
-        'general_phpdoc_annotation_remove' => [
-            'annotations' => [
-                'author',
-            ],
-        ],
+        // 允许业务注释风格保留，例如：
+        // /**
+        //   * @desc 描述
+        //   * @author yong 2026-11-03
+        //   */
+        'general_phpdoc_annotation_remove' => false,
+        'phpdoc_to_comment' => false,
+        'phpdoc_summary' => false,
+        // 允许 /**
+        //   * @desc ...
+        //   */ 这种 * 对齐到 /** 第二个 * 的写法
+        'align_multiline_comment' => false,
+        'phpdoc_indent' => false,
         'ordered_imports' => [
             'imports_order' => [
                 'class', 'function', 'const',

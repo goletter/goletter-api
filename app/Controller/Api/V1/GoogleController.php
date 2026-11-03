@@ -6,16 +6,19 @@ use Goletter\Docs\Google\Exceptions\GoogleApiException;
 use Goletter\Docs\Google\GoogleAuth;
 use Hyperf\Di\Annotation\Inject;
 
+/**
+  * @desc Google文档
+  * @author yong 2026-11-03
+  */
 class GoogleController extends AbstractController
 {
     #[Inject]
     protected GoogleAuth $auth;
 
     /**
-     * 获取 Google OAuth 授权地址.
-     *
-     * GET /api/google/auth-url
-     */
+      * @desc 获取 Google OAuth 授权地址.
+      * @author yong 2026-11-03
+      */
     public function authUrl()
     {
         try {
@@ -30,10 +33,9 @@ class GoogleController extends AbstractController
     }
 
     /**
-     * Google OAuth 回调，用 code 换取 token.
-     *
-     * GET /api/google/callback?code=xxx
-     */
+      * @desc Google OAuth 回调，用 code 换取 token.
+      * @author yong 2026-11-03
+      */
     public function callback()
     {
         $code = (string) $this->request->input('code', '');

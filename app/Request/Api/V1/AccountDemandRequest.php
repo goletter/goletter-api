@@ -16,14 +16,16 @@ class AccountDemandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'platform' => 'required',
+            'token' => 'required',
+            'code' => 'required',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            // 'platform' => '平台',
+            'token' => 'token',
+            'code' => '账户Id',
         ];
     }
 }

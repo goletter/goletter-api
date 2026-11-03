@@ -2,26 +2,11 @@
 
 declare(strict_types=1);
 /**
- * This file is part of Hyperf.
- *
- * @link     https://www.hyperf.io
- * @document https://hyperf.wiki
- * @contact  group@hyperf.io
- * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ * 应用侧注册的命令。
+ * goletter/hyperf-openapi 若未以 Composer 包安装（ConfigProvider 未合并），在此显式注册。
  */
-
-use Goletter\Amqp\Command\AmqpDlqInfoCommand;
-use Goletter\Amqp\Command\AmqpDlqPurgeCommand;
-use Goletter\Amqp\Command\AmqpDlqReplayCommand;
-use Goletter\Amqp\Command\AmqpMakeQueueCommand;
-use Goletter\Amqp\Command\AmqpPurgeCommand;
-use Goletter\Amqp\Command\AmqpResetShardsCommand;
+use Goletter\OpenApi\Command\OpenApiGenerateCommand;
 
 return [
-    AmqpDlqInfoCommand::class,
-    AmqpDlqPurgeCommand::class,
-    AmqpDlqReplayCommand::class,
-    AmqpMakeQueueCommand::class,
-    AmqpPurgeCommand::class,
-    AmqpResetShardsCommand::class,
+    OpenApiGenerateCommand::class,
 ];
