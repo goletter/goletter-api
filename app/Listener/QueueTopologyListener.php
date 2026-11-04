@@ -1,6 +1,14 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
 
 namespace App\Listener;
 
@@ -11,6 +19,7 @@ use Hyperf\Event\Annotation\Listener;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\Framework\Event\BeforeMainServerStart;
 use Hyperf\Logger\LoggerFactory;
+use InvalidArgumentException;
 use PhpAmqpLib\Exception\AMQPConnectionClosedException;
 use PhpAmqpLib\Exception\AMQPIOException;
 use PhpAmqpLib\Exception\AMQPSocketException;
@@ -19,6 +28,7 @@ use Psr\Log\LoggerInterface;
 use Throwable;
 
 use function Hyperf\Support\env;
+use function Swoole\Coroutine\run;
 
 /**
  * 主进程 fork 前声明分片队列拓扑（DLX/DLQ + 全部分片）。
@@ -28,6 +38,9 @@ use function Hyperf\Support\env;
  *
  * QUEUE_DECLARE_ON_BOOT=false 时跳过，改由部署脚本声明。
  * broker 不可达：打日志告警，不阻断 HTTP 启动；其它声明错误 fail-fast。
+ *
+ * BeforeMainServerStart 不在协程内，而 hyperf/amqp 的 SwooleIO 必须在协程中连接，
+ * 因此声明逻辑包在 Coroutine\run 里执行。
  */
 #[Listener]
 class QueueTopologyListener implements ListenerInterface
@@ -52,13 +65,31 @@ class QueueTopologyListener implements ListenerInterface
             return;
         }
 
+        $caught = null;
+
+        // SwooleIO::connect 要求协程环境；主进程启动阶段用 run() 临时开调度器
+        run(function () use (&$caught): void {
+            try {
+                $this->declareTopology();
+            } catch (Throwable $exception) {
+                $caught = $exception;
+            }
+        });
+
+        if ($caught instanceof Throwable) {
+            throw $caught;
+        }
+    }
+
+    private function declareTopology(): void
+    {
         $classes = $this->registry->classes();
         $shardTotal = 0;
 
         try {
             foreach ($classes as $queueClass) {
                 if (! is_a($queueClass, ShardedQueue::class, true)) {
-                    throw new \InvalidArgumentException($queueClass . ' 必须继承 ' . ShardedQueue::class);
+                    throw new InvalidArgumentException($queueClass . ' 必须继承 ' . ShardedQueue::class);
                 }
 
                 for ($shard = 0, $n = $queueClass::shards(); $shard < $n; ++$shard) {
