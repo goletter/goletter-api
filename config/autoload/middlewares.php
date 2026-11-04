@@ -11,8 +11,9 @@ declare(strict_types=1);
  */
 return [
     'http' => [
+        App\Middleware\TraceMiddleware::class,
+        App\Middleware\AccessLogMiddleware::class,
         Goletter\Server\Middleware\RateLimitMiddleware::class,
-        Goletter\Server\Middleware\TraceGatewayMiddleware::class,
         Goletter\Server\Middleware\CorsMiddleware::class,
         Goletter\Server\Middleware\RequestDecryptMiddleware::class,
         Goletter\Server\Middleware\HeaderMiddleware::class,

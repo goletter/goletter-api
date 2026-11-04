@@ -12,10 +12,12 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\Amqp\Queue\AccountBindQueue;
 use App\Service\Adv\AdvResolver;
 use Hyperf\Command\Annotation\Command;
 use Hyperf\Command\Command as HyperfCommand;
 use Hyperf\Di\Annotation\Inject;
+use function Goletter\Utils\logging;
 
 #[Command]
 class TestCommand extends HyperfCommand
@@ -36,6 +38,11 @@ class TestCommand extends HyperfCommand
 
     public function handle()
     {
-        //
+        AccountBindQueue::produce([
+            'account_demand_id' => 1,
+            'tenant_id' => 1,
+            'busine_id' => 1,
+            'access_token' => 1,
+        ]);
     }
 }

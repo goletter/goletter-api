@@ -1,103 +1,69 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of Hyperf.
- *
- * @link     https://www.hyperf.io
- * @document https://hyperf.wiki
- * @contact  group@hyperf.io
- * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
- */
 
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\RotatingFileHandler;
-use Monolog\Logger;
+use App\Log\Channels;
+use App\Log\DailyFileHandler;
+use App\Log\EcsEnricher;
+use App\Log\EcsJsonFormatter;
+use App\Log\ErrorNormalizer;
+use App\Log\LogLevel;
+use App\Log\RedactLogProcessor;
+use App\Log\TraceContextProcessor;
 
 use function Hyperf\Support\env;
 
 /**
- * 按分类写到 {LOG_PATH}/{category}/YYYY-MM-DD.log
+ * $name 来自 LoggerFactory::get($name)，也是 runtime/logs/{name}/YYYY-MM-DD.log。
+ * 只用 App\Log\Channels 里的几个名字，不要再临时开 access / outbound / trace 这类目录。
+ * 同一文件里靠 message 区分：http.access、queue_processed、cli.command、db.query 等。
+ * 字段契约见 spec §6（ECS 8.11）：单行 JSON、点号平铺、无数组字段。
+ * Processor 顺序：脱敏 → 链路/业务字段 → 环境字段 → 错误展开与一致性约束（ErrorNormalizer 必须最后）。
  *
- * LoggerFactory::get($name) / logging(..., $category) 的 name/category 即目录名。
+ * @return array{handler: array<string, mixed>, formatter: array<string, mixed>, processors: list<array<string, mixed>>}
  */
-$logBase = static function (): string {
-    return rtrim((string) (env('LOG_PATH') ?: BASE_PATH . '/runtime/logs'), '/');
-};
-
-$normalizeCategory = static function (string $name): string {
-    $category = strtolower(trim($name));
-    $category = (string) preg_replace('/[^a-z0-9_\-]+/', '', $category);
-
-    return $category !== '' ? $category : 'hyperf';
-};
-
-$ensureDir = static function (string $dir): void {
-    if (is_dir($dir)) {
-        return;
-    }
-    if (! @mkdir($dir, 0775, true) && ! is_dir($dir)) {
-        throw new RuntimeException('无法创建日志目录：' . $dir);
-    }
-};
-
-$level = static function () {
-    $raw = strtoupper((string) env('LOG_LEVEL', 'DEBUG'));
-    $map = [
-        'DEBUG' => Logger::DEBUG,
-        'INFO' => Logger::INFO,
-        'NOTICE' => Logger::NOTICE,
-        'WARNING' => Logger::WARNING,
-        'ERROR' => Logger::ERROR,
-        'CRITICAL' => Logger::CRITICAL,
-        'ALERT' => Logger::ALERT,
-        'EMERGENCY' => Logger::EMERGENCY,
+$ecsChannel = static function (string $name): array {
+    $base = rtrim((string) (env('LOG_PATH') ?: BASE_PATH . '/runtime/logs'), '/\\');
+    $allowed = [
+        Channels::HTTP => true,
+        Channels::QUEUE => true,
+        Channels::CLI => true,
+        Channels::APP => true,
+        Channels::SQL => true,
     ];
-
-    return $map[$raw] ?? Logger::DEBUG;
-};
-
-$lineFormat = "%datetime%||%channel%||%level_name%||%message%||%context%\n";
-
-/**
- * @return array{handler: array, formatter: array, processors: array}
- */
-$rotatingCategory = static function (string $name) use ($logBase, $normalizeCategory, $ensureDir, $level, $lineFormat): array {
-    $category = $normalizeCategory($name);
-    $dir = $logBase() . '/' . $category;
-    $ensureDir($dir);
+    $category = strtolower($name !== '' ? $name : Channels::APP);
+    if (! isset($allowed[$category])) {
+        $category = Channels::APP;
+    }
 
     return [
         'handler' => [
-            'class' => RotatingFileHandler::class,
+            'class' => DailyFileHandler::class,
             'constructor' => [
-                // filename 仅提供目录与扩展名；filenameFormat={date} => YYYY-MM-DD.log
-                'filename' => $dir . '/app.log',
+                'directory' => $base . DIRECTORY_SEPARATOR . $category,
+                'level' => LogLevel::parse((string) env('LOG_LEVEL', 'info')),
                 'maxFiles' => (int) env('LOG_MAX_FILES', 30),
-                'level' => $level(),
-                'dateFormat' => 'Y-m-d',
-                'filenameFormat' => '{date}',
+                'useLocking' => true,
             ],
         ],
         'formatter' => [
-            'class' => LineFormatter::class,
-            'constructor' => [
-                'format' => $lineFormat,
-                'dateFormat' => 'Y-m-d H:i:s',
-                'allowInlineLineBreaks' => true,
-                'ignoreEmptyContextAndExtra' => true,
-            ],
+            'class' => EcsJsonFormatter::class,
         ],
-        'processors' => [],
+        'processors' => [
+            ['class' => RedactLogProcessor::class],
+            ['class' => TraceContextProcessor::class],
+            ['class' => EcsEnricher::class],
+            ['class' => ErrorNormalizer::class],
+        ],
     ];
 };
 
 return [
-    // logging($data, $msg, 'queue') / LoggerFactory::get('sql') 等走这里
-    'default' => $rotatingCategory,
+    // Log::app() / http() / queue() / cli() / sql()、LoggerFactory::get('sql') 等
+    'default' => $ecsChannel,
 
-    // docs 包可设 DOCS_LOG_GROUP=docs；独立目录 runtime/logs/docs/
-    'docs' => static function (string $name) use ($rotatingCategory) {
-        return $rotatingCategory($name !== '' ? $name : 'docs');
+    // docs 包可设 DOCS_LOG_GROUP=docs；未登记名仍会落到 app/
+    'docs' => static function (string $name) use ($ecsChannel): array {
+        return $ecsChannel($name !== '' ? $name : Channels::APP);
     },
 ];
