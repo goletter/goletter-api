@@ -13,10 +13,10 @@ declare(strict_types=1);
 namespace App\Amqp\Consumer;
 
 use App\Amqp\Queue\AccountRechargeQueue;
-use Goletter\Amqp\Sharded\ShardedConsumer;
 use App\Model\AccountDemand;
+use App\Notifier\OutboundDispatcher;
 use App\Service\Adv\AdvResolver;
-use App\Service\Webhook\WebhookNotifier;
+use Goletter\Amqp\Sharded\ShardedConsumer;
 use Hyperf\Amqp\Result;
 use Hyperf\Collection\Arr;
 use Hyperf\Di\Annotation\Inject;
@@ -31,7 +31,7 @@ class AccountRechargeConsumer extends ShardedConsumer
     private AdvResolver $advResolver;
 
     #[Inject]
-    private WebhookNotifier $webhookNotifier;
+    private OutboundDispatcher $outbound;
 
     protected function handle(mixed $data, AMQPMessage $message): Result
     {
@@ -52,20 +52,20 @@ class AccountRechargeConsumer extends ShardedConsumer
                 'status' => 0,
                 'remark' => $exception->getMessage(),
             ]);
-            $this->safeNotify($accountDemand->fresh() ?? $accountDemand, 'account_demand.failed');
+            $this->safeEmit($accountDemand->fresh() ?? $accountDemand, 'account_demand.failed');
 
             return Result::DROP;
         }
 
-        $this->safeNotify($accountDemand->fresh() ?? $accountDemand, 'account_demand.succeeded');
+        $this->safeEmit($accountDemand->fresh() ?? $accountDemand, 'account_demand.succeeded');
 
         return Result::ACK;
     }
 
-    protected function safeNotify(AccountDemand $accountDemand, string $event): void
+    protected function safeEmit(AccountDemand $accountDemand, string $event): void
     {
         try {
-            $this->webhookNotifier->notify($accountDemand, $event);
+            $this->outbound->emit($event, $accountDemand);
         } catch (Throwable $e) {
             logging([
                 'event' => 'webhook_notify_error',
