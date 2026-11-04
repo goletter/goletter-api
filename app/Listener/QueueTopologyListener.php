@@ -36,7 +36,7 @@ use function Swoole\Coroutine\run;
  * 消费者进程只会声明自己消费的队列；此处一次性建好死信与分片，避免发版窗口内
  * 消息进 DLX 却因留证队列不存在被 broker 丢弃。
  *
- * QUEUE_DECLARE_ON_BOOT=false 时跳过，改由部署脚本声明。
+ * QUEUE_DECLARE_ON_BOOT 默认 false；为 true 时在 fork 前声明，改由部署脚本亦可。
  * broker 不可达：打日志告警，不阻断 HTTP 启动；其它声明错误 fail-fast。
  *
  * BeforeMainServerStart 不在协程内，而 hyperf/amqp 的 SwooleIO 必须在协程中连接，
@@ -61,7 +61,8 @@ class QueueTopologyListener implements ListenerInterface
 
     public function process(object $event): void
     {
-        if (! filter_var(env('QUEUE_DECLARE_ON_BOOT', true), FILTER_VALIDATE_BOOLEAN)) {
+        // 默认关闭：远程 Broker 连不上会拖慢整个 start；拓扑改由部署脚本或首次消费时声明
+        if (! filter_var(env('QUEUE_DECLARE_ON_BOOT', false), FILTER_VALIDATE_BOOLEAN)) {
             return;
         }
 

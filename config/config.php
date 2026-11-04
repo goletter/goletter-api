@@ -17,7 +17,8 @@ use function Hyperf\Support\env;
 return [
     'app_name' => env('APP_NAME', 'skeleton'),
     'app_env' => env('APP_ENV', 'dev'),
-    'scan_cacheable' => env('SCAN_CACHEABLE', false),
+    // 生产默认复用 runtime/container；开发改注解时设 SCAN_CACHEABLE=false
+    'scan_cacheable' => (bool) env('SCAN_CACHEABLE', env('APP_ENV') === 'production'),
     StdoutLoggerInterface::class => [
         'log_level' => [
             LogLevel::ALERT,

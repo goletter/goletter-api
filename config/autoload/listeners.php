@@ -12,6 +12,6 @@ declare(strict_types=1);
 return [
     Hyperf\ExceptionHandler\Listener\ErrorExceptionHandler::class,
     Hyperf\Command\Listener\FailToHandleListener::class,
-    // 显式注册：保证 OTel TracerProvider 在请求前就绪，访问日志才能写出 trace_id
+    // 显式注册（不依赖 scan cache）：OTel 在 BootApplication 就绪，访问日志才有 trace.id
     App\Listener\OtelBootstrapListener::class,
 ];

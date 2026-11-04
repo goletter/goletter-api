@@ -14,7 +14,7 @@ use Hyperf\Amqp\IO\IOFactory;
 use function Hyperf\Support\env;
 
 return [
-    'enable' => true,
+    'enable' => filter_var(env('AMQP_ENABLE', true), FILTER_VALIDATE_BOOLEAN),
     'default' => [
         'host' => env('AMQP_HOST', 'localhost'),
         'port' => (int) env('AMQP_PORT', 5672),
