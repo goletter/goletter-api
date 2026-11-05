@@ -75,6 +75,14 @@ class ApiCallStatsCommand extends HyperfCommand
         $files = 0;
         $lines = 0;
         $matched = 0;
+        $diag = [
+            'non_json' => 0,
+            'json' => 0,
+            'call_log_msg' => 0,
+            'in_range' => 0,
+            'with_fields' => 0,
+            'messages' => [],
+        ];
 
         for ($day = $from->copy()->startOfDay(); $day->lte($to); $day->addDay()) {
             $file = rtrim($logDir, '/\\') . DIRECTORY_SEPARATOR . $day->format('Y-m-d') . '.log';
@@ -91,16 +99,23 @@ class ApiCallStatsCommand extends HyperfCommand
                 ++$lines;
                 $row = json_decode($line, true);
                 if (! is_array($row)) {
+                    ++$diag['non_json'];
                     continue;
                 }
+                ++$diag['json'];
                 $message = (string) ($row['message'] ?? '');
+                if ($message !== '') {
+                    $diag['messages'][$message] = ($diag['messages'][$message] ?? 0) + 1;
+                }
                 if (! $this->isCallLogMessage($message, $messageFilter)) {
                     continue;
                 }
+                ++$diag['call_log_msg'];
                 $at = $this->rowTime($row);
                 if ($at === null || $at->lt($from) || $at->gt($to)) {
                     continue;
                 }
+                ++$diag['in_range'];
                 if ($successFilter !== '' && (string) ($row['is_success'] ?? '') !== $successFilter) {
                     continue;
                 }
@@ -108,6 +123,7 @@ class ApiCallStatsCommand extends HyperfCommand
                 if ($iface === '' || ! isset($row['duration_ms'])) {
                     continue;
                 }
+                ++$diag['with_fields'];
                 $ms = (float) $row['duration_ms'];
                 $key = $message . "\t" . $iface;
                 $buckets[$key][] = $ms;
@@ -125,6 +141,7 @@ class ApiCallStatsCommand extends HyperfCommand
                 $from->toDateTimeString(),
                 $to->toDateTimeString()
             ));
+            $this->printDiagnostics($logDir, $diag, $messageFilter);
             return;
         }
 
@@ -174,6 +191,43 @@ class ApiCallStatsCommand extends HyperfCommand
                 ];
             }, $rows)
         );
+    }
+
+    /**
+     * @param array{non_json:int,json:int,call_log_msg:int,in_range:int,with_fields:int,messages:array<string,int>} $diag
+     */
+    private function printDiagnostics(string $logDir, array $diag, string $messageFilter): void
+    {
+        $this->line(sprintf(
+            '诊断: JSON=%d 非JSON=%d | *请求日志=%d | 时间命中=%d | 含 api_interface+duration_ms=%d',
+            $diag['json'],
+            $diag['non_json'],
+            $diag['call_log_msg'],
+            $diag['in_range'],
+            $diag['with_fields']
+        ));
+
+        if ($diag['messages'] !== []) {
+            arsort($diag['messages']);
+            $top = array_slice($diag['messages'], 0, 8, true);
+            $this->line('本目录 message 分布（Top）:');
+            foreach ($top as $msg => $cnt) {
+                $this->line(sprintf('  %6d  %s', $cnt, $msg));
+            }
+        }
+
+        $base = basename(rtrim($logDir, '/\\'));
+        if ($base === 'adv' || isset($diag['messages']['第三方平台接口异常'])) {
+            $this->warn('logs/adv 是 AdvException（第三方平台接口异常），不含调用耗时。');
+            $parent = dirname($logDir);
+            $this->line('请改扫含「*请求日志」的目录，例如:');
+            $this->line('  --log-dir=' . $parent . '/app');
+            $this->line('  或先查: grep -l "请求日志" ' . $parent . '/*/*.log');
+        } elseif ($diag['call_log_msg'] === 0 && $messageFilter === '') {
+            $this->warn('未出现 message 以「请求日志」结尾的行；确认调用日志是否写在该目录。');
+        } elseif ($diag['call_log_msg'] > 0 && $diag['with_fields'] === 0) {
+            $this->warn('有请求日志，但缺少 api_interface / duration_ms 字段，请抽一行 JSON 核对字段名。');
+        }
     }
 
     private function parseBound(string $value, bool $endOfDayIfDateOnly): Carbon
