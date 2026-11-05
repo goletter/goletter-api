@@ -23,7 +23,7 @@ class AccountController extends AbstractController
       */
     public function index()
     {
-        $data = ['status' => 444444];
+        $data = ['status' => 123456];
         return $this->success($data);
     }
 
