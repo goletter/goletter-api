@@ -30,7 +30,7 @@ class AccountAdvReportConsumer extends ShardedConsumer
         $endAt = Arr::get($data, 'end_at') ?: Carbon::now()->toDateString();
 
         $adv = $this->advResolver->resolveAdv($platform, $token);
-        $accountInsights = $adv->report()->iterateDailyReport([
+        $accountInsights = $adv->report()->insightDailyReport([
             'code' => $code,
             'start_at' => $startAt,
             'end_at' => $endAt,
