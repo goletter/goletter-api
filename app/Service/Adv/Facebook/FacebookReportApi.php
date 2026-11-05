@@ -35,32 +35,11 @@ class FacebookReportApi extends AdvException
     public function iterateDailyReport(array $params)
     {
         $accountId = Arr::get($params, 'code');
-        $isReport = Arr::get($params, 'is_report', 0);
         $startAt = $params['start_at'] ?? Carbon::now()->subDays(3)->toDateString();
         $endAt = $params['end_at'] ?? Carbon::now()->toDateString();
 
         try {
             $fields = ['date_start', 'spend', 'impressions', 'clicks', 'date_stop'];
-            if ($isReport) {
-                $fields = [
-                    'account_name',
-                    'account_id',
-                    'campaign_id',
-                    'campaign_name',
-                    'date_start',
-                    'date_stop',
-                    'reach',
-                    'impressions',
-                    'frequency',
-                    'spend',
-                    'clicks',
-                    'cpc',
-                    'actions',
-                    'action_values',
-                    'cost_per_action_type',
-                ];
-            }
-
             return $this->facebookReport->getAllInsights(
                 (string) $accountId,
                 $startAt,

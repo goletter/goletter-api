@@ -14,7 +14,6 @@ namespace App\Amqp\Consumer;
 
 use App\Amqp\Queue\AccountInsightQueue;
 use Goletter\Amqp\Sharded\ShardedConsumer;
-use App\Model\AccountAdvReport;
 use App\Model\AccountInsight;
 use App\Service\Adv\AdvResolver;
 use Carbon\Carbon;
@@ -43,11 +42,9 @@ class AccountInsightConsumer extends ShardedConsumer
             'code' => $code,
             'start_at' => $startAt,
             'end_at' => $endAt,
-            'is_report' => 1
         ]);
 
         $newAccountInsights = [];
-        $newReports = [];
         foreach ($accountInsights as $item) {
             $spend = Arr::get($item, 'spend', 0);
             if ($spend > 0) {
@@ -61,50 +58,6 @@ class AccountInsightConsumer extends ShardedConsumer
                     'updated_at' => Carbon::now()->toDateTimeString(),
                 ];
             }
-
-            $purchase = $this->extractActionValue(
-                (array) ($item['actions'] ?? []),
-                ['purchase', 'omni_purchase', 'offsite_conversion.fb_pixel_purchase']
-            );
-            $costPerPurchase = $this->extractActionValue(
-                (array) ($item['cost_per_action_type'] ?? []),
-                ['purchase', 'omni_purchase', 'offsite_conversion.fb_pixel_purchase']
-            );
-            $reg = $this->extractActionValue(
-                (array) ($item['actions'] ?? []),
-                ['complete_registration', 'omni_complete_registration']
-            );
-            $costPerReg = $this->extractActionValue(
-                (array) ($item['cost_per_action_type'] ?? []),
-                ['complete_registration', 'omni_complete_registration']
-            );
-            $roas = $this->extractActionValue(
-                (array) ($item['action_values'] ?? []),
-                ['purchase_roas', 'omni_purchase_roas']
-            );
-
-            $newReports[] = [
-                'tenant_id' => $tenantId,
-                'code' => Arr::get($item, 'account_id'),
-                'spend' => (string) ($item['spend'] ?? '0'),
-                'dollar' => (string) ($item['spend'] ?? '0'),
-                'campaign_name' => (string) ($item['campaign_name'] ?? ''),
-                'campaign_id' => (string) ($item['campaign_id'] ?? ''),
-                'reach' => (string) ($item['reach'] ?? ''),
-                'impressions' => (string) ($item['impressions'] ?? ''),
-                'frequency' => (string) ($item['frequency'] ?? ''),
-                'clicks' => (string) ($item['clicks'] ?? ''),
-                'cpc' => (string) ($item['cpc'] ?? ''),
-                'purchase' => (string) ($purchase ?? ''),
-                'cost_per_purchase' => (string) ($costPerPurchase ?? ''),
-                'roas' => (string) ($roas ?? ''),
-                'reg' => (string) ($reg ?? ''),
-                'cost_per_reg' => (string) ($costPerReg ?? ''),
-                'start_at' => $item['date_start'] ?? null,
-                'end_at' => $item['date_stop'] ?? null,
-                'created_at' => Carbon::now()->toDateTimeString(),
-                'updated_at' => Carbon::now()->toDateTimeString(),
-            ];
         }
 
         if (count($newAccountInsights) > 0) {
@@ -116,31 +69,11 @@ class AccountInsightConsumer extends ShardedConsumer
             );
         }
 
-        if (count($newReports) > 0) {
-            AccountAdvReport::batchUpdateOrCreate(
-                'account_adv_reports',
-                $newReports,
-                ['tenant_id', 'code', 'campaign_id', 'start_at'], // 唯一键
-                ['spend', 'dollar', 'reach', 'impressions', 'frequency', 'clicks', 'cpc', 'purchase', 'cost_per_purchase', 'roas', 'cost_per_reg', 'updated_at']  // 重复更新字段
-            );
-        }
-
         return Result::ACK;
     }
 
     protected static function queueClass(): string
     {
         return AccountInsightQueue::class;
-    }
-
-    private function extractActionValue(array $rows, array $types): ?string
-    {
-        foreach ($rows as $row) {
-            $type = (string) ($row['action_type'] ?? '');
-            if (in_array($type, $types, true)) {
-                return (string) ($row['value'] ?? '0');
-            }
-        }
-        return null;
     }
 }

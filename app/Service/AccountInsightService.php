@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Amqp\Queue\AccountAdvReportQueue;
 use App\Amqp\Queue\AccountInsightQueue;
 use App\Service\Adv\AdvResolver;
 use Carbon\Carbon;
@@ -67,5 +68,6 @@ class AccountInsightService extends BaseService
             $payload['end_at'] = $endAt;
         }
         AccountInsightQueue::produce($payload);
+        AccountAdvReportQueue::produce($payload);
     }
 }
