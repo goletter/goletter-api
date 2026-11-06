@@ -1,0 +1,189 @@
+name: hyperf-base
+
+# 凭据与业务配置统一读仓库根 .env（各服务 env_file: ../../.env）。
+# 裸命令：在 deploy/docker 下执行 docker compose up -d 即可，勿依赖本目录 .env。
+# 仅镜像 tag 可选插值 APP_TAG（默认 latest，可写在根 .env 或 export）。
+
+services:
+  app:
+    image: hyperf-base-app:${APP_TAG:-latest}
+    build:
+      context: ../..
+      dockerfile: ../../../
+    # 生产不挂源码；dev 用 docker-compose.override.yml 挂 ../../:/opt/www
+    ports:
+      - "127.0.0.1:9901:9901"          # 仅本机调试
+    volumes:
+      - ../../:/opt/www
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - ../../.env
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - AMQP_HOST=rabbitmq
+      - AMQP_PORT=5672
+      - AMQP_VHOST=/
+      - AMQP_ENABLE=true
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      # AMQP_USER / AMQP_PASSWORD / REDIS_AUTH / DB_* / QUEUE_DECLARE_ON_BOOT 等由 env_file 注入
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php -r 'exit(@fsockopen(\"127.0.0.1\",9901) ? 0 : 1);'"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    stop_grace_period: 30s
+    networks:
+      - app_network
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+    deploy:
+      resources:
+        limits: { memory: 1G }
+
+  rabbitmq:
+    image: hyperf-base-rabbitmq:3.13
+    build:
+      context: ./rabbitmq
+      dockerfile: Dockerfile
+    hostname: rabbitmq
+    env_file:
+      - ../../.env
+    ports:
+      - "127.0.0.1:5680:5672"          # 宿主机 5680 → 容器 5672；app 走内部网络
+      - "127.0.0.1:15672:15672"        # 管理后台仅本机
+    volumes:
+      # 必须用 named volume：Windows/WSL 下 bind mount 到 /mnt/c 的 drvfs 不支持
+      # chmod（恒为 777），.erlang.cookie 会因 "must be accessible by owner only"
+      # 检查失败导致 rabbitmq 无法启动。
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    ulimits:
+      nofile: { soft: 65536, hard: 65536 }
+    stop_grace_period: 30s
+    networks:
+      - app_network
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+    deploy:
+      resources:
+        limits: { memory: 1G }
+
+  redis:
+    image: redis:7.4-alpine
+    hostname: redis
+    env_file:
+      - ../../.env
+    entrypoint:
+      - /bin/sh
+      - -ec
+      - |
+        if [ -z "$$REDIS_AUTH" ]; then
+          echo "REDIS_AUTH missing: set it in repository root .env" >&2
+          exit 1
+        fi
+        exec redis-server /usr/local/etc/redis/redis.conf --requirepass "$$REDIS_AUTH"
+    ports:
+      - "127.0.0.1:6380:6379"          # 宿主机 6380 → 容器 6379；app 走内部网络
+    volumes:
+      - ./redis/data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_AUTH\" --no-auth-warning ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    networks:
+      - app_network
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+    deploy:
+      resources:
+        limits: { memory: 512M }
+
+  mysql:
+    image: mysql:8.4
+    hostname: mysql
+    env_file:
+      - ../../.env
+    entrypoint:
+      - /bin/bash
+      - -ec
+      - |
+        if [ -z "$$DB_PASSWORD" ]; then
+          echo "DB_PASSWORD missing: set it in repository root .env" >&2
+          exit 1
+        fi
+        export MYSQL_ROOT_PASSWORD="$$DB_PASSWORD"
+        export MYSQL_DATABASE="$$DB_DATABASE"
+        [ -n "$$MYSQL_DATABASE" ] || export MYSQL_DATABASE=hyperf
+        exec /usr/local/bin/docker-entrypoint.sh mysqld
+    ports:
+      - "127.0.0.1:3380:3306"          # 宿主机 3380 → 容器 3306；app 走内部网络
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/conf.d/app.cnf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p\"$$DB_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    ulimits:
+      nofile: { soft: 65536, hard: 65536 }
+    stop_grace_period: 30s
+    networks:
+      - app_network
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+    deploy:
+      resources:
+        limits: { memory: 1G }
+
+  # 本地链路调试（可选，profile=tracing）：docker compose --profile tracing up -d
+  # UI：http://localhost:16686（选服务 hyperf-base-service）；OTLP 接收：容器内 http://jaeger:4318
+  jaeger:
+    image: jaegertracing/all-in-one:1.62
+    profiles: ["tracing"]
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "16686:16686"
+      - "4318:4318"
+    networks:
+      - app_network
+    restart: always
+
+volumes:
+  rabbitmq_data:
+
+networks:
+  app_network:
+    driver: bridge
