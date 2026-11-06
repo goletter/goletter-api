@@ -1,10 +1,20 @@
 <?php
 
+declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
+
 namespace App\Service\Adv\TikTok;
 
-use App\Model\Account;
 use App\Service\Adv\AdvException;
 use App\Service\Adv\Interface\AccountApi;
+use Exception;
 use Goletter\Adv\Platforms\TikTok\TikTokAccount;
 use Goletter\Adv\Platforms\TikTok\TikTokBusiness;
 use Goletter\Adv\Platforms\TikTok\TikTokClient;
@@ -24,8 +34,7 @@ class TikTokAccountApi extends AdvException implements AccountApi
 
     /**
      * 获取广告账户详情
-     * @param string $accountId
-     * @return array|null
+     * @return null|array
      */
     public function getAccount(string $accountId): array
     {
@@ -49,29 +58,26 @@ class TikTokAccountApi extends AdvException implements AccountApi
                 'currency' => $currency,
                 'name' => $name,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new AdvException(500, $e->getMessage(), $e, $accountId, 0, 'tiktok', 'adv');
         }
     }
 
     /**
      * 更新广告账户名称
-     * @param string $accountId
-     * @param string $name
-     * @return void
      */
     public function updateAccountName(string $accountId, string $name): void
     {
         try {
             $this->tikTokAccount->updateAccountName($accountId, $name);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new AdvException(500, $e->getMessage(), $e, $accountId, 0, 'tiktok', 'adv');
         }
     }
 
     /**
      * 账户开户
-     * @return void
+     * @param mixed $accountDemand
      */
     public function open($accountDemand): void
     {
@@ -86,35 +92,33 @@ class TikTokAccountApi extends AdvException implements AccountApi
                 'form_library_role' => 'ADMIN',
                 'tt_account_roles' => ['POST'],
                 'business_account_roles' => ['BUSINESS_ACCOUNT_ADMIN'],
-                'store_role' => 'AD_PROMOTION'
+                'store_role' => 'AD_PROMOTION',
             ]);
             $accountDemand->update(['status' => 2]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new AdvException(500, $e->getMessage(), $e, $accountDemand->code, 0, 'tiktok', LogTypeConstant::Account);
         }
     }
 
     /**
      * 账户充值
-     * @return void
+     * @param mixed $accountDemand
      */
     public function recharge($accountDemand): void
     {
-        //
     }
 
     /**
      * 账户扣款
-     * @return void
+     * @param mixed $accountDemand
      */
     public function deduction($accountDemand): void
     {
-        //
     }
 
     /**
      * 账户清零
-     * @return void
+     * @param mixed $accountDemand
      */
     public function reset($accountDemand): void
     {
@@ -123,53 +127,50 @@ class TikTokAccountApi extends AdvException implements AccountApi
 
     /**
      * 账户回收
-     * @return void
+     * @param mixed $accountDemand
      */
     public function recycle($accountDemand): void
     {
-        //
     }
 
     /**
      * 账户绑定
-     * @return void
+     * @param mixed $accountDemand
      */
     public function bind($accountDemand): void
     {
-        //
     }
 
     /**
      * 账户解绑
-     * @return void
+     * @param mixed $accountDemand
      */
     public function unBind($accountDemand): void
     {
-        //
     }
 
     /**
      * 暂停广告系列
-     * @param $accountId
+     * @param mixed $accountDemand
      * @return array
      * */
     public function pauseAdCampaign($accountDemand): void
     {
         $accountId = $accountDemand->code;
-        //查询-删除广告系列
+        // 查询-删除广告系列
         $result = $this->tikTokAccount->getCampaign($accountId);
-        if(isset($result['data']['list'])){
-            $campaignIds = array_column($result['data']['list'],'campaign_id');
-            $operationStatus = 'DISABLE';//暂停
+        if (isset($result['data']['list'])) {
+            $campaignIds = array_column($result['data']['list'], 'campaign_id');
+            $operationStatus = 'DISABLE'; // 暂停
             // $operationStatus = 'ENABLE';//开启
-            if(!empty($campaignIds)){
+            if (! empty($campaignIds)) {
                 $param = [
-                    'advertiser_id'=>$accountId,
-                    'campaign_ids'=>$campaignIds,
-                    'operation_status'=>$operationStatus,
+                    'advertiser_id' => $accountId,
+                    'campaign_ids' => $campaignIds,
+                    'operation_status' => $operationStatus,
                 ];
                 $result = $this->tikTokAccount->updateCampaignStatus($param);
-                if($result['code'] !== 0) {
+                if ($result['code'] !== 0) {
                     $accountDemand->update(['status' => 3, 'remark' => '暂停广告系列错误']);
                 }
             }
@@ -178,22 +179,21 @@ class TikTokAccountApi extends AdvException implements AccountApi
 
     /**
      * 修改广告系列状态
-     * @param $accountDemand
-     * @param string $status  [DISABLE="暂停", ENABLE="开启",DELETE="删除"]
+     * @param string $status [DISABLE="暂停", ENABLE="开启",DELETE="删除"]
      * @return array
      */
     public function updateAdCampaignStatus($accountDemand, $status): void
     {
         $accountId = $accountDemand->code;
         $result = $this->tikTokAccount->getCampaign($accountId);
-        if(isset($result['data']['list'])){
-            $campaignIds = array_column($result['data']['list'],'campaign_id');
-            $operationStatus = $status;//暂停
-            if(!empty($campaignIds)){
+        if (isset($result['data']['list'])) {
+            $campaignIds = array_column($result['data']['list'], 'campaign_id');
+            $operationStatus = $status; // 暂停
+            if (! empty($campaignIds)) {
                 $param = [
-                    'advertiser_id'=>$accountId,
-                    'campaign_ids'=>$campaignIds,
-                    'operation_status'=>$operationStatus,
+                    'advertiser_id' => $accountId,
+                    'campaign_ids' => $campaignIds,
+                    'operation_status' => $operationStatus,
                 ];
                 $result = $this->tikTokAccount->updateCampaignStatus($param);
                 // if($result['code'] !== 0) {
@@ -205,22 +205,18 @@ class TikTokAccountApi extends AdvException implements AccountApi
 
     /**
      * 授权
-     * @param $account
-     * @return void
+     * @param mixed $accountDemand
      */
     public function addAssignedUser($accountDemand)
     {
-        //
     }
 
     public function removeAssignedUser($accountDemand)
     {
-        //
     }
 
     public function batchAddAssignedUser($accountCode, $userId, $busineId = '0')
     {
-        //
     }
 
     public function getAdvertiserBalance($accountDemand)
@@ -228,7 +224,7 @@ class TikTokAccountApi extends AdvException implements AccountApi
         try {
             $bcId = Arr::get($accountDemand, 'busine_code');
             return $this->tikTokAccount->getAdvertiserBalance(['bc_id' => $bcId, 'fields' => json_encode(['balance_info'])]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new AdvException(500, $e->getMessage(), $e, 0, 0, 'tiktok', 'adv');
         }
     }
