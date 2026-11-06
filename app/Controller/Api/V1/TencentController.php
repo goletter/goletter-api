@@ -43,10 +43,10 @@ class TencentController extends AbstractController
         ]);
     }
 
-   /**
-     * @desc 腾讯文档 OAuth 回调，用 code 换取 token.
-     * @author yong 2026-11-03
-     */
+    /**
+      * @desc 腾讯文档 OAuth 回调，用 code 换取 token.
+      * @author yong 2026-11-03
+      */
     public function callback()
     {
         $code = (string) $this->request->input('code', '');

@@ -96,7 +96,7 @@ class TikTokAccountApi extends AdvException implements AccountApi
             ]);
             $accountDemand->update(['status' => 2]);
         } catch (Exception $e) {
-            throw new AdvException(500, $e->getMessage(), $e, $accountDemand->code, 0, 'tiktok', LogTypeConstant::Account);
+            throw new AdvException(500, $e->getMessage(), $e, $accountDemand->code, 0, 'tiktok', 'adv');
         }
     }
 

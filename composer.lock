@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e9e5dd2003f9ecb16e55d38b81993727",
+    "content-hash": "0785630e924df9ff6e5cfb18935c6175",
     "packages": [
         {
             "name": "96qbhy/hyperf-auth",
@@ -1580,16 +1580,16 @@
         },
         {
             "name": "goletter/hyperf-server",
-            "version": "v2.10.9",
+            "version": "v2.10.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goletter/hyperf-server.git",
-                "reference": "61a5a72a55f445b3d3dc5090b79ab6e5a3101730"
+                "reference": "1ee889190b8b813636ba460846092cd4d3b48d30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goletter/hyperf-server/zipball/61a5a72a55f445b3d3dc5090b79ab6e5a3101730",
-                "reference": "61a5a72a55f445b3d3dc5090b79ab6e5a3101730",
+                "url": "https://api.github.com/repos/goletter/hyperf-server/zipball/1ee889190b8b813636ba460846092cd4d3b48d30",
+                "reference": "1ee889190b8b813636ba460846092cd4d3b48d30",
                 "shasum": ""
             },
             "require": {
@@ -1632,9 +1632,9 @@
             ],
             "support": {
                 "issues": "https://github.com/goletter/hyperf-server/issues",
-                "source": "https://github.com/goletter/hyperf-server/tree/v2.10.9"
+                "source": "https://github.com/goletter/hyperf-server/tree/v2.10.10"
             },
-            "time": "2026-11-03T10:53:06+00:00"
+            "time": "2026-11-06T11:14:52+00:00"
         },
         {
             "name": "goletter/hyperf-sls-log",
