@@ -68,6 +68,6 @@ class AccountInsightService extends BaseService
             $payload['end_at'] = $endAt;
         }
         AccountInsightQueue::produce($payload);
-        AccountAdvReportQueue::produce($payload);
+        // AccountAdvReportQueue::produce($payload);
     }
 }
