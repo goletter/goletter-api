@@ -2,16 +2,17 @@
 # -------------------------------------------------------------------
 # 零闪断热更新：先 app_b → 等 healthy → 再 app_a → nginx reload
 # 用法:
-#   bash deploy/docker/deploy.sh
-#   bash deploy/docker/deploy.sh --build
+#   bash deploy/docker/production/deploy.sh
+#   bash deploy/docker/production/deploy.sh --build
 # -------------------------------------------------------------------
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+# production → docker → deploy → 仓库根
+ROOT_DIR="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 COMPOSE_FILE="${SCRIPT_DIR}/docker-compose.yml"
 RUNTIME_DIR="${ROOT_DIR}/runtime"
-DC=(docker compose -f "${COMPOSE_FILE}")
+DC=(docker compose -f "${COMPOSE_FILE}" --project-directory "${SCRIPT_DIR}")
 
 cd "${SCRIPT_DIR}"
 
@@ -29,13 +30,18 @@ die() { printf '错误: %s\n' "$*" >&2; exit 1; }
 command -v docker >/dev/null 2>&1 || die '未找到 docker'
 docker compose version >/dev/null 2>&1 || die '当前 docker 不支持 compose 插件'
 [[ -f "${COMPOSE_FILE}" ]] || die "找不到 ${COMPOSE_FILE}"
+[[ -f "${ROOT_DIR}/Dockerfile" ]] || die "仓库根缺少 Dockerfile（ROOT_DIR=${ROOT_DIR}）"
+[[ -f "${ROOT_DIR}/.env" ]] || die "仓库根缺少 .env（ROOT_DIR=${ROOT_DIR}）"
+# nginx.conf 固定引用这两份证书；缺失时 compose 会建空目录，nginx 起不来
+[[ -f "${ROOT_DIR}/cert/docs.goletter.cn.pem" && -f "${ROOT_DIR}/cert/docs.goletter.cn.key" ]] \
+    || die "缺少 SSL 证书：${ROOT_DIR}/cert/docs.goletter.cn.{pem,key}"
 
 wait_for_healthy() {
     local service_name=$1
     local container_id status
     log "等待 ${service_name} 健康检查通过..."
 
-    for _ in $(seq 1 30); do
+    for _ in $(seq 1 60); do
         container_id="$("${DC[@]}" ps -q "${service_name}" 2>/dev/null || true)"
         [[ -n "${container_id}" ]] || die "找不到 ${service_name} 容器"
 
@@ -47,7 +53,7 @@ wait_for_healthy() {
                 return 0
                 ;;
             unhealthy)
-                die "${service_name} 健康检查失败 (unhealthy)"
+                die "${service_name} 健康检查失败 (unhealthy)。日志: ${DC[*]} logs --tail=80 ${service_name}"
                 ;;
         esac
         sleep 2
@@ -58,6 +64,7 @@ wait_for_healthy() {
 
 log '========================================================='
 log '开始热更新'
+log "ROOT_DIR=${ROOT_DIR}"
 log '========================================================='
 
 if [[ "${NEED_BUILD}" == true ]]; then
@@ -79,6 +86,8 @@ fi
 # 避免 up 时再跑空构建并刷 WARN "No services to build"。
 export COMPOSE_BAKE=false
 
+mkdir -p "${RUNTIME_DIR}/app_a/logs" "${RUNTIME_DIR}/app_b/logs"
+
 log '[2/5] 重启备份节点 app_b...'
 "${DC[@]}" up -d "${UP_ARGS[@]}" app_b
 wait_for_healthy app_b
@@ -87,7 +96,8 @@ log '[3/5] 重启主节点 app_a...'
 "${DC[@]}" up -d "${UP_ARGS[@]}" app_a
 wait_for_healthy app_a
 
-log '[4/5] 热重载 Nginx...'
+log '[4/5] 确保 Nginx 并热重载...'
+"${DC[@]}" up -d nginx
 "${DC[@]}" exec -T nginx nginx -s reload
 
 if [[ "${NEED_BUILD}" == true ]]; then

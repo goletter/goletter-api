@@ -1,15 +1,24 @@
 name: goletter-cluster
 
+# 路径相对本文件所在目录 deploy/docker/production → 仓库根为 ../../..
 x-app: &app
   image: goletter-app:latest
   build:
-    context: ../..
+    context: ../../..
+    dockerfile: Dockerfile
   extra_hosts:
     - 'host.docker.internal:host-gateway'
+  env_file:
+    - ../../../.env
   environment:
-    APP_ENV: dev
-    SCAN_CACHEABLE: 'false'
+    APP_ENV: ${APP_ENV:-prod}
+    SCAN_CACHEABLE: ${SCAN_CACHEABLE:-true}
     APP_PORT: '8501'
+    # 容器内默认开队列/定时；本地可在根 .env 关掉
+    AMQP_ENABLE: ${AMQP_ENABLE:-true}
+    AMQP_CONSUMER_ENABLE: ${AMQP_CONSUMER_ENABLE:-true}
+    CRONTAB_ENABLE: ${CRONTAB_ENABLE:-true}
+    QUEUE_DECLARE_ON_BOOT: ${QUEUE_DECLARE_ON_BOOT:-false}
   networks:
     - app_network
   restart: always
@@ -19,10 +28,10 @@ x-app: &app
     test: ['CMD', 'nc', '-z', '127.0.0.1', '8501']
     interval: 3s
     timeout: 2s
-    retries: 3
-    start_period: 5s
+    retries: 10
+    start_period: 30s
 
-# 不写死 container_name，避免与旧项目（wewall-cluster 等）抢 /app_a、/app_b、/nginx
+# 不写死 container_name，避免与旧项目（wewall-cluster 等）抢名
 # 网络内仍用服务名 app_a / app_b 访问（见 nginx.conf）
 services:
   app_a:
@@ -30,27 +39,27 @@ services:
     ports:
       - '8501:8501'
     volumes:
-      - ../..:/opt/www
+      - ../../..:/opt/www
       - /opt/www/vendor
       - /opt/www/runtime
-      - ../../runtime/app_a/logs:/opt/www/runtime/logs
+      - ../../../runtime/app_a/logs:/opt/www/runtime/logs
 
   app_b:
     <<: *app
     ports:
       - '8502:8501'
     volumes:
-      - ../..:/opt/www
+      - ../../..:/opt/www
       - /opt/www/vendor
       - /opt/www/runtime
-      - ../../runtime/app_b/logs:/opt/www/runtime/logs
+      - ../../../runtime/app_b/logs:/opt/www/runtime/logs
 
   nginx:
     image: nginx:latest
     volumes:
-      - ../..:/var/www
+      - ../../..:/var/www
       - ./nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
-      - ../../cert:/var/www/cert:ro
+      - ../../../cert:/var/www/cert:ro
     ports:
       - '80:80'
       - '443:443'

@@ -1,35 +1,42 @@
-name: hyperf-base
+name: goletter-dev
 
-# 凭据与业务配置统一读仓库根 .env（各服务 env_file: ../../.env）。
-# 裸命令：在 deploy/docker 下执行 docker compose up -d 即可，勿依赖本目录 .env。
+# 路径相对本文件所在目录 deploy/docker/developer → 仓库根为 ../../..
+# 凭据与业务配置统一读仓库根 .env（各服务 env_file: ../../../.env）。
+# 用法：cd deploy/docker/developer && docker compose up -d
 # 仅镜像 tag 可选插值 APP_TAG（默认 latest，可写在根 .env 或 export）。
 
 services:
   app:
-    image: hyperf-base-app:${APP_TAG:-latest}
+    image: goletter-dev-app:${APP_TAG:-latest}
     build:
-      context: ../..
-      dockerfile: ../../../
-    # 生产不挂源码；dev 用 docker-compose.override.yml 挂 ../../:/opt/www
+      context: ../../..
+      dockerfile: Dockerfile
     ports:
-      - "127.0.0.1:9901:9901"          # 仅本机调试
+      # 宿主机 9901 → 容器内 Hyperf 默认 8501
+      - "127.0.0.1:9901:8501"
     volumes:
-      - ../../:/opt/www
+      - ../../..:/opt/www
     extra_hosts:
       - "host.docker.internal:host-gateway"
     env_file:
-      - ../../.env
+      - ../../../.env
     environment:
+      - APP_ENV=${APP_ENV:-dev}
+      - SCAN_CACHEABLE=${SCAN_CACHEABLE:-false}
+      - SERVER_PORT=8501
       - DB_HOST=mysql
       - DB_PORT=3306
       - AMQP_HOST=rabbitmq
       - AMQP_PORT=5672
       - AMQP_VHOST=/
-      - AMQP_ENABLE=true
+      - AMQP_ENABLE=${AMQP_ENABLE:-true}
+      - AMQP_CONSUMER_ENABLE=${AMQP_CONSUMER_ENABLE:-true}
+      - CRONTAB_ENABLE=${CRONTAB_ENABLE:-true}
+      - QUEUE_DECLARE_ON_BOOT=${QUEUE_DECLARE_ON_BOOT:-false}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_DB=0
-      # AMQP_USER / AMQP_PASSWORD / REDIS_AUTH / DB_* / QUEUE_DECLARE_ON_BOOT 等由 env_file 注入
+      # AMQP_USER / AMQP_PASSWORD / REDIS_AUTH / DB_* 等由 env_file 注入
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -38,7 +45,7 @@ services:
       mysql:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "php -r 'exit(@fsockopen(\"127.0.0.1\",9901) ? 0 : 1);'"]
+      test: ["CMD-SHELL", "php -r 'exit(@fsockopen(\"127.0.0.1\",8501) ? 0 : 1);'"]
       interval: 10s
       timeout: 5s
       retries: 6
@@ -55,13 +62,13 @@ services:
         limits: { memory: 1G }
 
   rabbitmq:
-    image: hyperf-base-rabbitmq:3.13
+    image: goletter-dev-rabbitmq:3.13
     build:
       context: ./rabbitmq
       dockerfile: Dockerfile
     hostname: rabbitmq
     env_file:
-      - ../../.env
+      - ../../../.env
     ports:
       - "127.0.0.1:5680:5672"          # 宿主机 5680 → 容器 5672；app 走内部网络
       - "127.0.0.1:15672:15672"        # 管理后台仅本机
@@ -95,7 +102,7 @@ services:
     image: redis:7.4-alpine
     hostname: redis
     env_file:
-      - ../../.env
+      - ../../../.env
     entrypoint:
       - /bin/sh
       - -ec
@@ -130,7 +137,7 @@ services:
     image: mysql:8.4
     hostname: mysql
     env_file:
-      - ../../.env
+      - ../../../.env
     entrypoint:
       - /bin/bash
       - -ec
@@ -168,7 +175,7 @@ services:
         limits: { memory: 1G }
 
   # 本地链路调试（可选，profile=tracing）：docker compose --profile tracing up -d
-  # UI：http://localhost:16686（选服务 hyperf-base-service）；OTLP 接收：容器内 http://jaeger:4318
+  # UI：http://localhost:16686；OTLP：容器内 http://jaeger:4318
   jaeger:
     image: jaegertracing/all-in-one:1.62
     profiles: ["tracing"]

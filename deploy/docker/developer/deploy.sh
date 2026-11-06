@@ -137,12 +137,15 @@ if [ -n "$COMPOSE_PROJECT" ]; then
     export COMPOSE_PROJECT_NAME="$COMPOSE_PROJECT"
 elif [ -z "${COMPOSE_PROJECT_NAME:-}" ]; then
     COMPOSE_PROJECT_NAME="$(sed -n 's/^name:[[:space:]]*//p' "$SCRIPT_DIR/docker-compose.yml" 2>/dev/null | head -n1 || true)"
-    export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-hyperf-base}"
+    export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-goletter-dev}"
 fi
 
 # ---------- 仓库根 .env 引导（compose 凭据只读根 .env：AMQP_PASSWORD / REDIS_AUTH / DB_PASSWORD） ----------
-ROOT_ENV_FILE="$(cd "$SCRIPT_DIR/../.." && pwd)/.env"
+# developer → docker → deploy → 仓库根
+ROOT_DIR="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+ROOT_ENV_FILE="$ROOT_DIR/.env"
 ROOT_ENV_EXAMPLE="$ROOT_ENV_FILE.example"
+[[ -f "$ROOT_DIR/Dockerfile" ]] || { echo "❌ 仓库根缺少 Dockerfile（ROOT_DIR=$ROOT_DIR）"; exit 1; }
 
 gen_password() {
     if command -v openssl >/dev/null 2>&1; then
@@ -725,13 +728,13 @@ if [ "$NEED_BUILD" = true ]; then
     done
 
     # 仓库根 runtime/container（SCAN_CACHEABLE 注解缓存 + proxy 快照）。注意：
-    # 1. 路径是仓库根（$SCRIPT_DIR/../../runtime），不是 deploy/runtime；
+    # 1. 路径是仓库根（$ROOT_DIR/runtime），不是 deploy/runtime；
     # 2. 仅 --build 路径清理；无 --build 的热更新若含注解/代理类变更，需手动删
     #    （wsl -u root rm -rf <repo>/runtime/container 后 restart app）。
-    if [ -d "$SCRIPT_DIR/../../runtime/container" ]; then
+    if [ -d "$ROOT_DIR/runtime/container" ]; then
         echo "🧹 [Step 1.1] 清理宿主机 runtime/container 注解缓存..."
-        rm -rf "$SCRIPT_DIR/../../runtime/container" 2>/dev/null || true
-        if [ -d "$SCRIPT_DIR/../../runtime/container" ]; then
+        rm -rf "$ROOT_DIR/runtime/container" 2>/dev/null || true
+        if [ -d "$ROOT_DIR/runtime/container" ]; then
             # 容器 root 建的文件 WSL 普通用户删不动，回退到 app 容器内删（源码 bind mount，等价）
             echo "   宿主机删除失败，尝试容器内清理..."
             compose exec -T app rm -rf /opt/www/runtime/container 2>/dev/null || true
