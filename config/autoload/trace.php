@@ -44,6 +44,12 @@ return [
         'stacktrace_frames' => (int) env('TRACE_LOG_STACKTRACE_FRAMES', 50),
     ],
 
+    'sql' => [
+        'log_all' => (bool) env('TRACE_SQL_LOG_ALL', false),
+        'log_bindings' => (bool) env('TRACE_SQL_LOG_BINDINGS', false),
+        'slow_ms' => (float) env('TRACE_SQL_SLOW_MS', 500),
+    ],
+
     // 脱敏键（大小写不敏感）；空数组则用 RedactLogProcessor 内置默认
     'redact_keys' => [],
 ];

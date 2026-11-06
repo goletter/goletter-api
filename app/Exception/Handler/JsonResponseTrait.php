@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace App\Exception\Handler;
 
-use App\Log\Log;
+use Goletter\Observability\Log\Log;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;

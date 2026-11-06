@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace App\Listener;
 
-use App\Log\Channels;
-use App\Log\EventDuration;
-use App\Log\RedactLogProcessor;
-use App\Trace\CodePoint;
-use App\Trace\Otel\OtelBootstrap;
-use App\Trace\Otel\TraceScope;
+use Goletter\Observability\Log\Channels;
+use Goletter\Observability\Log\EventDuration;
+use Goletter\Observability\Log\RedactLogProcessor;
+use Goletter\Observability\Trace\CodePoint;
+use Goletter\Observability\Trace\Otel\OtelBootstrap;
+use Goletter\Observability\Trace\Otel\TraceScope;
 use Hyperf\Command\Event\AfterExecute;
 use Hyperf\Command\Event\BeforeHandle;
 use Hyperf\Context\Context;

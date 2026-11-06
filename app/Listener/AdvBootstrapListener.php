@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace App\Listener;
 
-use App\Log\Log;
+use Goletter\Observability\Log\Log;
 use Goletter\Adv\Platforms\Facebook\FacebookClient;
 use Goletter\Adv\Platforms\TikTok\TikTokClient;
 use Hyperf\Event\Annotation\Listener;

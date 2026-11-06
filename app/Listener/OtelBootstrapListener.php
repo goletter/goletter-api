@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Listener;
 
-use App\Trace\Otel\OtelBootstrap;
+use Goletter\Observability\Trace\Otel\OtelBootstrap;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\Framework\Event\BootApplication;
 use Hyperf\Framework\Event\OnWorkerExit;

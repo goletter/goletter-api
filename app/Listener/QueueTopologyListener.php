@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace App\Listener;
 
-use App\Log\Channels;
+use Goletter\Observability\Log\Channels;
 use Goletter\Amqp\Contract\QueueRegistryInterface;
 use Goletter\Amqp\Sharded\ShardedQueue;
 use Hyperf\Event\Annotation\Listener;

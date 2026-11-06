@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Adv;
 
-use App\Log\Log;
+use Goletter\Observability\Log\Log;
 use Goletter\Resource\Exception\BusinessException;
 use Hyperf\Collection\Arr;
 use Throwable;

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0785630e924df9ff6e5cfb18935c6175",
+    "content-hash": "2a9ba00ab2ad39c4f08a8e819ff7eea9",
     "packages": [
         {
             "name": "96qbhy/hyperf-auth",
@@ -1382,6 +1382,74 @@
                 "source": "https://github.com/goletter/hyperf-modelfilter/tree/v1.0.6"
             },
             "time": "2026-10-06T14:35:39+00:00"
+        },
+        {
+            "name": "goletter/hyperf-observability",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/goletter/hyperf-observability.git",
+                "reference": "7d6ae4fef3e2b43f73b4acfe970da5e2fcb43b87"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/goletter/hyperf-observability/zipball/7d6ae4fef3e2b43f73b4acfe970da5e2fcb43b87",
+                "reference": "7d6ae4fef3e2b43f73b4acfe970da5e2fcb43b87",
+                "shasum": ""
+            },
+            "require": {
+                "hyperf/context": "~3.1.0",
+                "hyperf/logger": "~3.1.0",
+                "monolog/monolog": "^3.0",
+                "open-telemetry/context-swoole": "^1.3",
+                "open-telemetry/exporter-otlp": "^1.4",
+                "open-telemetry/sdk": "^1.15",
+                "open-telemetry/sem-conv": "^1.44",
+                "php": ">=8.1",
+                "psr/http-message": "^1.0|^2.0",
+                "psr/log": "^1.0|^2.0|^3.0"
+            },
+            "suggest": {
+                "hyperf/framework": "在 Hyperf 中使用 ConfigProvider / DI 时需要。",
+                "hyperf/http-server": "CodePoint::server() / TraceHeaders::applyCors() 需要。"
+            },
+            "type": "library",
+            "extra": {
+                "hyperf": {
+                    "config": "Goletter\\Observability\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Goletter\\Observability\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "goletter",
+                    "email": "goletter@outlook.com"
+                }
+            ],
+            "description": "Hyperf ECS 日志管道与 OpenTelemetry 链路上下文。",
+            "keywords": [
+                "ECS",
+                "goletter",
+                "hyperf",
+                "logging",
+                "observability",
+                "opentelemetry",
+                "php",
+                "tracing"
+            ],
+            "support": {
+                "issues": "https://github.com/goletter/hyperf-observability/issues",
+                "source": "https://github.com/goletter/hyperf-observability/tree/v1.0.0"
+            },
+            "time": "2026-11-06T18:24:43+00:00"
         },
         {
             "name": "goletter/hyperf-openapi",

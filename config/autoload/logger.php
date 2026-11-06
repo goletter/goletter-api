@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-use App\Log\Channels;
-use App\Log\DailyFileHandler;
-use App\Log\EcsEnricher;
-use App\Log\EcsJsonFormatter;
-use App\Log\ErrorNormalizer;
-use App\Log\LogLevel;
-use App\Log\RedactLogProcessor;
-use App\Log\TraceContextProcessor;
+use Goletter\Observability\Log\Channels;
+use Goletter\Observability\Log\DailyFileHandler;
+use Goletter\Observability\Log\EcsEnricher;
+use Goletter\Observability\Log\EcsJsonFormatter;
+use Goletter\Observability\Log\ErrorNormalizer;
+use Goletter\Observability\Log\LogLevel;
+use Goletter\Observability\Log\RedactLogProcessor;
+use Goletter\Observability\Log\TraceContextProcessor;
 
 use function Hyperf\Support\env;
 
 /**
  * $name 来自 LoggerFactory::get($name)，也是 runtime/logs/{name}/YYYY-MM-DD.log。
- * 只用 App\Log\Channels 里的几个名字，不要再临时开 access / outbound / trace 这类目录。
+ * 只用 Goletter\Observability\Log\Channels 里的几个名字，不要再临时开 access / outbound / trace 这类目录。
  * 同一文件里靠 message 区分：http.access、queue_processed、cli.command、db.query 等。
  * 字段契约见 spec §6（ECS 8.11）：单行 JSON、点号平铺、无数组字段。
  * Processor 顺序：脱敏 → 链路/业务字段 → 环境字段 → 错误展开与一致性约束（ErrorNormalizer 必须最后）。
