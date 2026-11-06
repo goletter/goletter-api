@@ -12,14 +12,12 @@ declare(strict_types=1);
 
 namespace App\Listener;
 
+use App\Log\Log;
 use Goletter\Adv\Platforms\Facebook\FacebookClient;
 use Goletter\Adv\Platforms\TikTok\TikTokClient;
 use Hyperf\Event\Annotation\Listener;
 use Hyperf\Event\Contract\ListenerInterface;
 use Hyperf\Framework\Event\BootApplication;
-
-use function Goletter\Utils\logging;
-use function Hyperf\Support\make;
 
 #[Listener]
 class AdvBootstrapListener implements ListenerInterface
@@ -36,11 +34,11 @@ class AdvBootstrapListener implements ListenerInterface
         });
 
         FacebookClient::setCallLogHandler(static function (array $log): void {
-            logging([...$log], 'facebook请求日志', 'facebook-adv');
+            Log::app()->error('facebook-adv', [...$log]);
         });
 
         TikTokClient::setCallLogHandler(function (array $log): void {
-            logging([...$log], 'tiktok请求日志', 'tiktok-adv');
+            Log::app()->error('tiktok-adv', [...$log]);
         });
     }
 }

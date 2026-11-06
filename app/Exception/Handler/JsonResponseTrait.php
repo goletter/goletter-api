@@ -1,14 +1,22 @@
 <?php
 
 declare(strict_types=1);
+/**
+ * This file is part of Hyperf.
+ *
+ * @link     https://www.hyperf.io
+ * @document https://hyperf.wiki
+ * @contact  group@hyperf.io
+ * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
+ */
 
 namespace App\Exception\Handler;
 
+use App\Log\Log;
 use Hyperf\HttpMessage\Stream\SwooleStream;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
-use function Goletter\Utils\logging;
 use function Hyperf\Support\env;
 
 trait JsonResponseTrait
@@ -34,11 +42,12 @@ trait JsonResponseTrait
 
     protected function logThrowable(Throwable $throwable, string $title): void
     {
-        logging([
+        Log::http()->error('http', [
             get_class($throwable),
             $throwable->getMessage(),
             $throwable->getFile() . ':' . $throwable->getLine(),
             $throwable->getTraceAsString(),
-        ], $title);
+            $title,
+        ]);
     }
 }
