@@ -2,8 +2,6 @@
 
 namespace App\Logic\AccountDemand;
 
-use App\Logic\Account\DetailLogic;
-use App\Logic\Account\IndexLogic;
 use Hyperf\Di\Annotation\Inject;
 
 trait AccountDemandTrait
