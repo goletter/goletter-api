@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Request\Api\V1;
+namespace App\Request\Api\V1\AccountInsight;
 
 use Hyperf\Validation\Request\FormRequest;
 
-class AccountDemandRequest extends FormRequest
+class IndexAccountInsightRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,16 +16,16 @@ class AccountDemandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'token' => 'required',
-            'code' => 'required',
+            'page' => 'integer|min:1',
+            'pageSize' => 'integer|min:1|max:100',
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'token' => 'token',
-            'code' => '账户Id',
+            'page' => '页码',
+            'pageSize' => '每页数量',
         ];
     }
 }

@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\V1;
 
 use App\Controller\AbstractController;
-use App\Request\Api\V1\AccountInsightRequest;
+use App\Request\Api\V1\AccountInsight\StoreAccountInsightRequest;
 use App\Service\AccountInsightService;
 use Goletter\Resource\Collection;
 use Goletter\Resource\Resource;
@@ -41,7 +41,7 @@ class AccountInsightController extends AbstractController
       * @desc 消耗获取
       * @author yong 2026-11-03
       */
-    public function store(AccountInsightRequest $request): Resource
+    public function store(StoreAccountInsightRequest $request): Resource
     {
         $this->service->create($request->all());
 

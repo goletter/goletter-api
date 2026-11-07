@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Request\Api\V1;
+namespace App\Request\Api\V1\AccountInsight;
 
 use Hyperf\Validation\Request\FormRequest;
 
-class PlatformConfigRequest extends FormRequest
+class StoreAccountInsightRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,14 +16,14 @@ class PlatformConfigRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'platform' => 'required',
+            //
         ];
     }
 
     public function attributes(): array
     {
         return [
-            'platform' => '平台',
+            //
         ];
     }
 }
