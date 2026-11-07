@@ -7,7 +7,6 @@ namespace App\Service;
 use App\Logic\PlatformConfig\PlatformConfigTrait;
 use App\Model\PlatformConfig;
 use Goletter\Server\BaseService;
-use Hyperf\Paginator\LengthAwarePaginator;
 
 /**
   * @desc PlatformConfig
@@ -21,7 +20,7 @@ class PlatformConfigService extends BaseService
       * @desc 列表
       * @author yong 2026-11-07
       */
-    public function paginate(array $params): LengthAwarePaginator
+    public function paginate(array $params)
     {
         return $this->indexLogic->handle($params);
     }

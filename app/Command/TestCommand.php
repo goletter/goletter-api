@@ -19,7 +19,7 @@ class TestCommand extends HyperfCommand
     public function configure()
     {
         parent::configure();
-        $this->setDescription('Hyperf Demo Command');
+        $this->setDescription('测试');
     }
 
     public function handle()

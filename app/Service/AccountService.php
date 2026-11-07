@@ -15,7 +15,6 @@ namespace App\Service;
 use App\Logic\Account\AccountTrait;
 use App\Model\Account;
 use Goletter\Server\BaseService;
-use Hyperf\Paginator\LengthAwarePaginator;
 
 class AccountService extends BaseService
 {
@@ -24,18 +23,9 @@ class AccountService extends BaseService
     /**
      *  列表
      */
-    public function paginate(array $params): LengthAwarePaginator
+    public function paginate(array $params)
     {
         return $this->indexLogic->handle($params);
-    }
-
-    /**
-     * 详情
-     * @return null|array|int[]
-     */
-    public function detail(array $data)
-    {
-        return $this->detailLogic->handle($data);
     }
 
     /**
