@@ -12,10 +12,12 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Exception\ValidateException;
 use Hyperf\DbConnection\Model\Model;
 use Hyperf\HttpMessage\Exception\NotFoundHttpException;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\Stringable\Str;
+use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 use Hyperf\Validation\Request\FormRequest;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
@@ -290,9 +292,18 @@ abstract class BaseDispatcherController
             $typeName = $type instanceof ReflectionNamedType ? $type->getName() : null;
             $name = $param->getName();
 
-            // FormRequest 也实现 RequestInterface，须先于通用 Request 注入
+            // FormRequest 也实现 RequestInterface，须先于通用 Request 注入。
+            // 网关分发不会经过 ValidationMiddleware（它只看路由到的 ApiController），需在此主动校验。
             if ($typeName && is_a($typeName, FormRequest::class, true)) {
-                $args[] = $this->container->get($typeName);
+                /** @var FormRequest $formRequest */
+                $formRequest = $this->container->get($typeName);
+                $this->validate(
+                    $formRequest->all(),
+                    $formRequest->rules(),
+                    $formRequest->messages(),
+                    $formRequest->attributes()
+                );
+                $args[] = $formRequest;
                 continue;
             }
 
@@ -353,5 +364,17 @@ abstract class BaseDispatcherController
                 $id !== null ? " id={$id}" : ''
             ),
         ];
+    }
+
+    /**
+     * 自定义控制器验证器.
+     * @param mixed ...$arg
+     */
+    protected function validate(...$arg): void
+    {
+        $validator = $this->container->get(ValidatorFactoryInterface::class)->make(...$arg);
+        if ($validator->fails()) {
+            throw new ValidateException($validator->errors()->first(), 422);
+        }
     }
 }

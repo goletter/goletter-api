@@ -12,10 +12,13 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Exception\ValidateException;
 use Goletter\Resource\ApiResponse;
+use Hyperf\Context\ApplicationContext;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hyperf\Validation\Contract\ValidatorFactoryInterface;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
 
@@ -43,5 +46,17 @@ abstract class AbstractController
         }
 
         return 'App\Resource';
+    }
+
+    /**
+     * 自定义控制器验证器.
+     * @param mixed ...$arg
+     */
+    protected function validate(...$arg): void
+    {
+        $validator = ApplicationContext::getContainer()->get(ValidatorFactoryInterface::class)->make(...$arg);
+        if ($validator->fails()) {
+            throw new ValidateException($validator->errors()->first(), 422);
+        }
     }
 }
