@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Resource\Admin\V2;
+namespace App\Resource\Api\V1;
 
 use Goletter\Resource\Resource;
 
-class AccountResource extends Resource
+class AccountDemandsResource extends Resource
 {
     protected static array $availableIncludes = [];
 
