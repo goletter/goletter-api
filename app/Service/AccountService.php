@@ -12,47 +12,47 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Logic\Account\AccountTrait;
 use App\Model\Account;
-use App\Service\Adv\AdvResolver;
 use Goletter\Server\BaseService;
-use Hyperf\Collection\Arr;
-use Hyperf\Di\Annotation\Inject;
 use Hyperf\Paginator\LengthAwarePaginator;
 
 class AccountService extends BaseService
 {
-    #[Inject]
-    private AdvResolver $advResolver;
+    use AccountTrait;
 
+    /**
+     *  列表
+     */
     public function paginate(array $params): LengthAwarePaginator
     {
-        return Account::query()->filter($params)->paginate((int) Arr::get($params, 'pageSize', 20));
+        return $this->indexLogic->handle($params);
     }
 
+    /**
+     * 详情
+     * @return null|array|int[]
+     */
     public function detail(array $data)
     {
-        $platform = Arr::get($data, 'platform', 0);
-        $token = Arr::get($data, 'token');
-        $code = Arr::get($data, 'code');
-        $adv = $this->advResolver->resolveAdv($platform, $token);
-        return $adv->account()->getAccount($code);
+        return $this->detailLogic->handle($data);
     }
 
+    /**
+     * 创建
+     * @return Account
+     */
     public function create(array $data)
     {
-        return $this->save(new Account(), $data);
+        return $this->createLogic->handle($data);
     }
 
+    /**
+     * 更新
+     * @return Account
+     */
     public function update(Account $account, array $data)
     {
-        return $this->save($account, $data);
-    }
-
-    public function save(Account $account, array $data)
-    {
-        $account->fillDb($data);
-        $account->save();
-
-        return $account;
+        return $this->updateLogic->handle($account, $data);
     }
 }

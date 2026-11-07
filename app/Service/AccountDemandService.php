@@ -12,48 +12,54 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Amqp\Queue\AccountRechargeQueue;
+use App\Logic\AccountDemand\AccountDemandTrait;
 use App\Model\AccountDemand;
-use App\Model\PlatformConfig;
 use Goletter\Server\BaseService;
-use Hyperf\Collection\Arr;
 use Hyperf\Paginator\LengthAwarePaginator;
 
+/**
+  * @desc 需求列表
+  * @author yong 2026-11-07
+  */
 class AccountDemandService extends BaseService
 {
+    use AccountDemandTrait;
+
+    /**
+      * @desc 列表
+      * @author yong 2026-11-07
+      */
     public function paginate(array $params): LengthAwarePaginator
     {
-        return AccountDemand::query()->filter($params)->paginate((int) Arr::get($params, 'pageSize', 20));
+        return $this->indexLogic->handle($params);
     }
 
+    /**
+      * @desc 创建
+      * @author yong 2026-11-07
+      */
     public function create(array $data)
     {
-        $data['tenant_id'] = 654123;
-        $data['order_no'] = setOrderNo(AccountDemand::class);
-
-        $accountDemand = $this->save(new AccountDemand(), $data);
-
-        $platformConfig = PlatformConfig::query()->first();
-        AccountRechargeQueue::produce([
-            'account_demand_id' => $accountDemand->id,
-            'tenant_id' => 1,
-            'busine_id' => $accountDemand->busine_code,
-            'access_token' => $platformConfig->token,
-        ]);
+        $accountDemand = $this->createLogic->handle($data);
 
         return ['order_no' => $accountDemand->order_no];
     }
 
+    /**
+      * @desc 更新
+      * @author yong 2026-11-07
+      */
     public function update(AccountDemand $accountDemand, array $data)
     {
-        return $this->save($accountDemand, $data);
+        return $this->updateLogic->handle($accountDemand, $data);
     }
 
-    public function save(AccountDemand $accountDemand, array $data)
+    /**
+      * @desc 批量更新
+      * @author yong 2026-11-07
+      */
+    public function batchUpdate($data)
     {
-        $accountDemand->fillDb($data);
-        $accountDemand->save();
-
-        return $accountDemand;
+        $this->batchUpdateLogic->handle($data);
     }
 }

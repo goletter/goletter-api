@@ -9,15 +9,6 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
-$header = <<<'EOF'
-This file is part of Hyperf.
-
-@link     https://www.hyperf.io
-@document https://hyperf.wiki
-@contact  group@hyperf.io
-@license  https://github.com/hyperf/hyperf/blob/master/LICENSE
-EOF;
-
 return (new PhpCsFixer\Config())
     ->setRiskyAllowed(true)
     ->setRules([
@@ -25,12 +16,13 @@ return (new PhpCsFixer\Config())
         '@Symfony' => true,
         '@DoctrineAnnotation' => true,
         '@PhpCsFixer' => true,
-        'header_comment' => [
-            'comment_type' => 'PHPDoc',
-            'header' => $header,
-            'separate' => 'none',
-            'location' => 'after_declare_strict',
-        ],
+        // 关闭以下限制（含预设带入的规则）
+        'phpdoc_no_alias_tag' => false,
+        'fully_qualified_strict_types' => false,
+        'header_comment' => false,
+        'ordered_imports' => false,
+        'blank_lines_before_namespace' => false,
+        'blank_line_between_import_groups' => false,
         'array_syntax' => [
             'syntax' => 'short',
         ],
@@ -63,12 +55,6 @@ return (new PhpCsFixer\Config())
         //   */ 这种 * 对齐到 /** 第二个 * 的写法
         'align_multiline_comment' => false,
         'phpdoc_indent' => false,
-        'ordered_imports' => [
-            'imports_order' => [
-                'class', 'function', 'const',
-            ],
-            'sort_algorithm' => 'alpha',
-        ],
         'single_line_comment_style' => [
             'comment_types' => [
             ],
