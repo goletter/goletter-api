@@ -1,44 +1,55 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of Hyperf.
- *
- * @link     https://www.hyperf.io
- * @document https://hyperf.wiki
- * @contact  group@hyperf.io
- * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
- */
 
 namespace App\Service;
 
-use Goletter\Server\BaseService;
-use Hyperf\Collection\Arr;
-use Hyperf\Paginator\LengthAwarePaginator;
+use App\Logic\PlatformConfig\PlatformConfigTrait;
 use App\Model\PlatformConfig;
+use Goletter\Server\BaseService;
+use Hyperf\Paginator\LengthAwarePaginator;
 
+/**
+  * @desc PlatformConfig
+  * @author yong 2026-11-07
+  */
 class PlatformConfigService extends BaseService
 {
+    use PlatformConfigTrait;
+
+    /**
+      * @desc 列表
+      * @author yong 2026-11-07
+      */
     public function paginate(array $params): LengthAwarePaginator
     {
-        return PlatformConfig::query()->filter($params)->paginate((int) Arr::get($params, 'pageSize', 20));
+        return $this->indexLogic->handle($params);
     }
 
+    /**
+      * @desc 详情
+      * @author yong 2026-11-07
+      */
+    public function show(array $data)
+    {
+        return $this->showLogic->handle($data);
+    }
+
+    /**
+      * @desc 创建
+      * @author yong 2026-11-07
+      */
     public function create(array $data)
     {
-        return $this->save(new PlatformConfig(), $data);
+        return $this->createLogic->handle($data);
     }
 
+    /**
+      * @desc 更新
+      * @author yong 2026-11-07
+      */
     public function update(PlatformConfig $platformConfig, array $data)
     {
-        return $this->save($platformConfig, $data);
-    }
-
-    public function save(PlatformConfig $platformConfig, array $data)
-    {
-        $platformConfig->fillDb($data);
-        $platformConfig->save();
-
-        return $platformConfig;
+        return $this->updateLogic->handle($platformConfig, $data);
     }
 }

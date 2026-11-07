@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Logic\Account;
 
 use Hyperf\Di\Annotation\Inject;
@@ -17,4 +19,5 @@ trait AccountTrait
 
     #[Inject]
     private UpdateLogic $updateLogic;
+
 }
