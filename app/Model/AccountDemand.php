@@ -43,5 +43,4 @@ class AccountDemand extends Model
         self::STATUS_OFFLINE,
     ];
     // === STATUS END ===
-
 }
