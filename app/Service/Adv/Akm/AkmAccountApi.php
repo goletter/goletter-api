@@ -85,7 +85,7 @@ class AkmAccountApi extends AdvException implements AccountApi
      */
     public function open($accountDemand): void
     {
-        $accountDemand->update(['status' => 2]);
+        //
     }
 
     /**
