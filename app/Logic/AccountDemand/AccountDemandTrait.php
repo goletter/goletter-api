@@ -12,9 +12,6 @@ trait AccountDemandTrait
     private IndexLogic $indexLogic;
 
     #[Inject]
-    private DetailLogic $detailLogic;
-
-    #[Inject]
     private CreateLogic $createLogic;
 
     #[Inject]

@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Logic\Account;
 
-use App\Service\Adv\AdvResolver;
+use App\Model\Account;
 use Goletter\Server\BaseService;
 use Hyperf\Collection\Arr;
-use Hyperf\Di\Annotation\Inject;
 
 /**
   * @desc 详情
@@ -15,15 +14,10 @@ use Hyperf\Di\Annotation\Inject;
   */
 class ShowLogic extends BaseService
 {
-    #[Inject]
-    private AdvResolver $advResolver;
-
     public function handle(array $data)
     {
-        $token = Arr::get($data, 'token');
-        $code = Arr::get($data, 'code');
-        $adv = $this->advResolver->resolveAdv(0, $token);
+        $id = Arr::get($data, 'id');
 
-        return $adv->account()->getAccount($code);
+        return Account::query()->where('id', $id)->first();
     }
 }

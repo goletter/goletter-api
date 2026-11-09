@@ -16,8 +16,8 @@ class StoreAccountDemandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'tenant_id' => 'string|max:100',
-            'platform' => 'string|max:32',
+            'tenant_id' => 'required|string|max:100',
+            'platform' => 'required|string|max:32',
             'order_no' => 'string|max:100',
             'name' => 'string|max:100',
             'product_name' => 'string|max:100',
