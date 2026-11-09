@@ -29,6 +29,15 @@ class AccountService extends BaseService
     }
 
     /**
+     * @desc 详情
+     * @author yong 2026-11-07
+     */
+    public function show(array $data)
+    {
+        return $this->showLogic->handle($data);
+    }
+
+    /**
      * 创建
      * @return Account
      */

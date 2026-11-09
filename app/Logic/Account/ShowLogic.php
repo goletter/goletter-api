@@ -1,14 +1,6 @@
 <?php
 
 declare(strict_types=1);
-/**
- * This file is part of Hyperf.
- *
- * @link     https://www.hyperf.io
- * @document https://hyperf.wiki
- * @contact  group@hyperf.io
- * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
- */
 
 namespace App\Logic\Account;
 
@@ -17,7 +9,11 @@ use Goletter\Server\BaseService;
 use Hyperf\Collection\Arr;
 use Hyperf\Di\Annotation\Inject;
 
-class DetailLogic extends BaseService
+/**
+  * @desc 详情
+  * @author yong 2026-11-09
+  */
+class ShowLogic extends BaseService
 {
     #[Inject]
     private AdvResolver $advResolver;

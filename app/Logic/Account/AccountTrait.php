@@ -20,4 +20,7 @@ trait AccountTrait
     #[Inject]
     private UpdateLogic $updateLogic;
 
+    #[Inject]
+    private ShowLogic $showLogic;
+
 }
