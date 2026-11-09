@@ -30,6 +30,12 @@ class FacebookService
 
     protected FacebookAdApi $adApi;
 
+    protected FacebookPixelApi $pixelApi;
+
+    protected FacebookCatalogApi $catalogApi;
+
+    protected FacebookPageApi $pageApi;
+
     protected int|string $busineId;
 
     protected int|string $platformId;
@@ -49,6 +55,9 @@ class FacebookService
         $this->reportApi = new FacebookReportApi($client);
         $this->businessApi = new FacebookBusinessApi($client);
         $this->adApi = new FacebookAdApi($client);
+        $this->pixelApi = new FacebookPixelApi($client);
+        $this->catalogApi = new FacebookCatalogApi($client);
+        $this->pageApi = new FacebookPageApi($client);
     }
 
     /**
@@ -81,5 +90,29 @@ class FacebookService
     public function ad(): FacebookAdApi
     {
         return $this->adApi;
+    }
+
+    /**
+     * 像素
+     */
+    public function pixel(): FacebookPixelApi
+    {
+        return $this->pixelApi;
+    }
+
+    /**
+     * 目录
+     */
+    public function catalog(): FacebookCatalogApi
+    {
+        return $this->catalogApi;
+    }
+
+    /**
+     * 主页
+     */
+    public function page(): FacebookPageApi
+    {
+        return $this->pageApi;
     }
 }

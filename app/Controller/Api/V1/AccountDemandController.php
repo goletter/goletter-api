@@ -13,9 +13,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\V1;
 
 use App\Controller\AbstractController;
-use App\Model\AccountDemand;
 use App\Request\Api\V1\AccountDemand\StoreAccountDemandRequest;
-use App\Request\Api\V1\AccountDemand\UpdateAccountDemandRequest;
 use App\Resource\Api\V1\AccountDemandResource;
 use App\Service\AccountDemandService;
 use Goletter\Resource\Collection;
@@ -50,17 +48,5 @@ class AccountDemandController extends AbstractController
     public function store(StoreAccountDemandRequest $request): Resource
     {
         return $this->success($this->service->create($request->all()), AccountDemandResource::class);
-    }
-
-    /**
-      * @desc 需求更新
-      * @author yong 2026-11-03
-      */
-    public function update(AccountDemand $accountDemand, UpdateAccountDemandRequest $request): Resource
-    {
-        return $this->success(
-            $this->service->update($accountDemand, $request->validated()),
-            AccountDemandResource::class
-        );
     }
 }

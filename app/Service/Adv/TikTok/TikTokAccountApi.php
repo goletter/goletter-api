@@ -214,18 +214,4 @@ class TikTokAccountApi extends AdvException implements AccountApi
     public function removeAssignedUser($accountDemand)
     {
     }
-
-    public function batchAddAssignedUser($accountCode, $userId, $busineId = '0')
-    {
-    }
-
-    public function getAdvertiserBalance($accountDemand)
-    {
-        try {
-            $bcId = Arr::get($accountDemand, 'busine_code');
-            return $this->tikTokAccount->getAdvertiserBalance(['bc_id' => $bcId, 'fields' => json_encode(['balance_info'])]);
-        } catch (Exception $e) {
-            throw new AdvException(500, $e->getMessage(), $e, 0, 0, 'tiktok', 'adv');
-        }
-    }
 }

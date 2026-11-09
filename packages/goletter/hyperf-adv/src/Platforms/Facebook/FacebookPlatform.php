@@ -45,6 +45,7 @@ class FacebookPlatform
             platform: AdvFactory::FACEBOOK,
             catalog: new FacebookCatalog($client),
             pixel: new FacebookPixel($client),
+            page: new FacebookPage($client),
         );
     }
 

@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace App\Service\Adv\Facebook;
 
-use App\Model\Account;
 use App\Service\Adv\AdvException;
 use Exception;
 use Goletter\Adv\Platforms\Facebook\FacebookAccount;
@@ -40,8 +39,6 @@ class FacebookAccountApi extends AdvException
      */
     public function getAccount(string $accountId): array
     {
-        // $account = Account::query()->where('code', $accountId)->first();
-
         try {
             $item = $this->facebookAccount->getAccount($accountId);
             $amountSpent = Arr::get($item, 'amount_spent', 0);
@@ -68,6 +65,76 @@ class FacebookAccountApi extends AdvException
                 'name' => $name,
             ];
         } catch (Exception $e) {
+            throw new AdvException(500, $e->getMessage(), $e, $accountId, 0, 'facebook', 'adv');
+        }
+    }
+
+    /**
+     * 更改账户昵称
+     * @param string $accountId
+     * @param string $name
+     * @return void
+     */
+    public function updateAccountName(string $accountId, string $name): void
+    {
+        try {
+            $this->facebookAccount->updateAccountName($accountId, $name);
+        } catch (\Exception $e) {
+            throw new AdvException(500, $e->getMessage(), $e, $accountId, 0, 'facebook', 'adv');
+        }
+    }
+
+    /**
+     * 开户
+     * @return void
+     */
+    public function open()
+    {
+        //
+    }
+
+    /**
+     * 充值
+     * @param $accountId
+     * @param $spendCap
+     * @return void
+     */
+    public function recharge($accountId, $spendCap)
+    {
+        try {
+            $this->facebookAccount->updateAccountSpendCap($accountId, $spendCap);
+        } catch (\Exception $e) {
+            throw new AdvException(500, $e->getMessage(), $e, $accountId, 0, 'facebook', 'adv');
+        }
+    }
+
+    /**
+     * 减款
+     * @param $accountId
+     * @param $spendCap
+     * @return void
+     */
+    public function deduction($accountId, $spendCap)
+    {
+        try {
+            $this->facebookAccount->updateAccountSpendCap($accountId, $spendCap);
+        } catch (\Exception $e) {
+            throw new AdvException(500, $e->getMessage(), $e, $accountId, 0, 'facebook', 'adv');
+        }
+    }
+
+    /**
+     * 清零
+     * @param $accountId
+     * @return void
+     */
+    public function reset($accountId)
+    {
+        try {
+            $deleteResult = $this->facebookAccount->deleteAccountSpendCapAction($accountId,'delete');
+
+            $this->facebookAccount->updateAccountSpendCap($accountId, '0.01');
+        } catch (\Exception $e) {
             throw new AdvException(500, $e->getMessage(), $e, $accountId, 0, 'facebook', 'adv');
         }
     }

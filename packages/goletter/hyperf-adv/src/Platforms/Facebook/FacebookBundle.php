@@ -19,5 +19,6 @@ class FacebookBundle
         public readonly string $platform,
         public readonly ?FacebookCatalog $catalog = null,
         public readonly ?FacebookPixel $pixel = null,
+        public readonly ?FacebookPage $page = null,
     ) {}
 }

@@ -11,7 +11,6 @@ trait AccountTrait
     #[Inject]
     private IndexLogic $indexLogic;
 
-
     #[Inject]
     private ShowLogic $showLogic;
 

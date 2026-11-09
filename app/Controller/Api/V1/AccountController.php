@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Controller\Api\V1;
 
 use App\Controller\AbstractController;
-use App\Model\Account;
 use App\Service\AccountService;
 use App\Request\Api\V1\Account\IndexAccountRequest;
 use App\Request\Api\V1\Account\ShowAccountRequest;
 use App\Request\Api\V1\Account\StoreAccountRequest;
-use App\Request\Api\V1\Account\UpdateAccountRequest;
 use App\Resource\Api\V1\AccountResource;
 use Goletter\Resource\Collection;
 use Goletter\Resource\Resource;
@@ -57,18 +55,6 @@ class AccountController extends AbstractController
     {
         return $this->success(
             $this->service->create($request->validated()),
-            AccountResource::class
-        );
-    }
-
-    /**
-      * @desc Account更新
-      * @author yong 2026-11-09
-      */
-    public function update(Account $account, UpdateAccountRequest $request): Resource
-    {
-        return $this->success(
-            $this->service->update($account, $request->validated()),
             AccountResource::class
         );
     }

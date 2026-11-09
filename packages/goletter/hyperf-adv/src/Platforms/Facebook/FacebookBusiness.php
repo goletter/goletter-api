@@ -10,6 +10,8 @@ class FacebookBusiness
 
     protected ?FacebookPixel $pixel = null;
 
+    protected ?FacebookPage $page = null;
+
     public function __construct(
         protected FacebookClient $client
     ) {}
@@ -22,6 +24,11 @@ class FacebookBusiness
     protected function pixel(): FacebookPixel
     {
         return $this->pixel ??= new FacebookPixel($this->client);
+    }
+
+    protected function page(): FacebookPage
+    {
+        return $this->page ??= new FacebookPage($this->client);
     }
 
     /**
@@ -147,75 +154,64 @@ class FacebookBusiness
     }
 
     /**
-     * 获取 Business Manager 下的 Pages
-     * 
-     * @param string $businessId Business Manager ID
-     * @param array $fields 要获取的字段列表
-     * @return array
+     * 获取 Business Manager 下的自有 Pages（委托 FacebookPage）
+     *
+     * @deprecated 优先使用 $adv->page->listOwnedPages()
      */
     public function listPages(
         string $businessId,
-        array $fields = ['id', 'name', 'category']
+        array $fields = FacebookPage::DEFAULT_PAGE_FIELDS
     ): array {
-        return $this->client->getAll("/{$businessId}/owned_pages", [
-            'fields' => implode(',', $fields),
-        ], 'GET:/{business_id}/owned_pages');
+        return $this->page()->listOwnedPages($businessId, $fields);
     }
 
     /**
-     * 流式处理 Business Manager 下的 Pages
+     * 流式处理 Business Manager 下的自有 Pages
+     *
+     * @deprecated 优先使用 $adv->page->iterateOwnedPages()
      */
     public function iteratePages(
         string $businessId,
-        array $fields = ['id', 'name', 'category']
+        array $fields = FacebookPage::DEFAULT_PAGE_FIELDS
     ): \Generator {
-        return $this->client->paginate("/{$businessId}/owned_pages", [
-            'fields' => implode(',', $fields),
-        ], 'GET:/{business_id}/owned_pages');
+        yield from $this->page()->iterateOwnedPages($businessId, $fields);
     }
 
     /**
      * 主页已分配用户
-     * GET /{page_id}/assigned_users?business={business_id}
      *
+     * @deprecated 优先使用 $adv->page->listAssignedUsers()
      * @param list<string> $fields
      */
     public function listPageAssignedUsers(
         string $pageId,
         string $businessId,
-        array $fields = ['id', 'name', 'tasks', 'business'],
+        array $fields = FacebookPage::DEFAULT_ASSIGNED_USER_FIELDS,
         int $limit = 100
     ): array {
-        return $this->client->getAll("/{$pageId}/assigned_users", [
-            'business' => $businessId,
-            'fields' => implode(',', $fields),
-            'limit' => $limit,
-        ], 'GET:/{page_id}/assigned_users');
+        return $this->page()->listAssignedUsers($pageId, $businessId, $fields, $limit);
     }
 
     /**
      * 流式遍历主页已分配用户
      *
+     * @deprecated 优先使用 $adv->page->iterateAssignedUsers()
      * @param list<string> $fields
      */
     public function iteratePageAssignedUsers(
         string $pageId,
         string $businessId,
-        array $fields = ['id', 'name', 'tasks', 'business'],
+        array $fields = FacebookPage::DEFAULT_ASSIGNED_USER_FIELDS,
         int $limit = 100
     ): \Generator {
-        yield from $this->client->paginate("/{$pageId}/assigned_users", [
-            'business' => $businessId,
-            'fields' => implode(',', $fields),
-            'limit' => $limit,
-        ], 'GET:/{page_id}/assigned_users');
+        yield from $this->page()->iterateAssignedUsers($pageId, $businessId, $fields, $limit);
     }
 
     /**
      * 给系统用户 / Business User 分配主页权限
-     * POST /{page_id}/assigned_users
      *
-     * @param list<string> $tasks 如 ADVERTISE、MANAGE、CREATE_CONTENT、MODERATE、ANALYZE
+     * @deprecated 优先使用 $adv->page->assignUser()
+     * @param list<string> $tasks
      */
     public function assignPageUser(
         string $pageId,
@@ -223,31 +219,20 @@ class FacebookBusiness
         string $businessId,
         array $tasks = ['ADVERTISE']
     ): array {
-        $tasks = array_values(array_filter(array_map('strval', $tasks)));
-        if ($tasks === []) {
-            throw new \InvalidArgumentException('tasks 不能为空');
-        }
-
-        return $this->client->post("/{$pageId}/assigned_users", [
-            'user' => $userId,
-            'business' => $businessId,
-            'tasks' => $tasks,
-        ], [], 'POST:/{page_id}/assigned_users');
+        return $this->page()->assignUser($pageId, $userId, $businessId, $tasks);
     }
 
     /**
      * 移除主页已分配用户
-     * DELETE /{page_id}/assigned_users
+     *
+     * @deprecated 优先使用 $adv->page->removeAssignedUser()
      */
     public function removePageAssignedUser(
         string $pageId,
         string $userId,
         string $businessId
     ): array {
-        return $this->client->delete("/{$pageId}/assigned_users", [
-            'user' => $userId,
-            'business' => $businessId,
-        ], 'DELETE:/{page_id}/assigned_users');
+        return $this->page()->removeAssignedUser($pageId, $userId, $businessId);
     }
 
     /**
