@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use App\Controller\BaseDispatcherController;
+use Goletter\Server\Http\BaseDispatcherController;
 use Hyperf\HttpServer\Contract\RequestInterface;
 
 /**
  * Admin 统一网关（路由见 config/routes/admin.php + config/autoload/resources.php）.
  */
-class ApiController extends BaseDispatcherController
+class AdminController extends BaseDispatcherController
 {
     protected string $controllerNamespace = 'App\Controller\Admin';
 

@@ -11,20 +11,24 @@ declare(strict_types=1);
  */
 use function Hyperf\Support\env;
 
+$apiDispatcher = require __DIR__ . '/api_dispatcher.php';
+
 /*
  * goletter/hyperf-openapi — 按 API 版本分别生成，可导入 Apifox。
  *
  *   php bin/hyperf.php openapi:generate
  *   php bin/hyperf.php openapi:generate --api-version=v1
+ *
+ * versions 与 api_dispatcher.php 共用同一份列表，只改那边即可。
  */
 return [
     'enable' => (bool) env('OPENAPI_ENABLE', true),
 
     /*
      * 要生成的版本；空数组则自动扫描 Controller 下 V1/V2/... 目录。
-     * 顺序建议新→旧，与 BaseDispatcherController::$versions 一致。
+     * 与 api_dispatcher.versions 同源，勿在此单独维护。
      */
-    'versions' => ['v3', 'v2', 'v1'],
+    'versions' => $apiDispatcher['versions'] ?? [],
 
     /*
      * folder：Apifox 二级目录名（最终 = {version}/{folder}/{模块名}，如 v1/Api/需求管理）。

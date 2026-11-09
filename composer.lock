@@ -1453,16 +1453,16 @@
         },
         {
             "name": "goletter/hyperf-openapi",
-            "version": "1.0.1",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goletter/hyperf-openapi.git",
-                "reference": "a9a3cc6a7a7bd5b134d08758d4a387cf40513732"
+                "reference": "cbd35b1efc755774f95042af7db2c923634e6ab6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goletter/hyperf-openapi/zipball/a9a3cc6a7a7bd5b134d08758d4a387cf40513732",
-                "reference": "a9a3cc6a7a7bd5b134d08758d4a387cf40513732",
+                "url": "https://api.github.com/repos/goletter/hyperf-openapi/zipball/cbd35b1efc755774f95042af7db2c923634e6ab6",
+                "reference": "cbd35b1efc755774f95042af7db2c923634e6ab6",
                 "shasum": ""
             },
             "require": {
@@ -1510,9 +1510,9 @@
             ],
             "support": {
                 "issues": "https://github.com/goletter/hyperf-openapi/issues",
-                "source": "https://github.com/goletter/hyperf-openapi/tree/v1.0.1"
+                "source": "https://github.com/goletter/hyperf-openapi/tree/v1.0.4"
             },
-            "time": "2026-11-07T09:02:25+00:00"
+            "time": "2026-11-09T06:01:39+00:00"
         },
         {
             "name": "goletter/hyperf-queue",
@@ -1648,16 +1648,16 @@
         },
         {
             "name": "goletter/hyperf-server",
-            "version": "v2.10.22",
+            "version": "v2.10.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goletter/hyperf-server.git",
-                "reference": "c9881fa31ae9637729416c64d8a464ef77ec6b16"
+                "reference": "99450187f24cbbc1e19573bfa977748453a68269"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goletter/hyperf-server/zipball/c9881fa31ae9637729416c64d8a464ef77ec6b16",
-                "reference": "c9881fa31ae9637729416c64d8a464ef77ec6b16",
+                "url": "https://api.github.com/repos/goletter/hyperf-server/zipball/99450187f24cbbc1e19573bfa977748453a68269",
+                "reference": "99450187f24cbbc1e19573bfa977748453a68269",
                 "shasum": ""
             },
             "require": {
@@ -1673,7 +1673,10 @@
             },
             "suggest": {
                 "hyperf/crontab": "gen:crontab 生成的 #[Crontab] 注解壳需要",
-                "hyperf/stringable": "gen:crontab / goletter:module 类名 Studly/Kebab 转换需要",
+                "hyperf/db-connection": "BaseDispatcherController / ModelBindingMiddleware 注入 Model 需要",
+                "hyperf/http-message": "BaseDispatcherController NotFoundHttpException 需要",
+                "hyperf/stringable": "gen:crontab / goletter:module / BaseDispatcherController 需要",
+                "hyperf/validation": "BaseDispatcherController 主动校验 FormRequest 需要",
                 "nesbot/carbon": "goletter:api-call-stats 命令解析日志时间需要"
             },
             "type": "library",
@@ -1705,9 +1708,9 @@
             ],
             "support": {
                 "issues": "https://github.com/goletter/hyperf-server/issues",
-                "source": "https://github.com/goletter/hyperf-server/tree/v2.10.22"
+                "source": "https://github.com/goletter/hyperf-server/tree/v2.10.26"
             },
-            "time": "2026-11-07T17:45:50+00:00"
+            "time": "2026-11-09T06:01:16+00:00"
         },
         {
             "name": "goletter/hyperf-sls-log",
