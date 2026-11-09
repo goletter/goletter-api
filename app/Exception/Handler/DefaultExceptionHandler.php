@@ -36,7 +36,7 @@ class DefaultExceptionHandler extends ExceptionHandler
             ]);
         }
 
-        return $this->json($response, 500, 500, '服务器错误');
+        return $this->json($response, 500, 500, '服务器开小差了');
     }
 
     public function isValid(Throwable $throwable): bool

@@ -11,16 +11,13 @@ trait AccountTrait
     #[Inject]
     private IndexLogic $indexLogic;
 
+
     #[Inject]
-    private DetailLogic $detailLogic;
+    private ShowLogic $showLogic;
 
     #[Inject]
     private CreateLogic $createLogic;
 
     #[Inject]
     private UpdateLogic $updateLogic;
-
-    #[Inject]
-    private ShowLogic $showLogic;
-
 }
