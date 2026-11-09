@@ -10,5 +10,5 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 return [
-    Goletter\Amqp\Contract\QueueRegistryInterface::class => App\Amqp\Queue\AccountQueueRegistry::class,
+    Goletter\Amqp\Contract\QueueRegistryInterface::class => App\Amqp\Queue\QueueRegistry::class,
 ];

@@ -10,7 +10,7 @@ use Goletter\Amqp\Sharded\ShardedQueue;
 /**
  * 账户分片队列注册表：消费进程与运维命令共用。
  */
-final class AccountQueueRegistry implements QueueRegistryInterface
+final class QueueRegistry implements QueueRegistryInterface
 {
     /**
      * @return array<string, class-string<ShardedQueue>>
@@ -18,6 +18,7 @@ final class AccountQueueRegistry implements QueueRegistryInterface
     public function all(): array
     {
         return [
+            'account' => AccountQueue::class,
             'accountAdvReport' => AccountAdvReportQueue::class,
             'accountInsight' => AccountInsightQueue::class,
             'accountBind' => AccountBindQueue::class,
