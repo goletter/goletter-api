@@ -1648,16 +1648,16 @@
         },
         {
             "name": "goletter/hyperf-server",
-            "version": "v2.10.27",
+            "version": "v2.10.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goletter/hyperf-server.git",
-                "reference": "040301f407aadfb43b8ac12026d7c14890c8ac15"
+                "reference": "35de63487b1301c9714b53ade11c91d16d88aa4f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goletter/hyperf-server/zipball/040301f407aadfb43b8ac12026d7c14890c8ac15",
-                "reference": "040301f407aadfb43b8ac12026d7c14890c8ac15",
+                "url": "https://api.github.com/repos/goletter/hyperf-server/zipball/35de63487b1301c9714b53ade11c91d16d88aa4f",
+                "reference": "35de63487b1301c9714b53ade11c91d16d88aa4f",
                 "shasum": ""
             },
             "require": {
@@ -1708,9 +1708,9 @@
             ],
             "support": {
                 "issues": "https://github.com/goletter/hyperf-server/issues",
-                "source": "https://github.com/goletter/hyperf-server/tree/v2.10.27"
+                "source": "https://github.com/goletter/hyperf-server/tree/v2.10.30"
             },
-            "time": "2026-11-09T06:06:10+00:00"
+            "time": "2026-11-09T08:05:35+00:00"
         },
         {
             "name": "goletter/hyperf-sls-log",

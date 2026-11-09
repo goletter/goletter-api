@@ -31,7 +31,7 @@ class ValidationExceptionHandler extends ExceptionHandler
             $first = reset($errors);
             $message = is_array($first) ? (string) ($first[0] ?? '') : '';
 
-            return $this->json($response, 422, 422, $message ?: '参数错误', ['errors' => $errors]);
+            return $this->json($response, 422, 422, $message ?: '参数错误');
         }
 
         return $this->json($response, 422, 422, $throwable->getMessage() ?: '参数错误');
