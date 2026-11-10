@@ -27,9 +27,7 @@ class GoogleController extends AbstractController
             $this->fail($e->getCode() ?: 400, $e->getMessage());
         }
 
-        return $this->success([
-            'auth_url' => $url,
-        ]);
+        return $this->success(['auth_url' => $url]);
     }
 
     /**
