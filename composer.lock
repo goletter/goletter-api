@@ -1453,16 +1453,16 @@
         },
         {
             "name": "goletter/hyperf-openapi",
-            "version": "1.0.4",
+            "version": "1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/goletter/hyperf-openapi.git",
-                "reference": "cbd35b1efc755774f95042af7db2c923634e6ab6"
+                "reference": "cd65fdae320706310bcaff61b787e15b10875fa8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/goletter/hyperf-openapi/zipball/cbd35b1efc755774f95042af7db2c923634e6ab6",
-                "reference": "cbd35b1efc755774f95042af7db2c923634e6ab6",
+                "url": "https://api.github.com/repos/goletter/hyperf-openapi/zipball/cd65fdae320706310bcaff61b787e15b10875fa8",
+                "reference": "cd65fdae320706310bcaff61b787e15b10875fa8",
                 "shasum": ""
             },
             "require": {
@@ -1475,7 +1475,7 @@
             "suggest": {
                 "hyperf/database": "识别 Model 路由参数 {id} 时需要。",
                 "hyperf/framework": "使用 ConfigProvider / DI / Listener 时需要。",
-                "hyperf/validation": "从 FormRequest::rules() 推断 requestBody 时需要。",
+                "hyperf/validation": "从 FormRequest::rules()/attributes() 推断请求参数与 requestBody（必需）。",
                 "symfony/yaml": "生成 openapi.yaml 时需要（^6|^7）。"
             },
             "type": "library",
@@ -1510,9 +1510,9 @@
             ],
             "support": {
                 "issues": "https://github.com/goletter/hyperf-openapi/issues",
-                "source": "https://github.com/goletter/hyperf-openapi/tree/v1.0.4"
+                "source": "https://github.com/goletter/hyperf-openapi/tree/v1.0.5"
             },
-            "time": "2026-11-09T06:01:39+00:00"
+            "time": "2026-11-09T14:47:55+00:00"
         },
         {
             "name": "goletter/hyperf-queue",
