@@ -131,7 +131,7 @@ class FacebookAccountApi extends AdvException
     public function reset($accountId)
     {
         try {
-            $deleteResult = $this->facebookAccount->deleteAccountSpendCapAction($accountId,'delete');
+            $this->facebookAccount->deleteAccountSpendCapAction($accountId,'delete');
 
             $this->facebookAccount->updateAccountSpendCap($accountId, '0.01');
         } catch (\Exception $e) {

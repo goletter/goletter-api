@@ -38,14 +38,8 @@ return [
         [
             'prefix' => '/api',
             'namespace' => 'App\Controller\Api',
-            'path' => BASE_PATH . '/app/Controller/FaceBook',
-            'folder' => 'FaceBook',
-        ],
-        [
-            'prefix' => '/api/admin',
-            'namespace' => 'App\Controller\Admin',
-            'path' => BASE_PATH . '/app/Controller/Admin',
-            'folder' => 'Admin',
+            'path' => BASE_PATH . '/app/Controller/Api',
+            'folder' => 'Api',
         ],
     ],
 
@@ -67,7 +61,7 @@ return [
     ],
 
     'info' => [
-        'title' => env('OPENAPI_TITLE', 'Goletter API'),
+        'title' => env('OPENAPI_TITLE', 'Wewallads API'),
         'version' => env('OPENAPI_VERSION', '1.0.0'),
         'description' => env('OPENAPI_DESCRIPTION', '按版本自动扫描 Controller，可导入 Apifox'),
     ],

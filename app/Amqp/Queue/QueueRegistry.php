@@ -18,7 +18,6 @@ final class QueueRegistry implements QueueRegistryInterface
     public function all(): array
     {
         return [
-            'account' => AccountQueue::class,
             'accountAdvReport' => AccountAdvReportQueue::class,
             'accountInsight' => AccountInsightQueue::class,
             'accountBind' => AccountBindQueue::class,
