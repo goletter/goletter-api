@@ -10,7 +10,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
 /**
- * Facebook 应用 OAuth 授权。
+ * FaceBook 应用 OAuth 授权。
  *
  * 1. dialog/oauth 生成授权页 URL
  * 2. 回调用 authorization code 换 Access Token（可再换长期 Token）
@@ -219,7 +219,7 @@ class FacebookAuth
     protected function handleError(array $error, array $raw): void
     {
         $code = (int) ($error['code'] ?? 0);
-        $message = (string) ($error['message'] ?? 'Facebook OAuth error');
+        $message = (string) ($error['message'] ?? 'FaceBook OAuth error');
 
         if ($code === 190) {
             throw new FacebookTokenExpiredException($message, $code, $raw);

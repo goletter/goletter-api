@@ -7,7 +7,7 @@ namespace Goletter\Adv\Platforms\Facebook;
 use Goletter\Adv\Support\Arr;
 
 /**
- * Facebook 像素（Pixel）服务
+ * FaceBook 像素（Pixel）服务
  *
  * 对应 Graph API：
  * - /{business_id}/owned_pixels

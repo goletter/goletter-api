@@ -254,7 +254,7 @@ class FacebookClient
             // Graph Batch 成功时返回索引数组；异常形态可能是带 error 的关联数组
             if (! array_is_list($raw)) {
                 throw new FacebookApiException(
-                    (string) ($raw['error']['message'] ?? 'Invalid Facebook batch response'),
+                    (string) ($raw['error']['message'] ?? 'Invalid FaceBook batch response'),
                     (int) ($raw['error']['code'] ?? 0),
                     $raw
                 );
@@ -714,7 +714,7 @@ class FacebookClient
     protected function handleError(array $error, array $raw): void
     {
         $code = (int) ($error['code'] ?? 0);
-        $message = (string) ($error['message'] ?? 'Facebook API error');
+        $message = (string) ($error['message'] ?? 'FaceBook API error');
 
         if ($code === 190) {
             throw new FacebookTokenExpiredException($message, $code, $raw);
@@ -724,7 +724,7 @@ class FacebookClient
     }
 
     /**
-     * Facebook Cursor / next URL 分页
+     * FaceBook Cursor / next URL 分页
      *
      * @return \Generator<int, array>
      */

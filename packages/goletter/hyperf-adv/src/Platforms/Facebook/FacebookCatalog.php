@@ -7,7 +7,7 @@ namespace Goletter\Adv\Platforms\Facebook;
 use Goletter\Adv\Support\Arr;
 
 /**
- * Facebook 商品目录（Product Catalog）服务
+ * FaceBook 商品目录（Product Catalog）服务
  *
  * 对应 Graph API：
  * - /{business_id}/owned_product_catalogs
@@ -709,7 +709,7 @@ class FacebookCatalog
     }
 
     /**
-     * 组装列表查询参数（含 Facebook filtering）
+     * 组装列表查询参数（含 FaceBook filtering）
      */
     protected function buildListParams(array $fields, array $filters, int $limit): array
     {

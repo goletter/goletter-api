@@ -12,7 +12,7 @@ use InvalidArgumentException;
 use RuntimeException;
 
 /**
- * Facebook 广告投放：图片 → 系列 → 广告组 → 创意 → 广告。
+ * FaceBook 广告投放：图片 → 系列 → 广告组 → 创意 → 广告。
  */
 class FacebookAdApi extends AdvException
 {
@@ -86,7 +86,7 @@ class FacebookAdApi extends AdvException
             $campaignId = (string) ($campaign['id'] ?? '');
 
             $adsetBody = [
-                'name' => (string) ($data['adset_name'] ?? 'Facebook Page Likes'),
+                'name' => (string) ($data['adset_name'] ?? 'FaceBook Page Likes'),
                 'campaign_id' => $campaignId,
                 'daily_budget' => (int) ($data['daily_budget'] ?? $data['daily_budget_minor'] ?? 1000),
                 'billing_event' => (string) ($data['billing_event'] ?? 'IMPRESSIONS'),
@@ -108,7 +108,7 @@ class FacebookAdApi extends AdvException
                 $link = 'https://www.facebook.com/' . $pageId;
             }
             $ctaType = (string) ($data['cta_type'] ?? 'LIKE_PAGE');
-            $headline = (string) ($data['headline'] ?? 'Like our Facebook Page');
+            $headline = (string) ($data['headline'] ?? 'Like our FaceBook Page');
             $callToAction = [
                 'type' => $ctaType,
                 'value' => ['page' => $pageId],
@@ -214,7 +214,7 @@ class FacebookAdApi extends AdvException
     }
 
     /**
-     * 上传视频并等待 Facebook 处理完成。
+     * 上传视频并等待 FaceBook 处理完成。
      *
      * @return array{video_id:string,response:array<string,mixed>}
      */

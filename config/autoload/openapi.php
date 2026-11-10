@@ -31,15 +31,15 @@ return [
     'versions' => $apiDispatcher['versions'] ?? [],
 
     /*
-     * folder：Apifox 二级目录名（最终 = {version}/{folder}/{模块名}，如 v1/Api/需求管理）。
+     * folder：Apifox 二级目录名（最终 = {version}/{folder}/{模块名}，如 v1/FaceBook/需求管理）。
      * 模块名取自 Controller 类注释首行，无注释时回退为资源名（AccountDemand）。
      */
     'gateways' => [
         [
             'prefix' => '/api',
             'namespace' => 'App\Controller\Api',
-            'path' => BASE_PATH . '/app/Controller/Api',
-            'folder' => 'Api',
+            'path' => BASE_PATH . '/app/Controller/FaceBook',
+            'folder' => 'FaceBook',
         ],
         [
             'prefix' => '/api/admin',

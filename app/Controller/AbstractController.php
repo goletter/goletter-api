@@ -36,7 +36,7 @@ abstract class AbstractController
     protected ResponseInterface $response;
 
     /**
-     * 与 Controller 版本目录对齐：App\Controller\Api\V1 → App\Resource\Api\V1.
+     * 与 Controller 版本目录对齐：App\Controller\FaceBook\V1 → App\Resource\FaceBook\V1.
      */
     protected function resourceNamespace(): string
     {

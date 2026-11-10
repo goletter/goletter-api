@@ -7,7 +7,7 @@ namespace Goletter\Adv\Platforms\Facebook;
 use Goletter\Adv\AdvFactory;
 
 /**
- * 把 Facebook 注册到 AdvFactory。
+ * 把 FaceBook 注册到 AdvFactory。
  */
 class FacebookPlatform
 {

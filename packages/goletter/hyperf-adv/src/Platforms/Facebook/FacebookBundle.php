@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Goletter\Adv\Platforms\Facebook;
 
 /**
- * Facebook 平台入口。属性使用具体类型，IDE 可从 $adv->account 跳到 FacebookAccount::getAccount()。
+ * FaceBook 平台入口。属性使用具体类型，IDE 可从 $adv->account 跳到 FacebookAccount::getAccount()。
  */
 class FacebookBundle
 {

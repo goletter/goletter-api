@@ -10,7 +10,7 @@ use Goletter\Adv\Platforms\Facebook\FacebookCampaign;
 use Goletter\Adv\Platforms\Facebook\FacebookClient;
 
 /**
- * Facebook 广告系列
+ * FaceBook 广告系列
  */
 class FacebookCampaignApi extends AdvException
 {

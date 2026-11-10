@@ -1,0 +1,15 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Controller\FaceBook\FaceBookController;
+use Goletter\Server\Router\Router;
+
+Router::addGroup('/api/facebook', function () {
+
+    Router::addRoute(
+        ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+        '/{resource}[/{seg1}[/{seg2}]]',
+        [FaceBookController::class, 'handle']
+    );
+});

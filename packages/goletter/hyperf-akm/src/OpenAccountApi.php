@@ -16,10 +16,10 @@ class OpenAccountApi
     ) {
     }
 
-    /* ===== Facebook 开户 ===== */
+    /* ===== FaceBook 开户 ===== */
 
     /**
-     * Facebook 开户申请（通过 request_id 提交）
+     * FaceBook 开户申请（通过 request_id 提交）
      * POST /open_api/v1.0/user_open/fb_list
      */
     public function facebookApply(array $body): array
@@ -28,7 +28,7 @@ class OpenAccountApi
     }
 
     /**
-     * Facebook 开户列表
+     * FaceBook 开户列表
      * GET /open_api/v1.0/user_open/fb_list
      */
     public function facebookList(array $query = []): array
@@ -37,7 +37,7 @@ class OpenAccountApi
     }
 
     /**
-     * Facebook 开户详情
+     * FaceBook 开户详情
      * GET /open_api/v1.0/user_open/fb_list/{request_id}
      */
     public function facebookDetail(string $requestId): array

@@ -7,7 +7,7 @@ namespace Goletter\Adv;
 /**
  * 平台服务集合，便于一次拿到 Client + 业务封装。
  *
- * 具体类型由平台实现决定（本包内置 Facebook / TikTok / Google）。
+ * 具体类型由平台实现决定（本包内置 FaceBook / TikTok / Google）。
  * 属性上的 @var 用于把泛型交给 IDE；不要只依赖 @property-read，否则会落到原生 object，无法跳转。
  *
  * @template TClient of object

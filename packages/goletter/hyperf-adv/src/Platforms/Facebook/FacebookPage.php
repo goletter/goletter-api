@@ -7,7 +7,7 @@ namespace Goletter\Adv\Platforms\Facebook;
 use Goletter\Adv\Support\Arr;
 
 /**
- * Facebook 主页（Page）服务
+ * FaceBook 主页（Page）服务
  *
  * 对应 Graph API：
  * - /{page_id}

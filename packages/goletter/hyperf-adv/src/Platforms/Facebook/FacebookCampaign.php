@@ -227,7 +227,7 @@ class FacebookCampaign
     }
 
     /**
-     * 组装列表查询参数（含 Facebook filtering）
+     * 组装列表查询参数（含 FaceBook filtering）
      */
     protected function buildListParams(array $fields, array $filters, int $limit): array
     {

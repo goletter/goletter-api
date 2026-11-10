@@ -9,7 +9,7 @@ use Goletter\Adv\Platforms\Facebook\FacebookClient;
 use Goletter\Adv\Platforms\Facebook\FacebookPixel;
 
 /**
- * Facebook 像素（Pixel）服务
+ * FaceBook 像素（Pixel）服务
  */
 class FacebookPixelApi extends AdvException
 {

@@ -15,7 +15,7 @@ use InvalidArgumentException;
 /**
  * 多平台广告 SDK 工厂。
  *
- * 本包内置 Facebook / TikTok / Google。
+ * 本包内置 FaceBook / TikTok / Google。
  *
  * 静态用法（兼容）：
  *   AdvFactory::make('facebook', $token)
@@ -156,7 +156,7 @@ class AdvFactory
     {
         $bundle = self::make(self::FACEBOOK, $accessToken, $options);
         if (! $bundle instanceof FacebookBundle) {
-            throw new InvalidArgumentException('Facebook platform is not available.');
+            throw new InvalidArgumentException('FaceBook platform is not available.');
         }
 
         return $bundle;
@@ -210,7 +210,7 @@ class AdvFactory
     }
 
     /**
-     * Facebook 应用 OAuth（无需已有 user access token）。
+     * FaceBook 应用 OAuth（无需已有 user access token）。
      *
      * @param array{api_version?: string} $options
      */

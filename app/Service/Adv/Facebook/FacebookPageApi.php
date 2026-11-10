@@ -9,7 +9,7 @@ use Goletter\Adv\Platforms\Facebook\FacebookClient;
 use Goletter\Adv\Platforms\Facebook\FacebookPage;
 
 /**
- * Facebook 主页（Page）服务
+ * FaceBook 主页（Page）服务
  */
 class FacebookPageApi extends AdvException
 {

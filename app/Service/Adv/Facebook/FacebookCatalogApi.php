@@ -9,7 +9,7 @@ use Goletter\Adv\Platforms\Facebook\FacebookCatalog;
 use Goletter\Adv\Platforms\Facebook\FacebookClient;
 
 /**
- * Facebook 商品目录
+ * FaceBook 商品目录
  */
 class FacebookCatalogApi extends AdvException
 {

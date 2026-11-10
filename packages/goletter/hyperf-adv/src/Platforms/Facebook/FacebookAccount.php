@@ -321,7 +321,7 @@ class FacebookAccount
      * 添加用户到广告账户
      * 
      * @param string $accountId 账户ID（不需要 act_ 前缀）
-     * @param string $userId 用户ID（Facebook User ID）
+     * @param string $userId 用户ID（FaceBook User ID）
      * @param string $role 用户角色：ADMIN, ADVERTISER, ANALYST
      * @return array API 响应
      */
@@ -344,7 +344,7 @@ class FacebookAccount
      * 移除广告账户的用户
      * 
      * @param string $accountId 账户ID（不需要 act_ 前缀）
-     * @param string $userId 用户ID（Facebook User ID）
+     * @param string $userId 用户ID（FaceBook User ID）
      * @return array API 响应
      */
     public function removeAssignedUser(string $accountId, string $userId): array
@@ -370,7 +370,7 @@ class FacebookAccount
      * 更新广告账户用户的角色
      * 
      * @param string $accountId 账户ID（不需要 act_ 前缀）
-     * @param string $userId 用户ID（Facebook User ID）
+     * @param string $userId 用户ID（FaceBook User ID）
      * @param string $role 新的用户角色：ADMIN, ADVERTISER, ANALYST
      * @return array API 响应
      */

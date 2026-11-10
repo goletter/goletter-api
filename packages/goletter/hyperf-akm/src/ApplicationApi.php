@@ -17,7 +17,7 @@ class ApplicationApi
     /* ====== 大媒体账户查询 ====== */
 
     /**
-     * Facebook 账户列表
+     * FaceBook 账户列表
      * GET /open_api/v1.0/application/facebook/list
      */
     public function facebookAccounts(array $query = []): array
@@ -26,7 +26,7 @@ class ApplicationApi
     }
 
     /**
-     * Facebook 账户清零记录查询
+     * FaceBook 账户清零记录查询
      * POST /open_api/v1.0/application/facebook/get_account_clear_record
      */
     public function facebookAccountClearRecords(array $body): array
@@ -84,10 +84,10 @@ class ApplicationApi
         return $this->client->get('/open_api/v1.0/application/operate_record', $query, 'GET:/application/operate_record');
     }
 
-    /* ====== Facebook 需求申请 ====== */
+    /* ====== FaceBook 需求申请 ====== */
 
     /**
-     * Facebook 账户额度调整申请
+     * FaceBook 账户额度调整申请
      * POST /open_api/v1.0/application/facebook/amount_spend
      */
     public function facebookAmountSpend(array $body): array
@@ -96,7 +96,7 @@ class ApplicationApi
     }
 
     /**
-     * Facebook 绑定/解绑 BM 申请
+     * FaceBook 绑定/解绑 BM 申请
      * POST /open_api/v1.0/application/facebook/bind_bm
      */
     public function facebookBindBm(array $body): array
@@ -105,7 +105,7 @@ class ApplicationApi
     }
 
     /**
-     * Facebook 绑定/解绑 Pixel 申请
+     * FaceBook 绑定/解绑 Pixel 申请
      * POST /open_api/v1.0/application/facebook/bind_pixel
      */
     public function facebookBindPixel(array $body): array
@@ -114,7 +114,7 @@ class ApplicationApi
     }
 
     /**
-     * Facebook 账户更名申请
+     * FaceBook 账户更名申请
      * POST /open_api/v1.0/application/facebook/rename
      */
     public function facebookRename(array $body): array

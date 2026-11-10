@@ -15,7 +15,7 @@ namespace App\Service\Adv\Facebook;
 use Goletter\Adv\Platforms\Facebook\FacebookClient;
 
 /**
- * Facebook 广告平台聚合服务
+ * FaceBook 广告平台聚合服务
  *
  * 负责将 token 传递给具体的 API 类（账户、报表等），
  * 对外提供统一入口。

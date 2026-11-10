@@ -8,7 +8,7 @@ use Goletter\Adv\Support\Arr;
 use InvalidArgumentException;
 
 /**
- * Facebook 广告投放：素材上传、广告组、创意、广告。
+ * FaceBook 广告投放：素材上传、广告组、创意、广告。
  *
  * 典型流程：uploadImage/uploadVideo → createAdset → createCreative → createAd
  */
@@ -112,7 +112,7 @@ class FacebookAd
     }
 
     /**
-     * 上传广告视频。远程地址用 file_url，由 Facebook 自己拉取；本地文件走 multipart source。
+     * 上传广告视频。远程地址用 file_url，由 FaceBook 自己拉取；本地文件走 multipart source。
      *
      * @param string $accountId 账户 ID，可带或不带 act_ 前缀
      */

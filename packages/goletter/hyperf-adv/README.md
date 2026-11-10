@@ -331,7 +331,7 @@ $url = $auth->getAuthUrl(
 // return $this->response->redirect($url);
 
 // ---------- 2) 回调：code 换长期 Token ----------
-// Facebook 回调参数：code、state（失败时可能有 error / error_description）
+// FaceBook 回调参数：code、state（失败时可能有 error / error_description）
 $result = $auth->handleCallback(
     clientId: 'YOUR_APP_ID',
     clientSecret: 'YOUR_APP_SECRET',
@@ -1247,7 +1247,7 @@ try {
     // Token 已过期，需要刷新
     // 错误码: 190
 } catch (FacebookApiException $e) {
-    // 其他 Facebook API 错误
+    // 其他 FaceBook API 错误
     $errorData = $e->getResponse();
 }
 ```

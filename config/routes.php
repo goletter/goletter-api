@@ -13,6 +13,8 @@ use Hyperf\HttpServer\Router\Router;
 
 // 加载 Http 路由
 Router::addServer('http', function () {
-    require __DIR__ . '/routes/api.php';
-    require __DIR__ . '/routes/admin.php';
+    require __DIR__ . '/routes/facebook.php';
+    require __DIR__ . '/routes/tiktok.php';
+    require __DIR__ . '/routes/googledoc.php';
+    require __DIR__ . '/routes/akm.php';
 });
