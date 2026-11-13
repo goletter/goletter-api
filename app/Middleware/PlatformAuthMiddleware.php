@@ -6,7 +6,9 @@ namespace App\Middleware;
 
 use App\Platform\PlatformClient;
 use Goletter\Utils\TenantContext;
+use Hyperf\Context\RequestContext;
 use Hyperf\Contract\ConfigInterface;
+use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -25,6 +27,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 class PlatformAuthMiddleware implements MiddlewareInterface
 {
     public function __construct(
+        protected RequestInterface $httpRequest,
         protected HttpResponse $response,
         protected PlatformClient $platform,
         protected ConfigInterface $config,
@@ -33,6 +36,19 @@ class PlatformAuthMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $tenantId = $request->getHeaderLine('X-Tenant-Id') ?? 1;
+        TenantContext::set($tenantId);
+
+        $body = $request->getParsedBody();
+        $body = is_array($body) ? $body : [];
+        $body['tenant_id'] = $tenantId; // 强制覆盖，避免客户端伪造
+
+        $request = $request->withAttribute('tenant_id', $tenantId)->withParsedBody($body);
+        RequestContext::set($request);
+        $this->httpRequest->clearStoredParsedData();
+
+        return $handler->handle($request);
+
         if (! (bool) $this->config->get('platform.enable', true)) {
             return $handler->handle($request);
         }
