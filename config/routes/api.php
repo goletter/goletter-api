@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Controller\Api\ApiController;
 use Goletter\Server\Router\Router;
 
-Router::addGroup('/api/facebook', function () {
+Router::addGroup('/api', function () {
 
     Router::addRoute(
         ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
