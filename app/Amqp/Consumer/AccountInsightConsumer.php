@@ -67,7 +67,7 @@ class AccountInsightConsumer extends ShardedConsumer
                 'account_insights',
                 $newAccountInsights,
                 ['tenant_id', 'code', 'start_at', 'end_at'], // 唯一键
-                ['spend', 'updated_at']  // 重复更新字段
+                ['busine_code', 'spend', 'updated_at']  // 重复更新字段
             );
         }
 

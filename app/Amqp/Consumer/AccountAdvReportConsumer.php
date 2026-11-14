@@ -90,7 +90,7 @@ class AccountAdvReportConsumer extends ShardedConsumer
                 'account_adv_reports',
                 $newReports,
                 ['tenant_id', 'code', 'campaign_id', 'start_at'], // 唯一键
-                ['spend', 'dollar', 'reach', 'impressions', 'frequency', 'clicks', 'cpc', 'purchase', 'cost_per_purchase', 'roas', 'cost_per_reg', 'updated_at']  // 重复更新字段
+                ['busine_code', 'spend', 'dollar', 'reach', 'impressions', 'frequency', 'clicks', 'cpc', 'purchase', 'cost_per_purchase', 'roas', 'cost_per_reg', 'updated_at']  // 重复更新字段
             );
         }
 
