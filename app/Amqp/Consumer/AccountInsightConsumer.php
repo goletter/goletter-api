@@ -32,6 +32,7 @@ class AccountInsightConsumer extends ShardedConsumer
         $tenantId = Arr::get($data, 'tenant_id');
         $token = Arr::get($data, 'access_token');
         $code = Arr::get($data, 'code');
+        $busineCode = Arr::get($data, 'busine_id');
         $platform = Arr::get($data, 'platform', 0);
 
         $startAt = Arr::get($data, 'start_at') ?: Carbon::now()->subDays(3)->toDateString();
@@ -50,6 +51,7 @@ class AccountInsightConsumer extends ShardedConsumer
             if ($spend > 0) {
                 $newAccountInsights[] = [
                     'tenant_id' => $tenantId,
+                    'busine_code' => $busineCode,
                     'code' => $code,
                     'spend' => Arr::get($item, 'spend', 0),
                     'start_at' => Arr::get($item, 'date_start'),

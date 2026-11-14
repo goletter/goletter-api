@@ -28,7 +28,7 @@ final class AccountInsightQueue extends TenantBusinessShardedQueue
 
     public static function serialFields(): array
     {
-        return ['tenant_id', 'code'];
+        return ['tenant_id', 'busine_id'];
     }
 
     /** 失败不重试：首次失败即 DROP 进死信 */

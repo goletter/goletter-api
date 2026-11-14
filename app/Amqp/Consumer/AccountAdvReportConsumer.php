@@ -24,6 +24,7 @@ class AccountAdvReportConsumer extends ShardedConsumer
         $tenantId = Arr::get($data, 'tenant_id');
         $token = Arr::get($data, 'access_token');
         $code = Arr::get($data, 'code');
+        $busineCode = Arr::get($data, 'busine_id');
         $platform = Arr::get($data, 'platform', 0);
 
         $startAt = Arr::get($data, 'start_at') ?: Carbon::now()->subDays(3)->toDateString();
@@ -61,6 +62,7 @@ class AccountAdvReportConsumer extends ShardedConsumer
 
             $newReports[] = [
                 'tenant_id' => $tenantId,
+                'busine_code' => $busineCode,
                 'code' => Arr::get($item, 'account_id'),
                 'spend' => (string) ($item['spend'] ?? '0'),
                 'dollar' => (string) ($item['spend'] ?? '0'),

@@ -16,6 +16,7 @@ return new class extends Migration
 
             $table->bigIncrements('id');
             $table->string('tenant_id', 100)->default(0)->index()->comment('机构');
+            $table->string('busine_code', 100)->comment('Bm ID');
             $table->string('code', 100)->index()->comment('账户ID');
             $table->string('spend', 100)->default('')->nullable()->comment('源花费金额');
             $table->string('dollar', 100)->default('')->nullable()->comment('货币转后花费金额');

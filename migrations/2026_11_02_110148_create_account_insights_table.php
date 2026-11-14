@@ -16,7 +16,8 @@ return new class extends Migration
 
             $table->bigIncrements('id');
             $table->string('tenant_id', 100)->default(0)->comment('机构');
-            $table->string('code', 100)->comment('账户');
+            $table->string('busine_code', 100)->comment('Bm ID');
+            $table->string('code', 100)->comment('账户ID');
             $table->decimal('spend')->default(0)->comment('原消耗');
             $table->date('start_at')->nullable()->index()->comment('开始时间');
             $table->date('end_at')->nullable()->index()->comment('结束时间');
