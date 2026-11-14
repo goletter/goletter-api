@@ -42,7 +42,7 @@ class GoogleTokenCommand extends HyperfCommand
     {
         $platformConfigs = PlatformConfig::query()->get();
 
-        foreach ($platformConfigs as $index => $platformConfig) {
+        foreach ($platformConfigs as $platformConfig) {
             if (! $platformConfig->refresh_token) {
                 return;
             }
