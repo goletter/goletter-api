@@ -34,7 +34,7 @@ class TestCommand extends HyperfCommand
             'busine_code' => '134179179769131',
             'sheel_url' => 'https://docs.google.com/spreadsheets/d/1DD3Wrr1hHWTm5QWMvgWg8LiM3Wpd-NMw-gaEpiJFrp0/edit?gid=1145273265#gid=1145273265',
         ];
-        for ($i=0; $i < 10; $i++) {
+        for ($i=0; $i < 100; $i++) {
             $data['tenant_id'] = 1;
             $data['order_no'] = setOrderNo(AccountDemand::class);
             $data['money'] = mt_rand(100, 999);
